@@ -615,16 +615,37 @@ section{position:relative;z-index:1;padding:80px 0}
   </section>
   <section class="s-night">
     <div class="wrap">
-      <form class="contact-form rv" name="newsletter" method="POST" data-netlify="true" action="/">
-        <input type="hidden" name="form-name" value="newsletter">
-        <input type="text" name="prenom" placeholder="Votre prénom" required>
-        <input type="email" name="email" placeholder="Votre adresse email" required>
-        <textarea name="message" placeholder="Un mot, une pensée… (optionnel)"></textarea>
-        <div class="tac">
-          <button type="submit">Rejoindre</button>
+      <!-- ═══ MAILCHIMP NEWSLETTER FORM ═══
+           INSTRUCTIONS POUR ACTIVER MAILCHIMP :
+           1. Créez un compte sur mailchimp.com
+           2. Créez une Audience (votre liste)
+           3. Audience → Signup forms → Embedded forms
+           4. Récupérez l'URL d'action du formulaire, elle ressemble à :
+              https://XXXXX.us21.list-manage.com/subscribe/post?u=XXXXXXX&id=XXXXXXX
+           5. Remplacez MAILCHIMP_FORM_ACTION_URL ci-dessous par cette URL
+           6. Remplacez MAILCHIMP_U et MAILCHIMP_ID par les valeurs u= et id= de l'URL
+           ═══════════════════════════════════════════ -->
+      <form class="contact-form rv" id="mcForm"
+            action="MAILCHIMP_FORM_ACTION_URL"
+            method="POST" target="_blank" novalidate>
+        <input type="text" name="FNAME" placeholder="Votre prénom" required>
+        <input type="email" name="EMAIL" placeholder="Votre adresse email" required>
+        <!-- Champ anti-bot Mailchimp (ne pas supprimer) -->
+        <div style="position:absolute;left:-5000px" aria-hidden="true">
+          <input type="text" name="b_MAILCHIMP_U_MAILCHIMP_ID" tabindex="-1" value="">
         </div>
+        <div class="tac">
+          <button type="submit">S'abonner</button>
+        </div>
+        <div class="form-msg" id="mcMsg" style="text-align:center;margin-top:10px"></div>
+      </form>
+      <!-- Formulaire Netlify en backup (reçoit aussi les inscriptions) -->
+      <form name="newsletter" method="POST" data-netlify="true" style="display:none">
+        <input type="hidden" name="form-name" value="newsletter">
+        <input type="text" name="prenom"><input type="email" name="email">
       </form>
       <p class="contact-note rv d1">Aucun spam — uniquement des textes, des mots, de la poésie.</p>
+      <p class="contact-note rv d2" style="margin-top:8px;font-size:11px;color:var(--g3)">Votre inscription vous ajoutera à notre liste de diffusion pour recevoir les nouvelles publications.</p>
     </div>
   </section>
 </div>
@@ -1089,37 +1110,63 @@ function initLikes(slug){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   COMMENTS SYSTEM
+   COMMENTS SYSTEM (with admin reply)
    ════════════════════════════════════════════════════════════════ */
+/* Detect if current user is admin (logged in via Netlify Identity) */
+function getAdminUser(){
+  try{
+    if(window.netlifyIdentity){
+      var user = window.netlifyIdentity.currentUser();
+      if(user && user.token) return user;
+    }
+  }catch(e){}
+  return null;
+}
+
+function getAuthHeaders(){
+  var user = getAdminUser();
+  if(user && user.token && user.token.access_token){
+    return {'Content-Type':'application/json','Authorization':'Bearer '+user.token.access_token};
+  }
+  return {'Content-Type':'application/json'};
+}
+
 function initComments(slug){
-  const list = document.getElementById('commentsList');
-  const title = document.getElementById('commentsTitle');
-  const submitBtn = document.getElementById('commentSubmit');
-  const nameInput = document.getElementById('commentName');
-  const textInput = document.getElementById('commentText');
-  const msg = document.getElementById('commentMsg');
+  var list = document.getElementById('commentsList');
+  var title = document.getElementById('commentsTitle');
+  var submitBtn = document.getElementById('commentSubmit');
+  var nameInput = document.getElementById('commentName');
+  var textInput = document.getElementById('commentText');
+  var msg = document.getElementById('commentMsg');
+  var admin = getAdminUser();
 
   if(!list) return;
+
+  /* If admin, pre-fill name */
+  if(admin && nameInput){
+    nameInput.value = 'Daniel (auteur)';
+    nameInput.style.opacity = '0.6';
+  }
 
   /* Load comments */
   list.innerHTML = '<div class="comments-loading">Chargement des commentaires…</div>';
 
   fetch('/.netlify/functions/get-comments?slug='+encodeURIComponent(slug))
-    .then(r=>r.json())
-    .then(d=>{
-      const comments = d.comments||[];
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var comments = d.comments||[];
       title.textContent = comments.length+' commentaire'+(comments.length!==1?'s':'');
-      renderComments(comments, list);
+      renderComments(comments, list, slug, admin);
     })
-    .catch(()=>{
+    .catch(function(){
       list.innerHTML = '<div class="comments-offline">Commentaires disponibles sur le site en ligne.</div>';
     });
 
   /* Submit comment */
   if(submitBtn){
     submitBtn.addEventListener('click', function(){
-      const name = (nameInput.value||'').trim();
-      const text = (textInput.value||'').trim();
+      var name = (nameInput.value||'').trim();
+      var text = (textInput.value||'').trim();
       msg.textContent = '';
       msg.className = 'form-msg';
 
@@ -1132,51 +1179,115 @@ function initComments(slug){
 
       fetch('/.netlify/functions/add-comment', {
         method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({slug, name, text})
+        headers: getAuthHeaders(),
+        body:JSON.stringify({slug:slug, name:name, text:text, adminReply:!!admin})
       })
-      .then(r=>r.json())
-      .then(c=>{
+      .then(function(r){return r.json()})
+      .then(function(c){
         if(c.error){ msg.textContent=c.error; msg.classList.add('err'); }
         else{
           msg.textContent='Merci pour votre commentaire !'; msg.classList.add('ok');
-          nameInput.value=''; textInput.value='';
-          /* Append new comment */
+          nameInput.value = admin ? 'Daniel (auteur)' : '';
+          textInput.value='';
           appendComment(c, list);
-          /* Update title */
-          const count = list.querySelectorAll('.comment-item').length;
+          var count = list.querySelectorAll('.comment-item').length;
           title.textContent = count+' commentaire'+(count!==1?'s':'');
         }
       })
-      .catch(()=>{ msg.textContent='Erreur — réessayez plus tard.'; msg.classList.add('err'); })
-      .finally(()=>{ submitBtn.disabled=false; submitBtn.textContent='Laisser un commentaire'; });
+      .catch(function(){ msg.textContent='Erreur — réessayez plus tard.'; msg.classList.add('err'); })
+      .finally(function(){ submitBtn.disabled=false; submitBtn.textContent='Laisser un commentaire'; });
     });
   }
 }
 
-function renderComments(comments, container){
+function renderComments(comments, container, slug, admin){
   if(!comments.length){
     container.innerHTML = '<div style="text-align:center;padding:20px;font-family:var(--ff-t);font-style:italic;color:var(--g3);font-size:14px">Soyez le premier à commenter.</div>';
     return;
   }
-  container.innerHTML = comments.map(c => commentHtml(c)).join('');
+  /* Group replies under parent comments */
+  var topLevel = comments.filter(function(c){return !c.replyTo});
+  var replies = comments.filter(function(c){return c.replyTo});
+  var html = '';
+  topLevel.forEach(function(c){
+    html += commentHtml(c, admin, slug);
+    /* Find replies to this comment */
+    replies.filter(function(r){return r.replyTo===c.id}).forEach(function(r){
+      html += commentHtml(r, admin, slug, true);
+    });
+  });
+  /* Orphan replies (parent deleted) */
+  var usedReplyIds = topLevel.map(function(c){return c.id});
+  replies.filter(function(r){return usedReplyIds.indexOf(r.replyTo)===-1}).forEach(function(r){
+    html += commentHtml(r, admin, slug);
+  });
+  container.innerHTML = html;
+
+  /* Attach reply button handlers for admin */
+  if(admin){
+    container.querySelectorAll('.reply-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var cId = this.getAttribute('data-reply-to');
+        var replyBox = container.querySelector('.reply-box-'+cId);
+        if(replyBox) replyBox.style.display = replyBox.style.display==='none'?'block':'none';
+      });
+    });
+    container.querySelectorAll('.reply-submit').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var cId = this.getAttribute('data-reply-to');
+        var textarea = container.querySelector('.reply-text-'+cId);
+        var text = (textarea.value||'').trim();
+        if(text.length<10){ alert('La réponse doit contenir au moins 10 caractères.'); return; }
+        btn.disabled = true;
+        btn.textContent = 'Envoi…';
+        fetch('/.netlify/functions/add-comment', {
+          method:'POST',
+          headers: getAuthHeaders(),
+          body:JSON.stringify({slug:slug, name:'Daniel (auteur)', text:text, replyTo:cId, adminReply:true})
+        })
+        .then(function(r){return r.json()})
+        .then(function(c){
+          if(!c.error){
+            textarea.value='';
+            container.querySelector('.reply-box-'+cId).style.display='none';
+            /* Insert reply after the comment */
+            var parentEl = btn.closest('.comment-item');
+            if(parentEl) parentEl.insertAdjacentHTML('afterend', commentHtml(c, admin, slug, true));
+          }
+        })
+        .catch(function(){alert('Erreur — réessayez.')})
+        .finally(function(){btn.disabled=false;btn.textContent='Répondre';});
+      });
+    });
+  }
 }
 
 function appendComment(c, container){
-  const placeholder = container.querySelector('.comments-offline, div[style*="italic"]');
+  var placeholder = container.querySelector('.comments-offline, div[style*="italic"]');
   if(placeholder && !container.querySelector('.comment-item')) container.innerHTML = '';
-  container.insertAdjacentHTML('beforeend', commentHtml(c));
+  container.insertAdjacentHTML('beforeend', commentHtml(c, null, null, !!c.replyTo));
 }
 
-function commentHtml(c){
-  const d = new Date(c.date);
-  const dateStr = isNaN(d) ? '' : d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-  return '<div class="comment-item">'+
+function commentHtml(c, admin, slug, isReply){
+  var d = new Date(c.date);
+  var dateStr = isNaN(d) ? '' : d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  var indent = isReply ? 'margin-left:32px;border-left:2px solid rgba(201,169,110,.15);padding-left:16px;' : '';
+  var adminBadge = c.isAdmin ? '<span style="font-family:var(--ff-b);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-left:8px;border:1px solid var(--gold);padding:1px 6px;border-radius:2px">AUTEUR</span>' : '';
+  var replyBtn = '';
+  if(admin && !isReply && slug){
+    replyBtn = '<button class="reply-btn" data-reply-to="'+esc(c.id)+'" style="font-family:var(--ff-b);font-size:10px;color:var(--g3);margin-top:6px;text-decoration:underline;cursor:pointer;background:none;border:none">Répondre</button>'+
+      '<div class="reply-box-'+esc(c.id)+'" style="display:none;margin-top:10px">'+
+        '<textarea class="reply-text-'+esc(c.id)+'" placeholder="Votre réponse…" maxlength="500" style="display:block;width:100%;padding:10px;margin-bottom:8px;background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.12);color:var(--g2);font-family:var(--ff-b);font-size:13px;min-height:70px;resize:vertical;outline:none"></textarea>'+
+        '<button class="reply-submit" data-reply-to="'+esc(c.id)+'" style="padding:6px 18px;border:1px solid var(--gold);color:var(--gold);font-family:var(--ff-b);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;cursor:pointer">Répondre</button>'+
+      '</div>';
+  }
+  return '<div class="comment-item" style="'+indent+'">'+
     '<div class="comment-item-head">'+
-      '<span class="comment-item-name">'+esc(c.name)+'</span>'+
+      '<span class="comment-item-name">'+esc(c.name)+adminBadge+'</span>'+
       '<span class="comment-item-date">'+dateStr+'</span>'+
     '</div>'+
     '<div class="comment-item-text">'+esc(c.text)+'</div>'+
+    replyBtn+
   '</div>';
 }
 
