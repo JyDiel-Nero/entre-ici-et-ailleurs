@@ -1,0 +1,60 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+locale: "fr"
+
+collections:
+  - name: "articles"
+    label: "✍ Articles & Poèmes"
+    files:
+      - file: "data/posts.json"
+        name: "tous_les_articles"
+        label: "Gérer tous les articles"
+        fields:
+          - name: "posts"
+            widget: "list"
+            label: "Articles"
+            fields:
+              - { name: slug,      widget: string,   label: "Slug (unique, tirets)", hint: "Ex: mon-poeme — pas d'accents ni espaces" }
+              - { name: title,     widget: string,   label: "Titre" }
+              - { name: date,      widget: string,   label: "Date (ex: 15 avril 2025)" }
+              - { name: tag,       widget: select,   label: "Catégorie",
+                  options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"] }
+              - { name: excerpt,   widget: text,     label: "Extrait (2–3 lignes)" }
+              - { name: cover,     widget: image,    label: "Image couverture", required: false }
+              - { name: thumb,     widget: image,    label: "Miniature carte",  required: false }
+              - { name: body,      widget: markdown,  label: "Contenu complet",
+                  hint: "![alt](url) pour insérer une image · > pour citation · **gras** · *italic*" }
+              - { name: published, widget: boolean,  label: "Publié", default: true }
+
+  - name: "galerie"
+    label: "🌌 Galerie Univers"
+    files:
+      - file: "data/gallery.json"
+        name: "toutes_les_images"
+        label: "Gérer la galerie"
+        fields:
+          - name: items
+            widget: list
+            label: "Images"
+            fields:
+              - { name: title, widget: string, label: "Légende" }
+              - { name: image, widget: image,  label: "Image" }
+              - { name: order, widget: number, label: "Ordre", default: 1 }
+
+  - name: "parametres"
+    label: "⚙️ Paramètres"
+    files:
+      - file: "data/settings.json"
+        name: "site"
+        label: "Textes du site"
+        fields:
+          - { name: tagline,   widget: string, label: "Tagline" }
+          - { name: man1,      widget: string, label: "Manifeste ligne 1" }
+          - { name: man2,      widget: string, label: "Manifeste ligne 2" }
+          - { name: apropos,   widget: text,   label: "Texte À propos" }
+          - { name: instagram, widget: string, label: "Instagram", required: false }
