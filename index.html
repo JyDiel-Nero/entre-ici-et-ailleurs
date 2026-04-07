@@ -615,29 +615,28 @@ section{position:relative;z-index:1;padding:80px 0}
   </section>
   <section class="s-night">
     <div class="wrap">
-      <!-- ═══ MAILCHIMP NEWSLETTER FORM ═══
-           INSTRUCTIONS POUR ACTIVER MAILCHIMP :
-           1. Créez un compte sur mailchimp.com
-           2. Créez une Audience (votre liste)
-           3. Audience → Signup forms → Embedded forms
-           4. Récupérez l'URL d'action du formulaire, elle ressemble à :
-              https://XXXXX.us21.list-manage.com/subscribe/post?u=XXXXXXX&id=XXXXXXX
-           5. Remplacez MAILCHIMP_FORM_ACTION_URL ci-dessous par cette URL
-           6. Remplacez MAILCHIMP_U et MAILCHIMP_ID par les valeurs u= et id= de l'URL
+      <!-- ═══ NEWSLETTER FORM (MailerLite / compatible tout service) ═══
+           INSTRUCTIONS :
+           1. Créez un compte gratuit sur mailerlite.com
+           2. Subscribers → Forms → Create form → Embedded form
+           3. Personnalisez, puis cliquez "Get embed code"
+           4. Dans le code, repérez l'URL action="https://assets.mailerlite.com/..."
+           5. Remplacez NEWSLETTER_FORM_ACTION_URL ci-dessous par cette URL
+           6. Vérifiez les noms des champs (fields[email], fields[name]) et adaptez si besoin
            ═══════════════════════════════════════════ -->
-      <form class="contact-form rv" id="mcForm"
-            action="MAILCHIMP_FORM_ACTION_URL"
+      <form class="contact-form rv" id="nlForm"
+            action="NEWSLETTER_FORM_ACTION_URL"
             method="POST" target="_blank" novalidate>
-        <input type="text" name="FNAME" placeholder="Votre prénom" required>
-        <input type="email" name="EMAIL" placeholder="Votre adresse email" required>
-        <!-- Champ anti-bot Mailchimp (ne pas supprimer) -->
+        <input type="text" name="fields[name]" placeholder="Votre prénom" required>
+        <input type="email" name="fields[email]" placeholder="Votre adresse email" required>
+        <!-- Anti-bot honeypot -->
         <div style="position:absolute;left:-5000px" aria-hidden="true">
-          <input type="text" name="b_MAILCHIMP_U_MAILCHIMP_ID" tabindex="-1" value="">
+          <input type="text" name="ml-submit" tabindex="-1" value="">
         </div>
         <div class="tac">
           <button type="submit">S'abonner</button>
         </div>
-        <div class="form-msg" id="mcMsg" style="text-align:center;margin-top:10px"></div>
+        <div class="form-msg" id="nlMsg" style="text-align:center;margin-top:10px"></div>
       </form>
       <!-- Formulaire Netlify en backup (reçoit aussi les inscriptions) -->
       <form name="newsletter" method="POST" data-netlify="true" style="display:none">
