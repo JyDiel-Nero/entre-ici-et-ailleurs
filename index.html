@@ -421,7 +421,7 @@ section{position:relative;z-index:1;padding:80px 0}
      NAVBAR
      ════════════════════════════════════════════════════════════════ -->
 <nav class="nav" id="navbar">
-  <a class="nav-logo" data-page="accueil">EIA<span>entre ici et ailleurs</span></a>
+  <a class="nav-logo" data-page="accueil" style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 200 70" style="height:34px;width:auto" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ng1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient></defs><g transform="translate(100,32)"><g transform="rotate(-10) scale(0.28)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#ng1)" stroke-width="2.5" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#ng1)" stroke-width="2.5" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/></g><line x1="0" y1="0" x2="12" y2="11" stroke="#E8C98A" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="0" x2="11.5" y2="20" stroke="#E8C98A" stroke-width="0.8" stroke-linecap="round"/><circle cx="0" cy="0" r="1.5" fill="#E8C98A"/><text x="-24" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#ng1)" opacity="0.9">E</text><text x="1" y="-6" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="15" font-style="italic" fill="url(#ng1)" opacity="0.8">I</text><text x="26" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#ng1)" opacity="0.9">A</text></g></svg><span style="font-style:italic;font-weight:300;color:var(--g2);opacity:.5;font-size:12px">entre ici et ailleurs</span></a>
   <ul class="nav-links" id="navLinks">
     <li><a data-page="accueil">Accueil</a></li>
     <li><a data-page="blog">Blog</a></li>
@@ -446,18 +446,8 @@ section{position:relative;z-index:1;padding:80px 0}
     <div class="hero-halo"></div>
     <div class="dust" id="dustContainer"></div>
     <div class="hero-content">
-      <div class="hero-clock rv">
-        <svg id="heroClockSvg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(201,169,110,.25)" stroke-width=".8"/>
-          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(201,169,110,.12)" stroke-width=".5"/>
-          <!-- Hour marks -->
-          <g id="clockMarks" stroke="rgba(201,169,110,.4)" stroke-width="1"></g>
-          <!-- Hands -->
-          <line id="clockH" x1="60" y1="60" x2="60" y2="32" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
-          <line id="clockM" x1="60" y1="60" x2="60" y2="22" stroke="#E8C98A" stroke-width="1.2" stroke-linecap="round"/>
-          <line id="clockS" x1="60" y1="60" x2="60" y2="18" stroke="rgba(201,169,110,.35)" stroke-width=".5" stroke-linecap="round"/>
-          <circle cx="60" cy="60" r="2.5" fill="#C9A96E"/>
-        </svg>
+      <div class="rv" style="width:280px;margin:0 auto 20px">
+        <svg viewBox="0 0 680 380" style="width:100%" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient><linearGradient id="hgS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#E8C98A" stop-opacity="0.35"/><stop offset="50%" stop-color="#C9A96E" stop-opacity="0.18"/><stop offset="100%" stop-color="#E8C98A" stop-opacity="0.35"/></linearGradient></defs><g transform="translate(340,180)"><g transform="rotate(-10)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#hg1)" stroke-width="1.7" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#hg1)" stroke-width="1.7" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="2.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="2.5" stroke-linecap="round"/><path d="M-119,-38 L-119,38 L-14,4 L-14,-4 Z" fill="url(#hgS)" opacity="0.5"><animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0.5;0.22;0.5"/></path><path d="M119,-38 L119,38 L14,4 L14,-4 Z" fill="url(#hgS)" opacity="0.22"><animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0.2;0.48;0.2"/></path><line x1="-8" y1="0" x2="8" y2="0" stroke="#C9A96E" stroke-width="1" opacity="0.4"><animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.5;0.15;0.5"/></line><circle r="1" fill="#E8C98A"><animate attributeName="cx" dur="1.5s" repeatCount="indefinite" values="-7;0;7"/><animate attributeName="opacity" dur="1.5s" repeatCount="indefinite" values="0.8;0.4;0"/></circle><circle r="0.7" fill="#E8C98A"><animate attributeName="cx" dur="2s" repeatCount="indefinite" values="-9;1;8" begin="0.5s"/><animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.6;0.4;0" begin="0.5s"/></circle></g><line id="clockH" x1="0" y1="0" x2="44" y2="40" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line id="clockM" x1="0" y1="0" x2="42" y2="74" stroke="#E8C98A" stroke-width="2" stroke-linecap="round"/><circle cx="0" cy="0" r="4" fill="#E8C98A"/><circle cx="0" cy="0" r="1.8" fill="#C9A96E"/><text x="-82" y="16" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="76" font-style="italic" fill="url(#hg1)" opacity="0.9">E</text><text x="2" y="-22" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="50" font-style="italic" fill="url(#hg1)" opacity="0.8">I</text><text x="86" y="16" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="76" font-style="italic" fill="url(#hg1)" opacity="0.9">A</text></g></svg>
       </div>
       <h1 class="rv d1">Entre ici et ailleurs</h1>
       <p class="subtitle rv d2">méditation sur la création</p>
@@ -699,7 +689,7 @@ section{position:relative;z-index:1;padding:80px 0}
      FOOTER
      ════════════════════════════════════════════════════════════════ -->
 <footer class="footer">
-  <div class="footer-logo">EIA</div>
+  <div class="footer-logo"><svg viewBox="0 0 200 70" style="height:40px;width:auto;margin:0 auto;display:block" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient></defs><g transform="translate(100,32)"><g transform="rotate(-10) scale(0.28)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#fg1)" stroke-width="2.5" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#fg1)" stroke-width="2.5" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/></g><line x1="0" y1="0" x2="12" y2="11" stroke="#E8C98A" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="0" x2="11.5" y2="20" stroke="#E8C98A" stroke-width="0.8" stroke-linecap="round"/><circle cx="0" cy="0" r="1.5" fill="#E8C98A"/><text x="-24" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#fg1)" opacity="0.9">E</text><text x="1" y="-6" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="15" font-style="italic" fill="url(#fg1)" opacity="0.8">I</text><text x="26" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#fg1)" opacity="0.9">A</text></g></svg></div>
   <div class="footer-links">
     <a data-page="accueil">Accueil</a>
     <a data-page="blog">Blog</a>
@@ -1358,33 +1348,20 @@ function initReveal(){
    CLOCK (Hero SVG)
    ════════════════════════════════════════════════════════════════ */
 function initClock(){
-  /* Generate hour marks */
-  const marksG = document.getElementById('clockMarks');
-  if(marksG){
-    for(let i=0;i<12;i++){
-      const angle = (i*30)*Math.PI/180;
-      const x1 = 60+Math.sin(angle)*46, y1 = 60-Math.cos(angle)*46;
-      const x2 = 60+Math.sin(angle)*50, y2 = 60-Math.cos(angle)*50;
-      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1',x1); line.setAttribute('y1',y1);
-      line.setAttribute('x2',x2); line.setAttribute('y2',y2);
-      marksG.appendChild(line);
-    }
-  }
-
+  /* The hero logo has hands at static 4:25 position.
+     We animate them to real time using transform rotate around center (0,0).
+     The hands are defined with x1=0 y1=0 endpoints pointing toward 4:25. */
   function tick(){
-    const now = new Date();
-    const h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
-    const sAngle = ((s+ms/1000)/60)*360;
-    const mAngle = ((m+s/60)/60)*360;
-    const hAngle = ((h+(m/60))/12)*360;
+    var now = new Date();
+    var h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
+    var mAngle = ((m+s/60)/60)*360;
+    var hAngle = ((h+(m/60))/12)*360;
 
-    const hHand = document.getElementById('clockH');
-    const mHand = document.getElementById('clockM');
-    const sHand = document.getElementById('clockS');
-    if(hHand) hHand.setAttribute('transform','rotate('+hAngle+' 60 60)');
-    if(mHand) mHand.setAttribute('transform','rotate('+mAngle+' 60 60)');
-    if(sHand) sHand.setAttribute('transform','rotate('+sAngle+' 60 60)');
+    var hHand = document.getElementById('clockH');
+    var mHand = document.getElementById('clockM');
+    /* Hands are drawn pointing to 4:25 (h=132.5° m=150°), so subtract base angle */
+    if(hHand) hHand.setAttribute('transform','rotate('+(hAngle-132.5)+' 0 0)');
+    if(mHand) mHand.setAttribute('transform','rotate('+(mAngle-150)+' 0 0)');
 
     requestAnimationFrame(tick);
   }
