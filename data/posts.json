@@ -1,114 +1,123 @@
 {
   "posts": [
     {
-      "slug": "et-une-et-deux",
-      "title": "Et une, et deux, et…",
-      "date": "7 décembre 2024",
-      "tag": "PRIÈRE",
       "excerpt": "Tu as mis en nos cœurs la pensée de l'éternité, et en nos êtres la capacité de te trouver.",
-      "cover": "",
+      "body": "Tu as mis en nos cœurs la pensée de l'éternité,\nEt en nos êtres la capacité de te trouver.\n\nAlors nous nous mettons à te chercher,\nSans même le décider.\n\nEt tant de confusion sur le sentier ;\nNos vies, de réels chantiers,\nDes partitions inachevées,\nTant que nous ne voyons ta main,\nEsquisser le geste de la levée.\n\nMaestro ! L'harmonie se cache\nNous la cherchons en lâches.\nMais elle apparaît sans tache\nQuant à toi l'on s'attache…\n\nMaestro donne le la\nNous emboiterons ton pas.\n\n![](https://static.wixstatic.com/media/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg)\n\nJyD.",
+      "slug": "et-une-et-deux",
+      "published": true,
+      "date": "7 décembre 2024",
       "thumb": "https://static.wixstatic.com/media/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg",
-      "published": true,
-      "body": "Tu as mis en nos cœurs la pensée de l'éternité,\nEt en nos êtres la capacité de te trouver.\n\nAlors nous nous mettons à te chercher,\nSans même le décider.\n\nEt tant de confusion sur le sentier ;\nNos vies, de réels chantiers,\nDes partitions inachevées,\nTant que nous ne voyons ta main,\nEsquisser le geste de la levée.\n\nMaestro ! L'harmonie se cache\nNous la cherchons en lâches.\nMais elle apparaît sans tache\nQuant à toi l'on s'attache…\n\nMaestro donne le la\nNous emboiterons ton pas.\n\n![](https://static.wixstatic.com/media/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_f189690900d1485fbfe13b7b910e2524~mv2.jpeg)\n\nJyD."
+      "cover": "",
+      "title": "Et une, et deux, et…",
+      "tag": "PRIÈRE"
     },
     {
-      "slug": "un-autre-pas",
-      "title": "Un autre pas ?",
-      "date": "31 octobre 2025",
-      "tag": "RÉFLEXION",
       "excerpt": "Paraît que des gens se souviennent plus de moi. Que vais-je donc faire ?",
-      "cover": "https://static.wixstatic.com/media/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg",
+      "body": "Paraît que des gens se souviennent plus de moi\nQue vais-je donc faire ?\nAvancer dans le noir en me tenant sur mes paires.\n\nMa paire de jambes, ma paire de chaussettes\nMa paire de chaussures,\nBien cirées bien-sûr.\n\nDire que chaque année j'avais l'habitude de dire que je vous aime\nEt les années ont passé et cela j'ai laissé\nD'aucuns croiraient que j'ai oublié\nMais en ma mémoire vous demeuriez.\n\nLa raison est que ma manière d'aimer\nPlus je n'assumais.\nMais sachez que ma vie recèle de vous\nUne multitude de goûts\nSalé, sucré et même des fois épicé.\n\nMais sachez que je vous aime\nEt parce que je vous aime\nJe vous le dirai\nParce que je vous aime\nJe vous le montrerai\nQuand bien même cela doive me coûter\n\nEt parce que je vous aime\nJe vous demanderai:\n**Où passerez-vous l'éternité ?**\n\nCar je veux pour toujours pouvoir te visiter\nEt que dans les flammes tu ne me verras poser les pieds.\nJe préférerai qu'ensemble on occupe les quartiers huppés\nPrès de celui qui nous a tous créés.\n\nAlors dis-moi. Mon ami, mon frère;\nPense à ma douleur d'aller là-bas vivre sans toi!\nJe ne veux pas avoir à te regretter\nAlors dis-moi:\n**Où passeras-tu l'éternité ?**",
+      "slug": "un-autre-pas",
+      "published": true,
+      "date": "31 octobre 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg",
-      "published": true,
-      "body": "Paraît que des gens se souviennent plus de moi\nQue vais-je donc faire ?\nAvancer dans le noir en me tenant sur mes paires.\n\nMa paire de jambes, ma paire de chaussettes\nMa paire de chaussures,\nBien cirées bien-sûr.\n\nDire que chaque année j'avais l'habitude de dire que je vous aime\nEt les années ont passé et cela j'ai laissé\nD'aucuns croiraient que j'ai oublié\nMais en ma mémoire vous demeuriez.\n\nLa raison est que ma manière d'aimer\nPlus je n'assumais.\nMais sachez que ma vie recèle de vous\nUne multitude de goûts\nSalé, sucré et même des fois épicé.\n\nMais sachez que je vous aime\nEt parce que je vous aime\nJe vous le dirai\nParce que je vous aime\nJe vous le montrerai\nQuand bien même cela doive me coûter\n\nEt parce que je vous aime\nJe vous demanderai:\n**Où passerez-vous l'éternité ?**\n\nCar je veux pour toujours pouvoir te visiter\nEt que dans les flammes tu ne me verras poser les pieds.\nJe préférerai qu'ensemble on occupe les quartiers huppés\nPrès de celui qui nous a tous créés.\n\nAlors dis-moi. Mon ami, mon frère;\nPense à ma douleur d'aller là-bas vivre sans toi!\nJe ne veux pas avoir à te regretter\nAlors dis-moi:\n**Où passeras-tu l'éternité ?**"
+      "cover": "https://static.wixstatic.com/media/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_17c455643478423d89b5fec90ed13d48~mv2.jpg",
+      "title": "Un autre pas ?",
+      "tag": "RÉFLEXION"
     },
     {
-      "slug": "chemin",
-      "title": "Chemin",
-      "date": "20 mars 2025",
-      "tag": "PRIÈRE",
       "excerpt": "Je me suis cherché, mais je ne me suis pas trouvé. Je me suis recherché, et je me suis égaré.",
-      "cover": "",
-      "thumb": "https://static.wixstatic.com/media/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg",
+      "body": "Je me suis cherché, mais je ne me suis pas trouvé.\nJe me suis recherché, et je me suis égaré.\nAlors j'ai laissé tomber, et j'ai décidé de regarder\nL'écoulement du temps, sous un autre paravent.\n\nEt là assis à te regarder, j'ai appris à mesurer\nQuel est le nombre de tes attentes, et le poids de nos ententes.\n\nCar à chaque fois que je sors, sous un ordre à toi\nJe trouve toujours la voix, et à toute chose je mets le mors.\n\nMais quand dans le vent, se balance une feuille\nBelle d'allure, jaune; Et d'un brin mortuaire;\nQue je la regarde et la jauge;\nDe mon cœur changent les battements.\n\nJe me retrouve seul au seuil,\nDe mon être qui se couvre d'un suaire.\nAlors je recommence à me chercher, sans jamais me trouver.\nJe continue à fouiller, oubliant tel un insensé,\nQue sans chercher, en toi, je m'étais trouvé.\n\n---\n\nChanun El, toi qui m'aima le premier,\nEt pour moi t'es sacrifié!\nAccepte de me guider,\n\n![](https://static.wixstatic.com/media/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg)\n\nComme tu l'as toujours fait.\nQue quand tu me recouvres de paix,\nQue je ne confonde, ta miséricorde\nÀ un permis de se dépêcher de pécher;\nA m'en mettre une corde.\n\nMais que je me presse de dépêcher\nDe dépêcher et repêcher\nTous les hommes en train de se noyer.\n\nQui se cherchent sans se trouver,\nQui te cherchent dans toutes les trouées\nNe sachant que tu te caches\nDans l'aiguille de l'humilité\nAttendant qu'ils lâchent\nLeur orgueil illimité\n\nMais je n'ai crainte!\nTu sauras les sauver;\nComme tu m'as tant sauvé.\nTu sauras les embrasser\nDe ton étreinte\n\nEt que sans te voir,\nJe te crois.\nSans te toucher,\nJe te sens.\nCar c'est toi qui t'empresses\nDe me toucher\nM'ayant vu et aimé\nLe premier.",
+      "slug": "chemin",
       "published": true,
-      "body": "Je me suis cherché, mais je ne me suis pas trouvé.\nJe me suis recherché, et je me suis égaré.\nAlors j'ai laissé tomber, et j'ai décidé de regarder\nL'écoulement du temps, sous un autre paravent.\n\nEt là assis à te regarder, j'ai appris à mesurer\nQuel est le nombre de tes attentes, et le poids de nos ententes.\n\nCar à chaque fois que je sors, sous un ordre à toi\nJe trouve toujours la voix, et à toute chose je mets le mors.\n\nMais quand dans le vent, se balance une feuille\nBelle d'allure, jaune; Et d'un brin mortuaire;\nQue je la regarde et la jauge;\nDe mon cœur changent les battements.\n\nJe me retrouve seul au seuil,\nDe mon être qui se couvre d'un suaire.\nAlors je recommence à me chercher, sans jamais me trouver.\nJe continue à fouiller, oubliant tel un insensé,\nQue sans chercher, en toi, je m'étais trouvé.\n\n---\n\nChanun El, toi qui m'aima le premier,\nEt pour moi t'es sacrifié!\nAccepte de me guider,\n\n![](https://static.wixstatic.com/media/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg)\n\nComme tu l'as toujours fait.\nQue quand tu me recouvres de paix,\nQue je ne confonde, ta miséricorde\nÀ un permis de se dépêcher de pécher;\nA m'en mettre une corde.\n\nMais que je me presse de dépêcher\nDe dépêcher et repêcher\nTous les hommes en train de se noyer.\n\nQui se cherchent sans se trouver,\nQui te cherchent dans toutes les trouées\nNe sachant que tu te caches\nDans l'aiguille de l'humilité\nAttendant qu'ils lâchent\nLeur orgueil illimité\n\nMais je n'ai crainte!\nTu sauras les sauver;\nComme tu m'as tant sauvé.\nTu sauras les embrasser\nDe ton étreinte\n\nEt que sans te voir,\nJe te crois.\nSans te toucher,\nJe te sens.\nCar c'est toi qui t'empresses\nDe me toucher\nM'ayant vu et aimé\nLe premier."
-    },
-    {
-      "slug": "longtemps",
-      "title": "Longtemps",
       "date": "20 mars 2025",
-      "tag": "POÉSIE",
+      "thumb": "https://static.wixstatic.com/media/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_70ecc677532c4893a1060772fad53512~mv2.jpg",
+      "cover": "",
+      "title": "Chemin",
+      "tag": "PRIÈRE"
+    },
+    {
       "excerpt": "Bientôt ça fera longtemps que ça dure depuis longtemps. De quoi écrire mille poèmes sur le temps.",
-      "cover": "",
+      "body": "Bientôt ça fera longtemps\nQue ça dure depuis longtemps.\nDe quoi écrire mille poèmes\nSur le temps, qui s'est écoulé entre temps.\n\nL'hiver donne faim;\nL'été donne soif;\nLe printemps vous rend fou;\nPuis l'automne vous dessaoule.\n\nCar mon jour viendra après le votre,\nIl est normal que ma soirée vous succède.\nAlors, en ce temps qui me précède,\nEcrivez-moi les plus belles notes\nPour trouver en ce monde remède\nA tous les égarements et fautes.\n\n![](https://static.wixstatic.com/media/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg)",
+      "slug": "longtemps",
+      "published": true,
+      "date": "20 mars 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg",
-      "published": true,
-      "body": "Bientôt ça fera longtemps\nQue ça dure depuis longtemps.\nDe quoi écrire mille poèmes\nSur le temps, qui s'est écoulé entre temps.\n\nL'hiver donne faim;\nL'été donne soif;\nLe printemps vous rend fou;\nPuis l'automne vous dessaoule.\n\nCar mon jour viendra après le votre,\nIl est normal que ma soirée vous succède.\nAlors, en ce temps qui me précède,\nEcrivez-moi les plus belles notes\nPour trouver en ce monde remède\nA tous les égarements et fautes.\n\n![](https://static.wixstatic.com/media/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_39139b34e5cb4e6cb8340f18202012b7~mv2.jpg)"
+      "cover": "",
+      "title": "Longtemps",
+      "tag": "POÉSIE"
     },
     {
-      "slug": "mon-armature",
-      "title": "Mon Armature",
-      "date": "26 février 2025",
-      "tag": "PRIÈRE",
       "excerpt": "Vous auriez tort de penser que je suis fort parce que j'en ai l'apparence.",
-      "cover": "",
+      "body": "Vous auriez tort de penser que je suis fort\nParce que j'en ai l'apparence\nMon manque de faiblesse visible\nN'est qu'une illusion d'assurance\n\nDans le noir tout comme vous je tremble\nEt à l'obscurité je pleure plus que vous le jour\nDans la pluie je rêvasse et je souris\nMais à bien y voir, l'eau sur mes joues vient de mes yeux\n\nAlors ne surestimez pas mon être\nLe squelette l'armature de mon être\nEst un autre que moi\nEt s'il n'était là je serais plus bas que terre.\n\nAlors que gloire et honneur soit rendues\nÀ mon Père qui est aux cieux\nEt qui veille sur moi au mieux.\n\nJyD\n\n![](https://static.wixstatic.com/media/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg)",
+      "slug": "mon-armature",
+      "published": true,
+      "date": "26 février 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg",
-      "published": true,
-      "body": "Vous auriez tort de penser que je suis fort\nParce que j'en ai l'apparence\nMon manque de faiblesse visible\nN'est qu'une illusion d'assurance\n\nDans le noir tout comme vous je tremble\nEt à l'obscurité je pleure plus que vous le jour\nDans la pluie je rêvasse et je souris\nMais à bien y voir, l'eau sur mes joues vient de mes yeux\n\nAlors ne surestimez pas mon être\nLe squelette l'armature de mon être\nEst un autre que moi\nEt s'il n'était là je serais plus bas que terre.\n\nAlors que gloire et honneur soit rendues\nÀ mon Père qui est aux cieux\nEt qui veille sur moi au mieux.\n\nJyD\n\n![](https://static.wixstatic.com/media/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_20d25673ddf54bfb8b9eab6541a4111d~mv2.jpg)"
+      "cover": "",
+      "title": "Mon Armature",
+      "tag": "PRIÈRE"
     },
     {
-      "slug": "fils",
-      "title": "Fils",
-      "date": "30 janvier 2025",
-      "tag": "MÉDITATION",
       "excerpt": "Ce n'est depuis toujours qu'une q…",
-      "cover": "",
+      "body": "![](https://static.wixstatic.com/media/1c1089_835f8a7f7d7a459a87ed66fc312f190f~mv2.png/v1/fill/w_980,h_1307,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_835f8a7f7d7a459a87ed66fc312f190f~mv2.png)\n\n*Ce n'est depuis toujours qu'une q…*\n\nJyD-LPE",
+      "slug": "fils",
+      "published": true,
+      "date": "30 janvier 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_bb5bb80a6a024e3fb95eed952af24850~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_bb5bb80a6a024e3fb95eed952af24850~mv2.jpg",
-      "published": true,
-      "body": "![](https://static.wixstatic.com/media/1c1089_835f8a7f7d7a459a87ed66fc312f190f~mv2.png/v1/fill/w_980,h_1307,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_835f8a7f7d7a459a87ed66fc312f190f~mv2.png)\n\n*Ce n'est depuis toujours qu'une q…*\n\nJyD-LPE"
+      "cover": "",
+      "title": "Fils",
+      "tag": "MÉDITATION"
     },
     {
-      "slug": "humain",
-      "title": "Humain",
-      "date": "25 janvier 2025",
-      "tag": "RÉFLEXION",
       "excerpt": "Nous l'appelons Dieu et nous Lui refusons l'humain, ce caractère faible et blessé.",
-      "cover": "",
+      "body": "Nous l'appelons Dieu\nEt nous Lui refusons l'humain,\nCe caractère faible et blessé.\n\nNous faisons de Lui un monstre en Lui refusant\nLa douleur, celle d'être offensé\nMais toujours venons-nous pleurer\nPour Lui dire combien dure est la vie\nEt que seule sa faute cela puit.\n\nNous Lui disons : \"méchant\";\nSans jamais tester l'obéissance.\nNos fautes nous accablent\nMalgré Sa prévenance.\nNous l'en accablons\nManquant de reconnaissance.\n\nMalgré cela, notre basse décadence,\nIl vint sur nos chemins d'errance,\nNous montrer la réelle décence.\nDe l'amour, il est la quintessence.\n\nDieu est plus humain que l'humain\nCar en Lui commence notre chemin;\nEt il vaut mieux, qu'en Lui soit aussi notre fin.\n\nJyD.\n\n![](https://static.wixstatic.com/media/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg)",
+      "slug": "humain",
+      "published": true,
+      "date": "25 janvier 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg",
-      "published": true,
-      "body": "Nous l'appelons Dieu\nEt nous Lui refusons l'humain,\nCe caractère faible et blessé.\n\nNous faisons de Lui un monstre en Lui refusant\nLa douleur, celle d'être offensé\nMais toujours venons-nous pleurer\nPour Lui dire combien dure est la vie\nEt que seule sa faute cela puit.\n\nNous Lui disons : \"méchant\";\nSans jamais tester l'obéissance.\nNos fautes nous accablent\nMalgré Sa prévenance.\nNous l'en accablons\nManquant de reconnaissance.\n\nMalgré cela, notre basse décadence,\nIl vint sur nos chemins d'errance,\nNous montrer la réelle décence.\nDe l'amour, il est la quintessence.\n\nDieu est plus humain que l'humain\nCar en Lui commence notre chemin;\nEt il vaut mieux, qu'en Lui soit aussi notre fin.\n\nJyD.\n\n![](https://static.wixstatic.com/media/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg/v1/fill/w_980,h_1307,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_50740ec59d5c4045a70b00f6e7022a53~mv2.jpg)"
+      "cover": "",
+      "title": "Humain",
+      "tag": "RÉFLEXION"
     },
     {
-      "slug": "aveu",
-      "title": "Aveu",
-      "date": "9 décembre 2025",
-      "tag": "PRIÈRE",
       "excerpt": "Me foirer, me rend à fleur de peau! Je comprends David quand il évoque le mal des os.",
-      "cover": "https://static.wixstatic.com/media/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg",
+      "body": "Me foirer, me rend à fleur de peau!\nJe comprends David quand il évoque le mal des os.\nIl est illusoire de penser être au repos,\nQuant à la vérité tu tournes le dos.\n\nSur l'instant le plaisir s'efface;\nDe la culpabilité peu de trace.\nEn la pensée tu reconnais la déviation,\nEt par logique tu demandes pardon.\n\nMais alors la fatigue te prend.\nEt face à chaque écart,\nTu accuses la chute\nEn la pensée se tient la lutte:\nEst ce de l'esprit la part\nOu est-ce en mon sang?\n\nDe me sentir coupable,\nTout en me sachant innocent\nEst-ce là le cœur contrit\nDont le psalmiste parle ?\n\nIl est dur quand cela prend,\nDe compter encore sur la vie.\nMais elle est si poignante\nSi tu l'accepte,\nElle se déverse,\nElle douche et prend comme une averse\nEt le bruit, le flux, le flot de ce torrent,\nEmpêche toute pensée décourageante.\n\nDéverse toi Père! Viens tel un fleuve,\nTel un vent violent, tel le feu dévorant.\nEt arrache, érode et brûle tout ce qui en moi\nNe vient de toi et m'entraîne dans le tourment.\n\nViens Seigneur\nEt que ta brise en moi se meuve.\nTon repos, ton calme, ta paix\nSuivent le déferlement de la bataille.\nTu ne te plais à détruire;\n\n***Et tu panses le fruit de tes entrailles;***\n***Quand pour la science, tu envoies tes plaies.***\n\nCar jamais ton intention ne fut de nuire\n\nMerci,\nPour ta grâce\n\n*You hold me in your embrace.*\n*And fill me with mercy.*\n\nJyD",
+      "slug": "aveu",
+      "published": true,
+      "date": "9 décembre 2025",
       "thumb": "https://static.wixstatic.com/media/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg",
-      "published": true,
-      "body": "Me foirer, me rend à fleur de peau!\nJe comprends David quand il évoque le mal des os.\nIl est illusoire de penser être au repos,\nQuant à la vérité tu tournes le dos.\n\nSur l'instant le plaisir s'efface;\nDe la culpabilité peu de trace.\nEn la pensée tu reconnais la déviation,\nEt par logique tu demandes pardon.\n\nMais alors la fatigue te prend.\nEt face à chaque écart,\nTu accuses la chute\nEn la pensée se tient la lutte:\nEst ce de l'esprit la part\nOu est-ce en mon sang?\n\nDe me sentir coupable,\nTout en me sachant innocent\nEst-ce là le cœur contrit\nDont le psalmiste parle ?\n\nIl est dur quand cela prend,\nDe compter encore sur la vie.\nMais elle est si poignante\nSi tu l'accepte,\nElle se déverse,\nElle douche et prend comme une averse\nEt le bruit, le flux, le flot de ce torrent,\nEmpêche toute pensée décourageante.\n\nDéverse toi Père! Viens tel un fleuve,\nTel un vent violent, tel le feu dévorant.\nEt arrache, érode et brûle tout ce qui en moi\nNe vient de toi et m'entraîne dans le tourment.\n\nViens Seigneur\nEt que ta brise en moi se meuve.\nTon repos, ton calme, ta paix\nSuivent le déferlement de la bataille.\nTu ne te plais à détruire;\n\n***Et tu panses le fruit de tes entrailles;***\n***Quand pour la science, tu envoies tes plaies.***\n\nCar jamais ton intention ne fut de nuire\n\nMerci,\nPour ta grâce\n\n*You hold me in your embrace.*\n*And fill me with mercy.*\n\nJyD"
+      "cover": "https://static.wixstatic.com/media/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg/v1/fill/w_980,h_735,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_4e14e7d4210d4967aadbeaab66cfeb6b~mv2.jpg",
+      "title": "Aveu",
+      "tag": "PRIÈRE"
     },
     {
-      "slug": "calme",
-      "title": "Calme",
-      "date": "5 novembre 2025",
-      "tag": "MÉDITATION",
       "excerpt": "Quand s'agite la foule et se trouble la houle, dans le silence de la grève il importe que je mène ma trêve.",
-      "cover": "",
-      "thumb": "https://static.wixstatic.com/media/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg",
+      "body": "Quand s'agite la foule\nEt se trouble la houle\nDans le silence de la grève\nIl importe que je mène ma trêve\n\n![](https://static.wixstatic.com/media/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg/v1/fill/w_980,h_871,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg)\n\nLà, je m'assieds dans la grotte,\nDans ce silence polyglotte.\nLà sur le sable, je pose mon glaive,\nEt je me tourne la tête, en rêve—\n\nVers le détenteur de ma vie\nLe pourvoyeur de mes dons\nJe me pose et vois là le pont;\nLe Christ qui en moi vit,\nSe dévoile en sa splendeur.\n\nEt voilà que je me veux amoureux\nDe celui qui me rend heureux.",
+      "slug": "calme",
       "published": true,
-      "body": "Quand s'agite la foule\nEt se trouble la houle\nDans le silence de la grève\nIl importe que je mène ma trêve\n\n![](https://static.wixstatic.com/media/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg/v1/fill/w_980,h_871,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg)\n\nLà, je m'assieds dans la grotte,\nDans ce silence polyglotte.\nLà sur le sable, je pose mon glaive,\nEt je me tourne la tête, en rêve—\n\nVers le détenteur de ma vie\nLe pourvoyeur de mes dons\nJe me pose et vois là le pont;\nLe Christ qui en moi vit,\nSe dévoile en sa splendeur.\n\nEt voilà que je me veux amoureux\nDe celui qui me rend heureux."
+      "date": "5 novembre 2025",
+      "thumb": "https://static.wixstatic.com/media/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_a8362920d2ce4e75ba4f8596cbdfa3f4~mv2.jpg",
+      "cover": "",
+      "title": "Calme",
+      "tag": "MÉDITATION"
     },
     {
-      "slug": "ami",
-      "title": "Ami ?",
-      "date": "5 novembre 2025",
-      "tag": "POÉSIE",
       "excerpt": "Le soleil est parti, il ne reviendra pas. Je laisse mes pieds dans le vide en attendant ce jour-là.",
-      "cover": "",
-      "thumb": "https://static.wixstatic.com/media/1c1089_2ec49503d71a426997532c1b41029248~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_2ec49503d71a426997532c1b41029248~mv2.jpg",
+      "body": "Le soleil est parti,\nIl ne reviendra pas\nJe laisse mes pieds dans le vide\nEn attendant ce jour-là\n\nOù es-tu mon ami ?\nOù mène ton errance ?\nDis-moi comment vis-tu\nPendant ton absence.\n\nJe veux écrire ta vie\nDu moins dis-la moi!\nPeux-tu me donner envie\nDe vivre comme toi ?\n\nViens mon ami\nPour l'instant suis-moi,\nViens même sans envie\n\n![](https://static.wixstatic.com/media/1c1089_9dc9a40a7f7d4dd2a2c331fd1973c50e~mv2.jpg/v1/fill/w_980,h_971,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_9dc9a40a7f7d4dd2a2c331fd1973c50e~mv2.jpg)\n\n**Je te présenterai le Roi.**",
+      "slug": "ami",
       "published": true,
-      "body": "Le soleil est parti,\nIl ne reviendra pas\nJe laisse mes pieds dans le vide\nEn attendant ce jour-là\n\nOù es-tu mon ami ?\nOù mène ton errance ?\nDis-moi comment vis-tu\nPendant ton absence.\n\nJe veux écrire ta vie\nDu moins dis-la moi!\nPeux-tu me donner envie\nDe vivre comme toi ?\n\nViens mon ami\nPour l'instant suis-moi,\nViens même sans envie\n\n![](https://static.wixstatic.com/media/1c1089_9dc9a40a7f7d4dd2a2c331fd1973c50e~mv2.jpg/v1/fill/w_980,h_971,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_9dc9a40a7f7d4dd2a2c331fd1973c50e~mv2.jpg)\n\n**Je te présenterai le Roi.**"
+      "date": "5 novembre 2025",
+      "thumb": "https://static.wixstatic.com/media/1c1089_2ec49503d71a426997532c1b41029248~mv2.jpg/v1/fill/w_580,h_330,al_c,q_80,enc_avif,quality_auto/1c1089_2ec49503d71a426997532c1b41029248~mv2.jpg",
+      "cover": "",
+      "title": "Ami ?",
+      "tag": "POÉSIE"
+    },
+    {
+      "published": true,
+      "body": "Rime tardive\n\nAlors que je me mire\n\nA la lumière de la Tamise\n\nEt qu’on loin entends-je\n\nQue longtemps le roi vive\n\nEt soudain revire\n\nUn bateau qui frise\n\nLa surface argen-tée\n\nDe ces eaux calmes et\nvives.\n\n \n\nTime is flying like\n\nA river endlessly going\n\nAs I try to catch up\n\nThe moving lake\n\nI end up falling\n\nIn the depth of memory.",
+      "excerpt": "Time is flying like\nA river endlessly going\n",
+      "date": "10/09/2022 20:30",
+      "tag": "POÉSIE",
+      "title": "Time",
+      "slug": "time"
     }
   ]
 }
