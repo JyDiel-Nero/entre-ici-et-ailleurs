@@ -378,6 +378,20 @@ section{position:relative;z-index:1;padding:80px 0}
 .contact-form button:hover{background:var(--gold);color:var(--deep)}
 .contact-note{font-family:var(--ff-t);font-style:italic;font-size:13px;color:var(--g3);text-align:center;margin-top:20px}
 
+
+/* ════════════════════════════════════════════════════════════════
+   PERFORMANCE
+   ════════════════════════════════════════════════════════════════ */
+section{content-visibility:auto;contain-intrinsic-size:auto 500px}
+.bc-thumb,.uv img,.article-cover{will-change:transform;transform:translateZ(0)}
+img{image-rendering:auto}
+
+/* ════════════════════════════════════════════════════════════════
+   AUDIO CARDS
+   ════════════════════════════════════════════════════════════════ */
+.audio-card{transition:border-color .4s}
+.audio-card:hover{border-color:rgba(201,169,110,.2)}
+audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
 /* ════════════════════════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════════════════════════ */
@@ -427,6 +441,7 @@ section{position:relative;z-index:1;padding:80px 0}
     <li><a data-page="blog">Blog</a></li>
     <li><a data-page="univers">Univers</a></li>
     <li><a data-page="apropos">À propos</a></li>
+    <li><a data-page="audio">Audio</a></li>
     <li><a data-page="contact">Contact</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">
@@ -517,7 +532,7 @@ section{position:relative;z-index:1;padding:80px 0}
 <div class="view" id="v-blog">
   <section class="s-deep" style="padding:0">
     <div style="width:100%;height:280px;overflow:hidden;position:relative;margin-top:60px">
-      <img src="https://static.wixstatic.com/media/1c1089_23d6a2ddf8ff4a88afb156364fc372ae~mv2.png/v1/fill/w_980,h_453,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_23d6a2ddf8ff4a88afb156364fc372ae~mv2.png" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.5" loading="lazy" onerror="this.parentElement.style.display='none'">
+      <img src="https://static.wixstatic.com/media/1c1089_23d6a2ddf8ff4a88afb156364fc372ae~mv2.png/v1/fill/w_980,h_453,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_23d6a2ddf8ff4a88afb156364fc372ae~mv2.png" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.5" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'">
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--deep) 100%)"></div>
     </div>
     <div class="wrap tac" style="padding:30px 28px 60px">
@@ -569,10 +584,10 @@ section{position:relative;z-index:1;padding:80px 0}
         <!-- Author photo -->
         <div class="rv" style="flex:0 0 auto">
           <div style="width:220px;height:280px;overflow:hidden;border:1px solid rgba(201,169,110,.12);position:relative">
-            <img src="https://static.wixstatic.com/media/1c1089_8f2688f8aade46d69d2a606ef6e8af87~mv2.jpg/v1/crop/x_0,y_35,w_1690,h_2091/fill/w_442,h_547,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/P1091694_edited_edited.jpg" alt="Daniel — J.Y.D." style="width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" onerror="this.style.display='none'">
+            <img src="https://static.wixstatic.com/media/1c1089_8f2688f8aade46d69d2a606ef6e8af87~mv2.jpg/v1/crop/x_0,y_35,w_1690,h_2091/fill/w_442,h_547,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/P1091694_edited_edited.jpg" alt="Daniel — J.Y.D." style="width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display='none'">
           </div>
           <div style="text-align:center;margin-top:16px">
-            <img src="https://static.wixstatic.com/media/1c1089_4c371818760f40c59d24a8b530bd67fc~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_4c371818760f40c59d24a8b530bd67fc~mv2.png" alt="EIA" style="width:60px;height:60px;margin:0 auto;opacity:.5" loading="lazy">
+            <img src="https://static.wixstatic.com/media/1c1089_4c371818760f40c59d24a8b530bd67fc~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1c1089_4c371818760f40c59d24a8b530bd67fc~mv2.png" alt="EIA" style="width:60px;height:60px;margin:0 auto;opacity:.5" loading="lazy" decoding="async">
           </div>
         </div>
         <!-- Bio text -->
@@ -588,6 +603,24 @@ section{position:relative;z-index:1;padding:80px 0}
           </div>
         </div>
       </div>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     VUE 5b — AUDIO
+     ════════════════════════════════════════════════════════════════ -->
+<div class="view" id="v-audio">
+  <section class="ph s-deep">
+    <div class="wrap tac">
+      <p class="t-label rv">ÉCOUTER</p>
+      <h2 class="t-title xl rv d1" style="margin-top:12px">Audio</h2>
+      <p class="t-italic rv d2" style="margin-top:8px">Les mots prennent voix.</p>
+    </div>
+  </section>
+  <section class="s-night">
+    <div class="wrap">
+      <div id="audioGrid"></div>
     </div>
   </section>
 </div>
@@ -695,6 +728,7 @@ section{position:relative;z-index:1;padding:80px 0}
     <a data-page="blog">Blog</a>
     <a data-page="univers">Univers</a>
     <a data-page="apropos">À propos</a>
+    <a data-page="audio">Audio</a>
     <a data-page="contact">Contact</a>
   </div>
   <p class="footer-copy">© 2025 JyDiel Records — Entre ici et ailleurs. Tous droits réservés.</p>
@@ -745,7 +779,7 @@ function mdToHtml(md){
   let html = md
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(m, alt, url){
       const cap = alt ? '<figcaption>'+alt+'</figcaption>' : '';
-      return '<figure><img src="'+url+'" alt="'+(alt||'')+'" loading="lazy" onerror="this.style.display=\'none\'">'+cap+'</figure>';
+      return '<figure><img src="'+url+'" alt="'+(alt||'')+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'+cap+'</figure>';
     })
     .replace(/^---$/gm, '<div class="sep-long"></div>')
     .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
@@ -811,6 +845,7 @@ async function loadData(){
   POSTS = sortPosts(EMBEDDED_POSTS.filter(function(p){return p.published!==false}));
   GALLERY = EMBEDDED_GALLERY.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
   SETTINGS = EMBEDDED_SETTINGS;
+  AUDIO = [];
   renderAll();
 
   /* Then try to fetch fresh data from JSON files (for production with CMS) */
@@ -825,6 +860,9 @@ async function loadData(){
     }
     var sRes = await fetch('data/settings.json').then(function(r){return r.ok?r.json():null});
     if(sRes && sRes.tagline) SETTINGS = sRes;
+    /* Audio data */
+    var aRes = await fetch('data/audio.json').then(function(r){return r.ok?r.json():null});
+    if(aRes && aRes.tracks) AUDIO = aRes.tracks;
     renderAll();
   }catch(e){ /* embedded data is already loaded, no problem */ }
 }
@@ -836,45 +874,95 @@ const views = document.querySelectorAll('.view');
 let currentView = 'accueil';
 
 function showView(name, slug){
-  views.forEach(v => v.classList.remove('active'));
-  const target = document.getElementById('v-'+name);
+  views.forEach(function(v){v.classList.remove('active')});
+  var target = document.getElementById('v-'+name);
   if(target){
     target.classList.add('active');
     currentView = name;
     window.scrollTo(0,0);
-    /* Reset scroll reveals */
-    setTimeout(()=>initReveal(), 50);
-    /* Update nav active */
-    document.querySelectorAll('.nav-links a').forEach(a=>{
+    setTimeout(function(){initReveal()}, 50);
+    document.querySelectorAll('.nav-links a').forEach(function(a){
       a.classList.toggle('active', a.getAttribute('data-page')===name);
     });
-    /* Close mobile menu */
     document.getElementById('navLinks').classList.remove('open');
     document.getElementById('hamburger').classList.remove('open');
   }
-  if(name==='article' && slug){
-    renderArticle(slug);
+  /* Update URL with pushState */
+  var path = '/';
+  var title = 'Entre ici et ailleurs';
+  if(name==='accueil'){ path='/'; }
+  else if(name==='article' && slug){ path='/article/'+slug; title=slug+' — EIA'; }
+  else if(name==='audio'){ path='/audio'; title='Audio — EIA'; }
+  else { path='/'+name; title=name.charAt(0).toUpperCase()+name.slice(1)+' — EIA'; }
+  if(window.history && window.history.pushState){
+    window.history.pushState({view:name,slug:slug||null}, title, path);
   }
-  if(name==='blog'){
-    renderBlog();
+  document.title = title;
+
+  if(name==='article' && slug){ renderArticle(slug); }
+  if(name==='blog'){ renderBlog(); }
+  if(name==='audio'){ renderAudio(); }
+}
+
+/* Handle browser back/forward */
+window.addEventListener('popstate', function(e){
+  if(e.state && e.state.view){
+    showViewSilent(e.state.view, e.state.slug);
+  } else {
+    showViewSilent('accueil');
   }
+});
+
+/* Show view WITHOUT pushing to history (for back/forward) */
+function showViewSilent(name, slug){
+  views.forEach(function(v){v.classList.remove('active')});
+  var target = document.getElementById('v-'+name);
+  if(target){
+    target.classList.add('active');
+    currentView = name;
+    window.scrollTo(0,0);
+    setTimeout(function(){initReveal()}, 50);
+    document.querySelectorAll('.nav-links a').forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('data-page')===name);
+    });
+    document.getElementById('navLinks').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+  }
+  if(name==='article' && slug) renderArticle(slug);
+  if(name==='blog') renderBlog();
+  if(name==='audio') renderAudio();
+}
+
+/* Parse URL on load to restore view */
+function parseUrl(){
+  var path = window.location.pathname;
+  if(path==='/blog') return {view:'blog'};
+  if(path==='/univers') return {view:'univers'};
+  if(path==='/apropos') return {view:'apropos'};
+  if(path==='/contact') return {view:'contact'};
+  if(path==='/audio') return {view:'audio'};
+  if(path.startsWith('/article/')){
+    var slug = path.replace('/article/','');
+    return {view:'article', slug:slug};
+  }
+  return {view:'accueil'};
 }
 
 /* Navigation handler */
 document.addEventListener('click', function(e){
-  const el = e.target.closest('[data-page]');
+  var el = e.target.closest('[data-page]');
   if(!el) return;
   e.preventDefault();
-  const page = el.getAttribute('data-page');
+  var page = el.getAttribute('data-page');
   if(page) showView(page);
 });
 
 /* Article link handler */
 document.addEventListener('click', function(e){
-  const el = e.target.closest('[data-article]');
+  var el = e.target.closest('[data-article]');
   if(!el) return;
   e.preventDefault();
-  const slug = el.getAttribute('data-article');
+  var slug = el.getAttribute('data-article');
   if(slug) showView('article', slug);
 });
 
@@ -915,7 +1003,7 @@ function renderHome(){
       var init = (g.title||'?').charAt(0);
       return '<div style="height:180px;overflow:hidden;position:relative;background:linear-gradient('+(135+i*30)+'deg,rgba(13,29,44,.95),rgba(6,13,24,.98));display:flex;align-items:center;justify-content:center">'+
         '<span style="font-family:var(--ff-t);font-size:36px;color:var(--g3);opacity:.2;position:absolute">'+esc(init)+'</span>'+
-        '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" onerror="this.style.display=\'none\'">'+
+        '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'+
       '</div>';
     }).join('');
   } else {
@@ -936,7 +1024,7 @@ function blogCardHtml(p, num, cls){
   if(thumbUrl){
     thumbHtml = '<div class="bc-thumb" style="position:relative;'+placeholderBg+'">'+
       placeholderInner+
-      '<img src="'+esc(thumbUrl)+'" alt="'+esc(p.title)+'" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
+      '<img src="'+esc(thumbUrl)+'" alt="'+esc(p.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
     '</div>';
   } else {
     thumbHtml = '<div class="bc-thumb" style="'+placeholderBg+'">'+placeholderInner+'</div>';
@@ -989,7 +1077,7 @@ function renderGallery(){
     var initial = (g.title||'?').charAt(0);
     return '<div class="uv rv" style="position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;background:linear-gradient('+(135+i*20)+'deg,rgba(13,29,44,.95),rgba(6,13,24,.98))">'+
       '<span style="font-family:var(--ff-t);font-size:42px;color:var(--g3);opacity:.2;position:absolute;z-index:0">'+esc(initial)+'</span>'+
-      '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" onerror="this.style.display=\'none\'">'+
+      '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" onerror="this.style.display=\'none\'">'+
       '<div class="uv-cap" style="z-index:2">'+esc(g.title)+'</div>'+
     '</div>';
   }).join('');
@@ -1023,7 +1111,7 @@ function renderArticle(slug){
 
   /* Cover */
   if(post.cover){
-    html += '<img class="article-cover" src="'+esc(post.cover)+'" alt="'+esc(post.title)+'" loading="lazy" onerror="this.style.display=\'none\'">';
+    html += '<img class="article-cover" src="'+esc(post.cover)+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
   }
 
   /* Header */
@@ -1318,14 +1406,104 @@ function commentHtml(c, admin, slug, isReply){
 }
 
 /* ════════════════════════════════════════════════════════════════
+   RENDER — AUDIO
+   ════════════════════════════════════════════════════════════════ */
+var AUDIO = [];
+
+function renderAudio(){
+  var grid = document.getElementById('audioGrid');
+  if(!grid) return;
+  if(!AUDIO.length){
+    grid.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:var(--ff-t);font-style:italic;color:var(--g3);font-size:16px">Les enregistrements arrivent bientôt…</div>';
+    return;
+  }
+  grid.innerHTML = AUDIO.filter(function(a){return a.published!==false}).map(function(a){
+    return '<div class="audio-card rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:24px;margin-bottom:16px">'+
+      '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
+        '<div style="flex:1;min-width:200px">'+
+          '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</p>'+
+          (a.poet ? '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3)">'+esc(a.poet)+'</p>' : '')+
+          (a.description ? '<p style="font-family:var(--ff-b);font-size:13px;color:var(--txt);margin-top:8px;line-height:1.6">'+esc(a.description)+'</p>' : '')+
+        '</div>'+
+        '<div style="flex:0 0 auto;width:100%;max-width:400px">'+
+          '<audio controls preload="none" style="width:100%;height:40px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)">'+
+            '<source src="'+esc(a.file)+'" type="audio/mpeg">'+
+            'Votre navigateur ne supporte pas la lecture audio.'+
+          '</audio>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SCHEDULED PUBLISHING — filter posts by publishDate
+   ════════════════════════════════════════════════════════════════ */
+function filterScheduled(posts){
+  var now = new Date();
+  return posts.filter(function(p){
+    if(p.published===false) return false;
+    if(p.publishDate){
+      var pd = new Date(p.publishDate);
+      if(!isNaN(pd) && pd > now) return false;
+    }
+    return true;
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SECTION VISIBILITY (from settings)
+   ════════════════════════════════════════════════════════════════ */
+function applySectionVisibility(){
+  var sections = {
+    'blog': SETTINGS.show_blog !== false,
+    'univers': SETTINGS.show_univers !== false,
+    'audio': SETTINGS.show_audio !== false,
+    'apropos': SETTINGS.show_apropos !== false,
+    'contact': SETTINGS.show_contact !== false
+  };
+  /* Hide/show nav links and views */
+  document.querySelectorAll('.nav-links a[data-page]').forEach(function(a){
+    var page = a.getAttribute('data-page');
+    if(page in sections){
+      a.parentElement.style.display = sections[page] ? '' : 'none';
+    }
+  });
+  document.querySelectorAll('.footer-links a[data-page]').forEach(function(a){
+    var page = a.getAttribute('data-page');
+    if(page in sections){
+      a.style.display = sections[page] ? '' : 'none';
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════
    RENDER ALL
    ════════════════════════════════════════════════════════════════ */
 function renderAll(){
+  /* Apply scheduled publishing filter */
+  POSTS = filterScheduled(POSTS);
+  
   renderHome();
   renderBlog();
   renderGallery();
   renderAbout();
-  showView('accueil');
+  renderAudio();
+  applySectionVisibility();
+  
+  /* Parse URL to restore the correct view */
+  var route = parseUrl();
+  if(route.view==='article' && route.slug){
+    showView('article', route.slug);
+  } else if(route.view!=='accueil'){
+    showView(route.view);
+  } else {
+    showView('accueil');
+  }
+  /* Replace initial history entry */
+  if(window.history && window.history.replaceState){
+    window.history.replaceState({view:route.view, slug:route.slug||null}, document.title);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════

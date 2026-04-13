@@ -19,17 +19,18 @@ collections:
             widget: "list"
             label: "Articles"
             fields:
-              - { name: slug,      widget: string,   label: "Slug (unique, tirets)", hint: "Ex: mon-poeme — pas d'accents ni espaces" }
-              - { name: title,     widget: string,   label: "Titre" }
-              - { name: date,      widget: string,   label: "Date (ex: 15 avril 2025)" }
-              - { name: tag,       widget: select,   label: "Catégorie",
+              - { name: slug,        widget: string,   label: "Slug (unique, tirets)", hint: "Ex: mon-poeme — pas d'accents ni espaces" }
+              - { name: title,       widget: string,   label: "Titre" }
+              - { name: date,        widget: string,   label: "Date (ex: 15 avril 2025)" }
+              - { name: publishDate, widget: datetime,  label: "Date de publication programmée", required: false, hint: "Laisser vide pour publier immédiatement. Remplir pour programmer la publication à une date/heure future." }
+              - { name: tag,         widget: select,   label: "Catégorie",
                   options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"] }
-              - { name: excerpt,   widget: text,     label: "Extrait (2–3 lignes)" }
-              - { name: cover,     widget: image,    label: "Image couverture", required: false }
-              - { name: thumb,     widget: image,    label: "Miniature carte",  required: false }
-              - { name: body,      widget: markdown,  label: "Contenu complet",
+              - { name: excerpt,     widget: text,     label: "Extrait (2–3 lignes)" }
+              - { name: cover,       widget: image,    label: "Image couverture", required: false }
+              - { name: thumb,       widget: image,    label: "Miniature carte",  required: false }
+              - { name: body,        widget: markdown,  label: "Contenu complet",
                   hint: "![alt](url) pour insérer une image · > pour citation · **gras** · *italic*" }
-              - { name: published, widget: boolean,  label: "Publié", default: true }
+              - { name: published,   widget: boolean,  label: "Publié", default: true }
 
   - name: "galerie"
     label: "🌌 Galerie Univers"
@@ -46,15 +47,39 @@ collections:
               - { name: image, widget: image,  label: "Image" }
               - { name: order, widget: number, label: "Ordre", default: 1 }
 
+  - name: "audio"
+    label: "🎵 Audio"
+    files:
+      - file: "data/audio.json"
+        name: "tous_les_audios"
+        label: "Gérer les enregistrements"
+        fields:
+          - name: tracks
+            widget: list
+            label: "Enregistrements"
+            fields:
+              - { name: title,       widget: string,  label: "Titre" }
+              - { name: poet,        widget: string,  label: "Auteur / Interprète", required: false, default: "J.Y.D." }
+              - { name: description,  widget: text,    label: "Description", required: false }
+              - { name: file,        widget: file,    label: "Fichier audio (MP3)", hint: "Uploadez un fichier MP3" }
+              - { name: cover,       widget: image,   label: "Image de couverture", required: false }
+              - { name: order,       widget: number,  label: "Ordre", default: 1 }
+              - { name: published,   widget: boolean, label: "Publié", default: true }
+
   - name: "parametres"
     label: "⚙️ Paramètres"
     files:
       - file: "data/settings.json"
         name: "site"
-        label: "Textes du site"
+        label: "Textes et visibilité du site"
         fields:
-          - { name: tagline,   widget: string, label: "Tagline" }
-          - { name: man1,      widget: string, label: "Manifeste ligne 1" }
-          - { name: man2,      widget: string, label: "Manifeste ligne 2" }
-          - { name: apropos,   widget: text,   label: "Texte À propos" }
-          - { name: instagram, widget: string, label: "Instagram", required: false }
+          - { name: tagline,      widget: string,  label: "Tagline" }
+          - { name: man1,         widget: string,  label: "Manifeste ligne 1" }
+          - { name: man2,         widget: string,  label: "Manifeste ligne 2" }
+          - { name: apropos,      widget: text,    label: "Texte À propos" }
+          - { name: instagram,    widget: string,  label: "Instagram", required: false }
+          - { name: show_blog,    widget: boolean, label: "Afficher la section Blog", default: true }
+          - { name: show_univers, widget: boolean, label: "Afficher la section Univers", default: true }
+          - { name: show_audio,   widget: boolean, label: "Afficher la section Audio", default: true }
+          - { name: show_apropos, widget: boolean, label: "Afficher la section À propos", default: true }
+          - { name: show_contact, widget: boolean, label: "Afficher la section Contact", default: true }

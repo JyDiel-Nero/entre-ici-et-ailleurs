@@ -20,3 +20,34 @@
   from = "/admin"
   to   = "/admin/index.html"
   status = 200
+
+# SPA routing — all paths resolve to index.html
+[[redirects]]
+  from = "/blog"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/univers"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/apropos"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/audio"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/article/*"
+  to   = "/index.html"
+  status = 200
