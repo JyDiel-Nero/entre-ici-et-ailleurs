@@ -51,3 +51,8 @@
   from = "/article/*"
   to   = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/confidentialite"
+  to   = "/index.html"
+  status = 200

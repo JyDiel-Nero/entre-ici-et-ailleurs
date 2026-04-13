@@ -102,3 +102,15 @@ L'image sera centrée avec une légende en italic doré.
 ---
 
 **Astuce :** Après chaque sauvegarde dans le CMS, attendez environ 1 minute avant de rafraîchir le site pour voir les changements.
+
+---
+
+## Programmer une publication
+
+1. Dans le CMS, lors de l'édition d'un article
+2. Remplissez le champ **Publication programmée** avec une date et heure futures
+3. L'article sera visible uniquement après cette date
+4. Si vous laissez le champ vide, l'article est publié immédiatement
+5. L'article doit aussi avoir **Publié** coché pour être visible
+
+**Note :** La vérification se fait côté client (JavaScript). Si un visiteur manipule son horloge système, il pourrait voir l'article en avance. Pour une programmation stricte, publiez l'article uniquement le jour J.

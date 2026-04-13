@@ -21,15 +21,14 @@ collections:
             fields:
               - { name: slug,        widget: string,   label: "Slug (unique, tirets)", hint: "Ex: mon-poeme — pas d'accents ni espaces" }
               - { name: title,       widget: string,   label: "Titre" }
-              - { name: date,        widget: string,   label: "Date (ex: 15 avril 2025)" }
-              - { name: publishDate, widget: datetime,  label: "Date de publication programmée", required: false, hint: "Laisser vide pour publier immédiatement. Remplir pour programmer la publication à une date/heure future." }
+              - { name: date,        widget: string,   label: "Date affichée (ex: 15 avril 2025)" }
+              - { name: publishDate, widget: datetime,  label: "Publication programmée", required: false, hint: "Vide = immédiat. Remplir = programmé à cette date/heure." }
               - { name: tag,         widget: select,   label: "Catégorie",
                   options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"] }
               - { name: excerpt,     widget: text,     label: "Extrait (2–3 lignes)" }
               - { name: cover,       widget: image,    label: "Image couverture", required: false }
               - { name: thumb,       widget: image,    label: "Miniature carte",  required: false }
-              - { name: body,        widget: markdown,  label: "Contenu complet",
-                  hint: "![alt](url) pour insérer une image · > pour citation · **gras** · *italic*" }
+              - { name: body,        widget: markdown,  label: "Contenu complet" }
               - { name: published,   widget: boolean,  label: "Publié", default: true }
 
   - name: "galerie"
@@ -61,7 +60,12 @@ collections:
               - { name: title,       widget: string,  label: "Titre" }
               - { name: poet,        widget: string,  label: "Auteur / Interprète", required: false, default: "J.Y.D." }
               - { name: description,  widget: text,    label: "Description", required: false }
-              - { name: file,        widget: file,    label: "Fichier audio (MP3)", hint: "Uploadez un fichier MP3" }
+              - { name: file,        widget: file,    label: "Fichier audio MP3", required: false, hint: "Uploadez un MP3 OU remplissez un lien ci-dessous" }
+              - { name: youtube,     widget: string,  label: "Lien YouTube", required: false, hint: "URL complète YouTube. Sera intégré en vidéo." }
+              - { name: instagram,   widget: string,  label: "Lien Instagram", required: false }
+              - { name: tiktok,      widget: string,  label: "Lien TikTok", required: false }
+              - { name: link,        widget: string,  label: "Autre lien", required: false }
+              - { name: link_label,  widget: string,  label: "Texte du lien", required: false, default: "Écouter" }
               - { name: cover,       widget: image,   label: "Image de couverture", required: false }
               - { name: order,       widget: number,  label: "Ordre", default: 1 }
               - { name: published,   widget: boolean, label: "Publié", default: true }
@@ -71,15 +75,23 @@ collections:
     files:
       - file: "data/settings.json"
         name: "site"
-        label: "Textes et visibilité du site"
+        label: "Textes, noms et visibilité"
         fields:
-          - { name: tagline,      widget: string,  label: "Tagline" }
-          - { name: man1,         widget: string,  label: "Manifeste ligne 1" }
-          - { name: man2,         widget: string,  label: "Manifeste ligne 2" }
-          - { name: apropos,      widget: text,    label: "Texte À propos" }
-          - { name: instagram,    widget: string,  label: "Instagram", required: false }
-          - { name: show_blog,    widget: boolean, label: "Afficher la section Blog", default: true }
-          - { name: show_univers, widget: boolean, label: "Afficher la section Univers", default: true }
-          - { name: show_audio,   widget: boolean, label: "Afficher la section Audio", default: true }
-          - { name: show_apropos, widget: boolean, label: "Afficher la section À propos", default: true }
-          - { name: show_contact, widget: boolean, label: "Afficher la section Contact", default: true }
+          - { name: hero_title,    widget: string,  label: "Titre Hero (accueil)", default: "Entre ici et ailleurs" }
+          - { name: hero_subtitle, widget: string,  label: "Sous-titre Hero", default: "méditation sur la création" }
+          - { name: tagline,       widget: string,  label: "Tagline", default: "Un brin d'éternité dans le temps" }
+          - { name: man1,          widget: string,  label: "Manifeste ligne 1" }
+          - { name: man2,          widget: string,  label: "Manifeste ligne 2" }
+          - { name: apropos,       widget: text,    label: "Texte À propos" }
+          - { name: instagram,     widget: string,  label: "Instagram", required: false }
+          - { name: name_blog,     widget: string,  label: "Nom section Blog", default: "Blog" }
+          - { name: name_univers,  widget: string,  label: "Nom section Univers", default: "Univers" }
+          - { name: name_apropos,  widget: string,  label: "Nom section À propos", default: "À propos" }
+          - { name: name_audio,    widget: string,  label: "Nom section Audio", default: "Audio" }
+          - { name: name_contact,  widget: string,  label: "Nom section Contact", default: "Contact" }
+          - { name: show_blog,     widget: boolean, label: "Afficher Blog", default: true }
+          - { name: show_univers,  widget: boolean, label: "Afficher Univers", default: true }
+          - { name: show_audio,    widget: boolean, label: "Afficher Audio", default: true }
+          - { name: show_apropos,  widget: boolean, label: "Afficher À propos", default: true }
+          - { name: show_contact,  widget: boolean, label: "Afficher Contact", default: true }
+          - { name: privacy_text,  widget: text,    label: "Texte Confidentialité (optionnel — remplace le texte par défaut)", required: false }

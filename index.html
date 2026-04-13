@@ -438,11 +438,11 @@ audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
   <a class="nav-logo" data-page="accueil" style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 200 70" style="height:34px;width:auto" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ng1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient></defs><g transform="translate(100,32)"><g transform="rotate(-10) scale(0.28)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#ng1)" stroke-width="2.5" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#ng1)" stroke-width="2.5" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/></g><line x1="0" y1="0" x2="12" y2="11" stroke="#E8C98A" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="0" x2="11.5" y2="20" stroke="#E8C98A" stroke-width="0.8" stroke-linecap="round"/><circle cx="0" cy="0" r="1.5" fill="#E8C98A"/><text x="-24" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#ng1)" opacity="0.9">E</text><text x="1" y="-6" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="15" font-style="italic" fill="url(#ng1)" opacity="0.8">I</text><text x="26" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#ng1)" opacity="0.9">A</text></g></svg><span style="font-style:italic;font-weight:300;color:var(--g2);opacity:.5;font-size:12px">entre ici et ailleurs</span></a>
   <ul class="nav-links" id="navLinks">
     <li><a data-page="accueil">Accueil</a></li>
-    <li><a data-page="blog">Blog</a></li>
-    <li><a data-page="univers">Univers</a></li>
-    <li><a data-page="apropos">À propos</a></li>
-    <li><a data-page="audio">Audio</a></li>
-    <li><a data-page="contact">Contact</a></li>
+    <li><a data-page="blog" id="nav-blog">Blog</a></li>
+    <li><a data-page="univers" id="nav-univers">Univers</a></li>
+    <li><a data-page="apropos" id="nav-apropos">À propos</a></li>
+    <li><a data-page="audio" id="nav-audio">Audio</a></li>
+    <li><a data-page="contact" id="nav-contact">Contact</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -464,9 +464,9 @@ audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
       <div class="rv" style="width:280px;margin:0 auto 20px">
         <svg viewBox="0 0 680 380" style="width:100%" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient><linearGradient id="hgS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#E8C98A" stop-opacity="0.35"/><stop offset="50%" stop-color="#C9A96E" stop-opacity="0.18"/><stop offset="100%" stop-color="#E8C98A" stop-opacity="0.35"/></linearGradient></defs><g transform="translate(340,180)"><g transform="rotate(-10)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#hg1)" stroke-width="1.7" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#hg1)" stroke-width="1.7" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="2.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="2.5" stroke-linecap="round"/><path d="M-119,-38 L-119,38 L-14,4 L-14,-4 Z" fill="url(#hgS)" opacity="0.5"><animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0.5;0.22;0.5"/></path><path d="M119,-38 L119,38 L14,4 L14,-4 Z" fill="url(#hgS)" opacity="0.22"><animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0.2;0.48;0.2"/></path><line x1="-8" y1="0" x2="8" y2="0" stroke="#C9A96E" stroke-width="1" opacity="0.4"><animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.5;0.15;0.5"/></line><circle r="1" fill="#E8C98A"><animate attributeName="cx" dur="1.5s" repeatCount="indefinite" values="-7;0;7"/><animate attributeName="opacity" dur="1.5s" repeatCount="indefinite" values="0.8;0.4;0"/></circle><circle r="0.7" fill="#E8C98A"><animate attributeName="cx" dur="2s" repeatCount="indefinite" values="-9;1;8" begin="0.5s"/><animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.6;0.4;0" begin="0.5s"/></circle></g><line id="clockH" x1="0" y1="0" x2="44" y2="40" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line id="clockM" x1="0" y1="0" x2="42" y2="74" stroke="#E8C98A" stroke-width="2" stroke-linecap="round"/><circle cx="0" cy="0" r="4" fill="#E8C98A"/><circle cx="0" cy="0" r="1.8" fill="#C9A96E"/><text x="-82" y="16" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="76" font-style="italic" fill="url(#hg1)" opacity="0.9">E</text><text x="2" y="-22" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="50" font-style="italic" fill="url(#hg1)" opacity="0.8">I</text><text x="86" y="16" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="76" font-style="italic" fill="url(#hg1)" opacity="0.9">A</text></g></svg>
       </div>
-      <h1 class="rv d1">Entre ici et ailleurs</h1>
-      <p class="subtitle rv d2">méditation sur la création</p>
-      <p class="tagline rv d3">Un brin d'éternité dans le temps</p>
+      <h1 class="rv d1" id="heroTitle">Entre ici et ailleurs</h1>
+      <p class="subtitle rv d2" id="heroSubtitle">méditation sur la création</p>
+      <p class="tagline rv d3" id="heroTagline">Un brin d'éternité dans le temps</p>
     </div>
   </section>
 
@@ -719,19 +719,47 @@ audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════
+     VUE 8 — CONFIDENTIALITÉ (cachée, footer only)
+     ════════════════════════════════════════════════════════════════ -->
+<div class="view" id="v-confidentialite">
+  <section class="ph s-deep">
+    <div class="wrap tac">
+      <p class="t-label rv">MENTIONS LÉGALES</p>
+      <h2 class="t-title lg rv d1" style="margin-top:12px">Confidentialité</h2>
+    </div>
+  </section>
+  <section class="s-night">
+    <div class="wrap-narrow" id="privacyContent" style="font-family:var(--ff-b);font-size:14px;line-height:2;color:var(--txt)">
+      <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Propriété intellectuelle</strong><br>
+      L'ensemble des textes, poèmes, enregistrements audio et contenus visuels publiés sur ce site sont la propriété exclusive de JyDiel Records. Toute reproduction, republication, diffusion ou utilisation, même partielle, est strictement interdite sans accord écrit préalable de l'auteur.</p>
+      <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Données personnelles (RGPD)</strong><br>
+      Ce site collecte uniquement les données que vous fournissez volontairement : prénom et adresse email lors de l'inscription à la newsletter, et prénom lors du dépôt d'un commentaire. Ces données sont stockées chez Netlify (commentaires) et MailerLite (newsletter). Elles ne sont ni vendues, ni partagées avec des tiers à des fins commerciales.</p>
+      <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Vos droits</strong><br>
+      Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Pour exercer ces droits, contactez-nous via la section Contact du site ou par email.</p>
+      <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Cookies</strong><br>
+      Ce site n'utilise pas de cookies de traçage ni de publicité. Seul un stockage local (localStorage) est utilisé pour mémoriser vos « j'aime » sur les articles.</p>
+      <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Newsletter</strong><br>
+      Vous pouvez vous désabonner à tout moment via le lien de désabonnement présent dans chaque email. Votre adresse sera alors supprimée de la liste de diffusion.</p>
+      <p style="color:var(--g3);font-style:italic">© 2025 JyDiel Records — Tous droits réservés.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
      FOOTER
      ════════════════════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer-logo"><svg viewBox="0 0 200 70" style="height:40px;width:auto;margin:0 auto;display:block" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C98A"/><stop offset="45%" stop-color="#C9A96E"/><stop offset="100%" stop-color="#A8884E"/></linearGradient></defs><g transform="translate(100,32)"><g transform="rotate(-10) scale(0.28)"><path d="M-125,-48 L-125,48 L-10,6 L-10,-6 Z" fill="none" stroke="url(#fg1)" stroke-width="2.5" stroke-linejoin="round"/><path d="M125,-48 L125,48 L10,6 L10,-6 Z" fill="none" stroke="url(#fg1)" stroke-width="2.5" stroke-linejoin="round"/><line x1="-125" y1="-52" x2="-125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/><line x1="125" y1="-52" x2="125" y2="52" stroke="#E8C98A" stroke-width="3.5" stroke-linecap="round"/></g><line x1="0" y1="0" x2="12" y2="11" stroke="#E8C98A" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="0" x2="11.5" y2="20" stroke="#E8C98A" stroke-width="0.8" stroke-linecap="round"/><circle cx="0" cy="0" r="1.5" fill="#E8C98A"/><text x="-24" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#fg1)" opacity="0.9">E</text><text x="1" y="-6" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="15" font-style="italic" fill="url(#fg1)" opacity="0.8">I</text><text x="26" y="5" text-anchor="middle" font-family="'Palatino Linotype',Georgia,serif" font-size="22" font-style="italic" fill="url(#fg1)" opacity="0.9">A</text></g></svg></div>
   <div class="footer-links">
     <a data-page="accueil">Accueil</a>
-    <a data-page="blog">Blog</a>
-    <a data-page="univers">Univers</a>
-    <a data-page="apropos">À propos</a>
-    <a data-page="audio">Audio</a>
-    <a data-page="contact">Contact</a>
+    <a data-page="blog" id="ft-blog">Blog</a>
+    <a data-page="univers" id="ft-univers">Univers</a>
+    <a data-page="apropos" id="ft-apropos">À propos</a>
+    <a data-page="audio" id="ft-audio">Audio</a>
+    <a data-page="contact" id="ft-contact">Contact</a>
   </div>
   <p class="footer-copy">© 2025 JyDiel Records — Entre ici et ailleurs. Tous droits réservés.</p>
+  <p style="margin-top:12px"><a data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
 </footer>
 
 <!-- ════════════════════════════════════════════════════════════════
@@ -941,6 +969,7 @@ function parseUrl(){
   if(path==='/apropos') return {view:'apropos'};
   if(path==='/contact') return {view:'contact'};
   if(path==='/audio') return {view:'audio'};
+  if(path==='/confidentialite') return {view:'confidentialite'};
   if(path.startsWith('/article/')){
     var slug = path.replace('/article/','');
     return {view:'article', slug:slug};
@@ -1413,25 +1442,39 @@ var AUDIO = [];
 function renderAudio(){
   var grid = document.getElementById('audioGrid');
   if(!grid) return;
-  if(!AUDIO.length){
+  var tracks = AUDIO.filter(function(a){return a.published!==false});
+  if(!tracks.length){
     grid.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:var(--ff-t);font-style:italic;color:var(--g3);font-size:16px">Les enregistrements arrivent bientôt…</div>';
     return;
   }
-  grid.innerHTML = AUDIO.filter(function(a){return a.published!==false}).map(function(a){
+  grid.innerHTML = tracks.map(function(a){
+    var mediaHtml = '';
+    /* Audio player */
+    if(a.file){
+      mediaHtml += '<audio controls preload="none" style="width:100%;height:40px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)"><source src="'+esc(a.file)+'" type="audio/mpeg">Votre navigateur ne supporte pas la lecture audio.</audio>';
+    }
+    /* YouTube embed */
+    if(a.youtube){
+      var ytId = a.youtube.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if(ytId){
+        mediaHtml += '<div style="margin-top:10px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border:1px solid rgba(201,169,110,.1)"><iframe src="https://www.youtube.com/embed/'+ytId[1]+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy" decoding="async"></iframe></div>';
+      } else {
+        mediaHtml += '<a href="'+esc(a.youtube)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:11px;color:var(--gold);letter-spacing:.1em">▶ Écouter sur YouTube</a>';
+      }
+    }
+    /* External links (Instagram, TikTok, etc.) */
+    var links = '';
+    if(a.instagram) links += '<a href="'+esc(a.instagram)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3);margin-right:16px">Instagram</a>';
+    if(a.tiktok) links += '<a href="'+esc(a.tiktok)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3);margin-right:16px">TikTok</a>';
+    if(a.link) links += '<a href="'+esc(a.link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3)">'+esc(a.link_label||'Lien')+'</a>';
+
     return '<div class="audio-card rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:24px;margin-bottom:16px">'+
-      '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'+
-        '<div style="flex:1;min-width:200px">'+
-          '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</p>'+
-          (a.poet ? '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3)">'+esc(a.poet)+'</p>' : '')+
-          (a.description ? '<p style="font-family:var(--ff-b);font-size:13px;color:var(--txt);margin-top:8px;line-height:1.6">'+esc(a.description)+'</p>' : '')+
-        '</div>'+
-        '<div style="flex:0 0 auto;width:100%;max-width:400px">'+
-          '<audio controls preload="none" style="width:100%;height:40px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)">'+
-            '<source src="'+esc(a.file)+'" type="audio/mpeg">'+
-            'Votre navigateur ne supporte pas la lecture audio.'+
-          '</audio>'+
-        '</div>'+
-      '</div>'+
+      (a.cover ? '<img src="'+esc(a.cover)+'" alt="'+esc(a.title)+'" style="width:100%;max-height:200px;object-fit:cover;margin-bottom:16px;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' : '')+
+      '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</p>'+
+      (a.poet ? '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3)">'+esc(a.poet)+'</p>' : '')+
+      (a.description ? '<p style="font-family:var(--ff-b);font-size:13px;color:var(--txt);margin-top:8px;line-height:1.6">'+esc(a.description)+'</p>' : '')+
+      '<div style="margin-top:12px">'+mediaHtml+'</div>'+
+      (links ? '<div style="margin-top:12px">'+links+'</div>' : '')+
     '</div>';
   }).join('');
 }
@@ -1452,7 +1495,7 @@ function filterScheduled(posts){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SECTION VISIBILITY (from settings)
+   SECTION VISIBILITY + RENAMING + HERO TEXTS + PRIVACY
    ════════════════════════════════════════════════════════════════ */
 function applySectionVisibility(){
   var sections = {
@@ -1462,7 +1505,6 @@ function applySectionVisibility(){
     'apropos': SETTINGS.show_apropos !== false,
     'contact': SETTINGS.show_contact !== false
   };
-  /* Hide/show nav links and views */
   document.querySelectorAll('.nav-links a[data-page]').forEach(function(a){
     var page = a.getAttribute('data-page');
     if(page in sections){
@@ -1475,6 +1517,38 @@ function applySectionVisibility(){
       a.style.display = sections[page] ? '' : 'none';
     }
   });
+
+  /* Section renaming from settings */
+  var names = {
+    blog: SETTINGS.name_blog || 'Blog',
+    univers: SETTINGS.name_univers || 'Univers',
+    apropos: SETTINGS.name_apropos || 'À propos',
+    audio: SETTINGS.name_audio || 'Audio',
+    contact: SETTINGS.name_contact || 'Contact'
+  };
+  ['blog','univers','apropos','audio','contact'].forEach(function(key){
+    var navEl = document.getElementById('nav-'+key);
+    if(navEl) navEl.textContent = names[key];
+    var ftEl = document.getElementById('ft-'+key);
+    if(ftEl) ftEl.textContent = names[key];
+  });
+
+  /* Hero texts from settings */
+  var heroTitle = document.getElementById('heroTitle');
+  if(heroTitle && SETTINGS.hero_title) heroTitle.textContent = SETTINGS.hero_title;
+  var heroSub = document.getElementById('heroSubtitle');
+  if(heroSub && SETTINGS.hero_subtitle) heroSub.textContent = SETTINGS.hero_subtitle;
+  var heroTag = document.getElementById('heroTagline');
+  if(heroTag && SETTINGS.tagline) heroTag.textContent = SETTINGS.tagline;
+
+  /* Privacy content from CMS */
+  if(SETTINGS.privacy_text){
+    var privEl = document.getElementById('privacyContent');
+    if(privEl){
+      var paragraphs = SETTINGS.privacy_text.split('\n').filter(function(l){return l.trim()});
+      privEl.innerHTML = paragraphs.map(function(p){return '<p style="margin-bottom:1.5em">'+esc(p)+'</p>'}).join('');
+    }
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════
