@@ -77,6 +77,8 @@ collections:
         name: "site"
         label: "Textes, noms et visibilité"
         fields:
+          - { name: hero_bg,      widget: image,   label: "Image de fond Hero (accueil)", required: false, hint: "Remplace l'horloge. Laissez vide pour garder l'image par défaut." }
+          - { name: site_bg,      widget: image,   label: "Image de fond globale (sections)", required: false, hint: "Remplace le fond des sections. Laissez vide pour garder l'image par défaut." }
           - { name: hero_title,    widget: string,  label: "Titre Hero (accueil)", default: "Entre ici et ailleurs" }
           - { name: hero_subtitle, widget: string,  label: "Sous-titre Hero", default: "méditation sur la création" }
           - { name: tagline,       widget: string,  label: "Tagline", default: "Un brin d'éternité dans le temps" }

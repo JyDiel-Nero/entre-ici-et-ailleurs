@@ -392,6 +392,12 @@ img{image-rendering:auto}
 .audio-card{transition:border-color .4s}
 .audio-card:hover{border-color:rgba(201,169,110,.2)}
 audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
+audio{border-radius:4px;max-width:100%}
+.audio-card iframe{border-radius:4px}
+@media(max-width:768px){
+  .audio-card{padding:16px!important}
+  .audio-card iframe{min-height:180px}
+}
 /* ════════════════════════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════════════════════════ */
@@ -858,11 +864,18 @@ var EMBEDDED_GALLERY = [
 ];
 
 var EMBEDDED_SETTINGS = {
+  hero_title:"Entre ici et ailleurs",
+  hero_subtitle:"méditation sur la création",
   tagline:"Un brin d'éternité dans le temps",
   man1:"Aux heures perdues",
   man2:"Qui toujours se retrouvent dues.",
   apropos:"Un brin rêveur, amoureux de la connaissance et de tout ce qui est mystérieux, je voyage souvent seul, bien que désirant être bien accompagné.\n\nJe vous dirais bien plus sur moi, mais je préfère vous laissez le plaisir de me découvrir un vers après l'autre, une gare à la fois, d'ici à ailleurs.",
-  instagram:""
+  instagram:"",
+  hero_bg:"",
+  site_bg:"",
+  name_blog:"Blog",name_univers:"Univers",name_apropos:"À propos",name_audio:"Audio",name_contact:"Contact",
+  show_blog:true,show_univers:true,show_audio:true,show_apropos:true,show_contact:true,
+  privacy_text:""
 };
 
 /* ════════════════════════════════════════════════════════════════
@@ -1540,6 +1553,16 @@ function applySectionVisibility(){
   if(heroSub && SETTINGS.hero_subtitle) heroSub.textContent = SETTINGS.hero_subtitle;
   var heroTag = document.getElementById('heroTagline');
   if(heroTag && SETTINGS.tagline) heroTag.textContent = SETTINGS.tagline;
+
+  /* Dynamic background images from CMS */
+  if(SETTINGS.hero_bg){
+    var heroBgEl = document.querySelector('.hero-bg');
+    if(heroBgEl) heroBgEl.style.background = 'url('+SETTINGS.hero_bg+') center/cover no-repeat';
+  }
+  if(SETTINGS.site_bg){
+    var siteBgEl = document.getElementById('sitebg');
+    if(siteBgEl) siteBgEl.style.background = 'url('+SETTINGS.site_bg+') center/cover no-repeat';
+  }
 
   /* Privacy content from CMS */
   if(SETTINGS.privacy_text){
