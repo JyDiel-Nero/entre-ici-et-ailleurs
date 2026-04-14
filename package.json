@@ -1,8 +1,0 @@
-{
-  "name": "entre-ici-et-ailleurs",
-  "version": "1.0.0",
-  "description": "Blog de poésie, prière et méditation par J.Y.D.",
-  "dependencies": {
-    "@netlify/blobs": "^7.0.0"
-  }
-}
