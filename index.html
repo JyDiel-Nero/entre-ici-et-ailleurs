@@ -775,6 +775,19 @@ audio{border-radius:4px;max-width:100%}
 (function(){
 'use strict';
 
+
+/* ════════════════════════════════════════════════════════════════
+   PLATFORM DETECTION — Netlify ou Cloudflare
+   ════════════════════════════════════════════════════════════════ */
+var API_BASE = (function(){
+  var host = window.location.hostname;
+  if(host.indexOf('.netlify.app') !== -1 || host.indexOf('localhost') !== -1){
+    return '/.netlify/functions';
+  }
+  /* Cloudflare Pages ou autre */
+  return '/api';
+})();
+
 /* ════════════════════════════════════════════════════════════════
    DATA
    ════════════════════════════════════════════════════════════════ */
@@ -1045,7 +1058,7 @@ function renderHome(){
       var init = (g.title||'?').charAt(0);
       return '<div style="height:180px;overflow:hidden;position:relative;background:linear-gradient('+(135+i*30)+'deg,rgba(13,29,44,.95),rgba(6,13,24,.98));display:flex;align-items:center;justify-content:center">'+
         '<span style="font-family:var(--ff-t);font-size:36px;color:var(--g3);opacity:.2;position:absolute">'+esc(init)+'</span>'+
-        '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'+
+        '<img loading="lazy" decoding="async" src="'+esc(g.image)+'" alt="'+esc(g.title)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'+
       '</div>';
     }).join('');
   } else {
@@ -1066,7 +1079,7 @@ function blogCardHtml(p, num, cls){
   if(thumbUrl){
     thumbHtml = '<div class="bc-thumb" style="position:relative;'+placeholderBg+'">'+
       placeholderInner+
-      '<img src="'+esc(thumbUrl)+'" alt="'+esc(p.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
+      '<img loading="lazy" decoding="async" src="'+esc(thumbUrl)+'" alt="'+esc(p.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
     '</div>';
   } else {
     thumbHtml = '<div class="bc-thumb" style="'+placeholderBg+'">'+placeholderInner+'</div>';
@@ -1119,7 +1132,7 @@ function renderGallery(){
     var initial = (g.title||'?').charAt(0);
     return '<div class="uv rv" style="position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;background:linear-gradient('+(135+i*20)+'deg,rgba(13,29,44,.95),rgba(6,13,24,.98))">'+
       '<span style="font-family:var(--ff-t);font-size:42px;color:var(--g3);opacity:.2;position:absolute;z-index:0">'+esc(initial)+'</span>'+
-      '<img src="'+esc(g.image)+'" alt="'+esc(g.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" onerror="this.style.display=\'none\'">'+
+      '<img loading="lazy" decoding="async" src="'+esc(g.image)+'" alt="'+esc(g.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" onerror="this.style.display=\'none\'">'+
       '<div class="uv-cap" style="z-index:2">'+esc(g.title)+'</div>'+
     '</div>';
   }).join('');
@@ -1153,7 +1166,7 @@ function renderArticle(slug){
 
   /* Cover */
   if(post.cover){
-    html += '<img class="article-cover" src="'+esc(post.cover)+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
+    html += '<img loading="lazy" decoding="async" class="article-cover" loading="lazy" decoding="async" src="'+esc(post.cover)+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
   }
 
   /* Header */
@@ -1237,7 +1250,7 @@ function initLikes(slug){
   }
 
   /* Fetch current count */
-  fetch('/.netlify/functions/get-likes?slug='+encodeURIComponent(slug))
+  fetch(API_BASE+'/likes?slug='+encodeURIComponent(slug))
     .then(r=>r.json())
     .then(d=>updateUI(d.count||0))
     .catch(()=>updateUI(0));
@@ -1248,7 +1261,7 @@ function initLikes(slug){
     liked = !liked;
     localStorage.setItem(lsKey, liked?'1':'0');
 
-    fetch('/.netlify/functions/like-post', {
+    fetch(API_BASE+'/like-post', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({slug, action: liked?'like':'unlike'})
@@ -1307,7 +1320,7 @@ function initComments(slug){
   /* Load comments */
   list.innerHTML = '<div class="comments-loading">Chargement des commentaires…</div>';
 
-  fetch('/.netlify/functions/get-comments?slug='+encodeURIComponent(slug))
+  fetch(API_BASE+'/comments?slug='+encodeURIComponent(slug))
     .then(function(r){return r.json()})
     .then(function(d){
       var comments = d.comments||[];
@@ -1333,7 +1346,7 @@ function initComments(slug){
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi…';
 
-      fetch('/.netlify/functions/add-comment', {
+      fetch(API_BASE+'/add-comment', {
         method:'POST',
         headers: getAuthHeaders(),
         body:JSON.stringify({slug:slug, name:name, text:text, adminReply:!!admin})
@@ -1396,7 +1409,7 @@ function renderComments(comments, container, slug, admin){
         if(text.length<10){ alert('La réponse doit contenir au moins 10 caractères.'); return; }
         btn.disabled = true;
         btn.textContent = 'Envoi…';
-        fetch('/.netlify/functions/add-comment', {
+        fetch(API_BASE+'/add-comment', {
           method:'POST',
           headers: getAuthHeaders(),
           body:JSON.stringify({slug:slug, name:'Daniel (auteur)', text:text, replyTo:cId, adminReply:true})
@@ -1482,7 +1495,7 @@ function renderAudio(){
     if(a.link) links += '<a href="'+esc(a.link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3)">'+esc(a.link_label||'Lien')+'</a>';
 
     return '<div class="audio-card rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:24px;margin-bottom:16px">'+
-      (a.cover ? '<img src="'+esc(a.cover)+'" alt="'+esc(a.title)+'" style="width:100%;max-height:200px;object-fit:cover;margin-bottom:16px;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' : '')+
+      (a.cover ? '<img loading="lazy" decoding="async" src="'+esc(a.cover)+'" alt="'+esc(a.title)+'" style="width:100%;max-height:200px;object-fit:cover;margin-bottom:16px;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' : '')+
       '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</p>'+
       (a.poet ? '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3)">'+esc(a.poet)+'</p>' : '')+
       (a.description ? '<p style="font-family:var(--ff-b);font-size:13px;color:var(--txt);margin-top:8px;line-height:1.6">'+esc(a.description)+'</p>' : '')+

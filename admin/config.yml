@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: JyDiel-Nero/entre-ici-et-ailleurs
   branch: main
 
 media_folder: "images/uploads"
@@ -19,10 +20,10 @@ collections:
             widget: "list"
             label: "Articles"
             fields:
-              - { name: slug,        widget: string,   label: "Slug (unique, tirets)", hint: "Ex: mon-poeme — pas d'accents ni espaces" }
+              - { name: slug,        widget: string,   label: "Slug (unique, tirets)" }
               - { name: title,       widget: string,   label: "Titre" }
               - { name: date,        widget: string,   label: "Date affichée (ex: 15 avril 2025)" }
-              - { name: publishDate, widget: datetime,  label: "Publication programmée", required: false, hint: "Vide = immédiat. Remplir = programmé à cette date/heure." }
+              - { name: publishDate, widget: datetime,  label: "Publication programmée", required: false }
               - { name: tag,         widget: select,   label: "Catégorie",
                   options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"] }
               - { name: excerpt,     widget: text,     label: "Extrait (2–3 lignes)" }
@@ -58,15 +59,15 @@ collections:
             label: "Enregistrements"
             fields:
               - { name: title,       widget: string,  label: "Titre" }
-              - { name: poet,        widget: string,  label: "Auteur / Interprète", required: false, default: "J.Y.D." }
+              - { name: poet,        widget: string,  label: "Auteur", required: false, default: "J.Y.D." }
               - { name: description,  widget: text,    label: "Description", required: false }
-              - { name: file,        widget: file,    label: "Fichier audio MP3", required: false, hint: "Uploadez un MP3 OU remplissez un lien ci-dessous" }
-              - { name: youtube,     widget: string,  label: "Lien YouTube", required: false, hint: "URL complète YouTube. Sera intégré en vidéo." }
+              - { name: file,        widget: file,    label: "Fichier MP3", required: false }
+              - { name: youtube,     widget: string,  label: "Lien YouTube", required: false }
               - { name: instagram,   widget: string,  label: "Lien Instagram", required: false }
               - { name: tiktok,      widget: string,  label: "Lien TikTok", required: false }
               - { name: link,        widget: string,  label: "Autre lien", required: false }
               - { name: link_label,  widget: string,  label: "Texte du lien", required: false, default: "Écouter" }
-              - { name: cover,       widget: image,   label: "Image de couverture", required: false }
+              - { name: cover,       widget: image,   label: "Couverture", required: false }
               - { name: order,       widget: number,  label: "Ordre", default: 1 }
               - { name: published,   widget: boolean, label: "Publié", default: true }
 
@@ -77,11 +78,11 @@ collections:
         name: "site"
         label: "Textes, noms et visibilité"
         fields:
-          - { name: hero_bg,      widget: image,   label: "Image de fond Hero (accueil)", required: false, hint: "Remplace l'horloge. Laissez vide pour garder l'image par défaut." }
-          - { name: site_bg,      widget: image,   label: "Image de fond globale (sections)", required: false, hint: "Remplace le fond des sections. Laissez vide pour garder l'image par défaut." }
-          - { name: hero_title,    widget: string,  label: "Titre Hero (accueil)", default: "Entre ici et ailleurs" }
+          - { name: hero_bg,      widget: image,   label: "Image de fond Hero", required: false }
+          - { name: site_bg,      widget: image,   label: "Image de fond globale", required: false }
+          - { name: hero_title,    widget: string,  label: "Titre Hero", default: "Entre ici et ailleurs" }
           - { name: hero_subtitle, widget: string,  label: "Sous-titre Hero", default: "méditation sur la création" }
-          - { name: tagline,       widget: string,  label: "Tagline", default: "Un brin d'éternité dans le temps" }
+          - { name: tagline,       widget: string,  label: "Tagline" }
           - { name: man1,          widget: string,  label: "Manifeste ligne 1" }
           - { name: man2,          widget: string,  label: "Manifeste ligne 2" }
           - { name: apropos,       widget: text,    label: "Texte À propos" }
@@ -96,4 +97,4 @@ collections:
           - { name: show_audio,    widget: boolean, label: "Afficher Audio", default: true }
           - { name: show_apropos,  widget: boolean, label: "Afficher À propos", default: true }
           - { name: show_contact,  widget: boolean, label: "Afficher Contact", default: true }
-          - { name: privacy_text,  widget: text,    label: "Texte Confidentialité (optionnel — remplace le texte par défaut)", required: false }
+          - { name: privacy_text,  widget: text,    label: "Texte Confidentialité", required: false }
