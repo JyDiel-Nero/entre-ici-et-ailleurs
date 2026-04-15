@@ -3,7 +3,7 @@ backend:
   repo: JyDiel-Nero/entre-ici-et-ailleurs
   branch: main
   base_url: https://entre-ici-et-ailleurs.pages.dev
-  auth_endpoint: /functions/api/auth
+  auth_endpoint: /api/auth
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
