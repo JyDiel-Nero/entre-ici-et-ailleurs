@@ -40,3 +40,14 @@
   to = "/index.html"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/oeuvres"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/custom-*"
+  to = "/index.html"
+  status = 200
+  force = true

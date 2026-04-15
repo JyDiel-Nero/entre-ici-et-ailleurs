@@ -462,6 +462,7 @@ audio{border-radius:4px;max-width:100%}
     <li><a data-page="univers" id="nav-univers">Univers</a></li>
     <li><a data-page="apropos" id="nav-apropos">À propos</a></li>
     <li><a data-page="audio" id="nav-audio">Audio</a></li>
+    <li><a data-page="oeuvres" id="nav-oeuvres">Œuvres</a></li>
     <li><a data-page="contact" id="nav-contact">Contact</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">
@@ -563,6 +564,11 @@ audio{border-radius:4px;max-width:100%}
   </section>
   <section class="s-night">
     <div class="wrap">
+      <div style="max-width:480px;margin:0 auto 30px;position:relative">
+        <input type="text" id="searchInput" placeholder="Rechercher un texte, un mot, un thème…" style="width:100%;padding:12px 44px 12px 18px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.15);color:var(--g2);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .3s" onfocus="this.style.borderColor='rgba(201,169,110,.4)'" onblur="this.style.borderColor='rgba(201,169,110,.15)'">
+        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:16px;pointer-events:none">⌕</span>
+      </div>
+      <div id="searchResults" style="display:none;margin-bottom:30px"></div>
       <div class="blog-filters rv" id="blogFilters"></div>
       <div class="blog-grid" id="blogGrid"></div>
     </div>
@@ -644,6 +650,30 @@ audio{border-radius:4px;max-width:100%}
     </div>
   </section>
 </div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     VUE 5c — OEUVRES
+     ════════════════════════════════════════════════════════════════ -->
+<div class="view" id="v-oeuvres">
+  <section class="ph s-deep">
+    <div class="wrap tac">
+      <p class="t-label rv">CRÉATIONS</p>
+      <h2 class="t-title xl rv d1" style="margin-top:12px" id="oeuvresTitle">Œuvres</h2>
+      <p class="t-italic rv d2" style="margin-top:8px">Recueils, albums et tableaux.</p>
+    </div>
+  </section>
+  <section class="s-night">
+    <div class="wrap">
+      <div id="oeuvresFilters" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:40px"></div>
+      <div id="oeuvresGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     VUE DYNAMIQUE — SECTIONS PERSONNALISÉES (conteneur)
+     ════════════════════════════════════════════════════════════════ -->
+<div id="customSectionsContainer"></div>
 
 <!-- ════════════════════════════════════════════════════════════════
      VUE 5 — CONTACT
@@ -776,6 +806,7 @@ audio{border-radius:4px;max-width:100%}
     <a data-page="univers" id="ft-univers">Univers</a>
     <a data-page="apropos" id="ft-apropos">À propos</a>
     <a data-page="audio" id="ft-audio">Audio</a>
+    <a data-page="oeuvres" id="ft-oeuvres">Œuvres</a>
     <a data-page="contact" id="ft-contact">Contact</a>
   </div>
   <p class="footer-copy">© 2025 JyDiel Records — Entre ici et ailleurs. Tous droits réservés.</p>
@@ -897,28 +928,31 @@ var EMBEDDED_SETTINGS = {
   man1:"Aux heures perdues",
   man2:"Qui toujours se retrouvent dues.",
   apropos:"Un brin rêveur, amoureux de la connaissance et de tout ce qui est mystérieux, je voyage souvent seul, bien que désirant être bien accompagné.\n\nJe vous dirais bien plus sur moi, mais je préfère vous laissez le plaisir de me découvrir un vers après l'autre, une gare à la fois, d'ici à ailleurs.",
-  instagram:"",
-  hero_bg:"",
-  site_bg:"",
-  name_blog:"Blog",name_univers:"Univers",name_apropos:"À propos",name_audio:"Audio",name_contact:"Contact",
-  show_blog:true,show_univers:true,show_audio:true,show_apropos:true,show_contact:true,
-  privacy_text:"",
-  theme_deep:"",theme_night:"",theme_ink:"",theme_gold:"",theme_gold_light:"",theme_gold_dark:"",
-  theme_font_title:"",theme_font_body:"",theme_section_opacity:""
+  instagram:"",hero_bg:"",site_bg:"",privacy_text:""
 };
+
+var SECTIONS_CONFIG = {
+  name_blog:"Blog",show_blog:true,name_oeuvres:"Œuvres",show_oeuvres:false,
+  name_univers:"Univers",show_univers:true,name_audio:"Audio",show_audio:true,
+  name_apropos:"À propos",show_apropos:true,name_contact:"Contact",show_contact:true,
+  blog_categories:[{name:"MÉDITATION"},{name:"POÉSIE"},{name:"PRIÈRE"},{name:"RÉFLEXION"},{name:"RÉCIT"}]
+};
+var THEME = {};
+var OEUVRES = [];
+var CUSTOM_SECTIONS = [];
 
 /* ════════════════════════════════════════════════════════════════
    LOAD DATA (embedded first, then try fetch for updates)
    ════════════════════════════════════════════════════════════════ */
 async function loadData(){
-  /* Use embedded data immediately */
   POSTS = sortPosts(EMBEDDED_POSTS.filter(function(p){return p.published!==false}));
   GALLERY = EMBEDDED_GALLERY.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
   SETTINGS = EMBEDDED_SETTINGS;
   AUDIO = [];
+  OEUVRES = [];
+  CUSTOM_SECTIONS = [];
   renderAll();
 
-  /* Then try to fetch fresh data from JSON files (for production with CMS) */
   try{
     var pRes = await fetch('data/posts.json').then(function(r){return r.ok?r.json():null});
     if(pRes && pRes.posts && pRes.posts.length){
@@ -930,22 +964,36 @@ async function loadData(){
     }
     var sRes = await fetch('data/settings.json').then(function(r){return r.ok?r.json():null});
     if(sRes && sRes.tagline) SETTINGS = sRes;
-    /* Audio data */
     var aRes = await fetch('data/audio.json').then(function(r){return r.ok?r.json():null});
     if(aRes && aRes.tracks) AUDIO = aRes.tracks;
+    /* New split config files */
+    var scRes = await fetch('data/sections-config.json').then(function(r){return r.ok?r.json():null});
+    if(scRes) SECTIONS_CONFIG = scRes;
+    var thRes = await fetch('data/theme.json').then(function(r){return r.ok?r.json():null});
+    if(thRes) THEME = thRes;
+    var oRes = await fetch('data/oeuvres.json').then(function(r){return r.ok?r.json():null});
+    if(oRes && oRes.oeuvres) OEUVRES = oRes.oeuvres;
+    var csRes = await fetch('data/custom-sections.json').then(function(r){return r.ok?r.json():null});
+    if(csRes && csRes.sections) CUSTOM_SECTIONS = csRes.sections;
     renderAll();
-  }catch(e){ /* embedded data is already loaded, no problem */ }
+  }catch(e){}
 }
 
 /* ════════════════════════════════════════════════════════════════
    ROUTER
    ════════════════════════════════════════════════════════════════ */
-const views = document.querySelectorAll('.view');
+function getViews(){ return document.querySelectorAll('.view'); }
 let currentView = 'accueil';
 
 function showView(name, slug){
-  views.forEach(function(v){v.classList.remove('active')});
-  var target = document.getElementById('v-'+name);
+  getViews().forEach(function(v){v.classList.remove('active')});
+  /* Handle custom sections */
+  var target;
+  if(name.startsWith('custom-')){
+    target = document.getElementById('v-'+name);
+  } else {
+    target = document.getElementById('v-'+name);
+  }
   if(target){
     target.classList.add('active');
     currentView = name;
@@ -962,7 +1010,7 @@ function showView(name, slug){
   var title = 'Entre ici et ailleurs';
   if(name==='accueil'){ path='/'; }
   else if(name==='article' && slug){ path='/article/'+slug; title=slug+' — EIA'; }
-  else if(name==='audio'){ path='/audio'; title='Audio — EIA'; }
+  else if(name.startsWith('custom-')){ path='/'+name; title=name.replace('custom-','').replace(/-/g,' ')+' — EIA'; }
   else { path='/'+name; title=name.charAt(0).toUpperCase()+name.slice(1)+' — EIA'; }
   if(window.history && window.history.pushState){
     window.history.pushState({view:name,slug:slug||null}, title, path);
@@ -972,6 +1020,7 @@ function showView(name, slug){
   if(name==='article' && slug){ renderArticle(slug); }
   if(name==='blog'){ renderBlog(); }
   if(name==='audio'){ renderAudio(); }
+  if(name==='oeuvres'){ renderOeuvres(); }
 }
 
 /* Handle browser back/forward */
@@ -985,7 +1034,7 @@ window.addEventListener('popstate', function(e){
 
 /* Show view WITHOUT pushing to history (for back/forward) */
 function showViewSilent(name, slug){
-  views.forEach(function(v){v.classList.remove('active')});
+  getViews().forEach(function(v){v.classList.remove('active')});
   var target = document.getElementById('v-'+name);
   if(target){
     target.classList.add('active');
@@ -1001,6 +1050,7 @@ function showViewSilent(name, slug){
   if(name==='article' && slug) renderArticle(slug);
   if(name==='blog') renderBlog();
   if(name==='audio') renderAudio();
+  if(name==='oeuvres') renderOeuvres();
 }
 
 /* Parse URL on load to restore view */
@@ -1011,10 +1061,14 @@ function parseUrl(){
   if(path==='/apropos') return {view:'apropos'};
   if(path==='/contact') return {view:'contact'};
   if(path==='/audio') return {view:'audio'};
+  if(path==='/oeuvres') return {view:'oeuvres'};
   if(path==='/confidentialite') return {view:'confidentialite'};
   if(path.startsWith('/article/')){
     var slug = path.replace('/article/','');
     return {view:'article', slug:slug};
+  }
+  if(path.startsWith('/custom-')){
+    return {view:path.substring(1)};
   }
   return {view:'accueil'};
 }
@@ -1117,7 +1171,10 @@ var BLOG_PER_PAGE = 6;
 
 function renderBlog(){
   /* Filters */
-  const tags = ['TOUS','MÉDITATION','POÉSIE','PRIÈRE','RÉFLEXION','RÉCIT'];
+  /* Categories from CMS (dynamic) */
+  var cats = (SECTIONS_CONFIG.blog_categories||[]).map(function(c){return c.name});
+  if(!cats.length) cats = ['MÉDITATION','POÉSIE','PRIÈRE','RÉFLEXION','RÉCIT'];
+  const tags = ['TOUS'].concat(cats);
   document.getElementById('blogFilters').innerHTML = tags.map(t =>
     '<button class="bf'+(activeFilter===t?' active':'')+'" data-filter="'+t+'">'+t+'</button>'
   ).join('');
@@ -1160,6 +1217,115 @@ function renderBlog(){
       setTimeout(()=>initReveal(),50);
     });
   });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SEARCH — recherche dans articles, œuvres, audio
+   ════════════════════════════════════════════════════════════════ */
+(function(){
+  var timer;
+  document.addEventListener('input', function(e){
+    if(e.target.id !== 'searchInput') return;
+    clearTimeout(timer);
+    timer = setTimeout(function(){ doSearch(e.target.value.trim()); }, 250);
+  });
+})();
+
+function doSearch(query){
+  var resultsEl = document.getElementById('searchResults');
+  var gridEl = document.getElementById('blogGrid');
+  var filtersEl = document.getElementById('blogFilters');
+  var moreBtn = document.getElementById('blogMore');
+  if(!resultsEl) return;
+
+  if(!query || query.length < 2){
+    resultsEl.style.display = 'none';
+    resultsEl.innerHTML = '';
+    if(gridEl) gridEl.style.display = '';
+    if(filtersEl) filtersEl.style.display = '';
+    if(moreBtn && moreBtn.parentNode) moreBtn.parentNode.style.display = '';
+    return;
+  }
+
+  var q = query.toLowerCase();
+
+  /* Search posts */
+  var postResults = POSTS.filter(function(p){
+    return (p.title||'').toLowerCase().indexOf(q)!==-1 ||
+           (p.excerpt||'').toLowerCase().indexOf(q)!==-1 ||
+           (p.body||'').toLowerCase().indexOf(q)!==-1 ||
+           (p.tag||'').toLowerCase().indexOf(q)!==-1;
+  });
+
+  /* Search oeuvres */
+  var oeuvreResults = OEUVRES.filter(function(o){
+    return o.published!==false && (
+      (o.title||'').toLowerCase().indexOf(q)!==-1 ||
+      (o.description||'').toLowerCase().indexOf(q)!==-1 ||
+      (o.type||'').toLowerCase().indexOf(q)!==-1
+    );
+  });
+
+  /* Search audio */
+  var audioResults = AUDIO.filter(function(a){
+    return a.published!==false && (
+      (a.title||'').toLowerCase().indexOf(q)!==-1 ||
+      (a.description||'').toLowerCase().indexOf(q)!==-1 ||
+      (a.poet||'').toLowerCase().indexOf(q)!==-1
+    );
+  });
+
+  var total = postResults.length + oeuvreResults.length + audioResults.length;
+
+  if(!total){
+    resultsEl.innerHTML = '<div style="text-align:center;padding:30px;font-family:var(--ff-t);font-style:italic;color:var(--g3)">Aucun résultat pour « '+esc(query)+' »</div>';
+    resultsEl.style.display = 'block';
+    if(gridEl) gridEl.style.display = 'none';
+    if(filtersEl) filtersEl.style.display = 'none';
+    if(moreBtn && moreBtn.parentNode) moreBtn.parentNode.style.display = 'none';
+    return;
+  }
+
+  var html = '<p style="font-family:var(--ff-t);font-size:14px;color:var(--g3);margin-bottom:20px;text-align:center">'+total+' résultat'+(total>1?'s':'')+' pour « '+esc(query)+' »</p>';
+
+  /* Post results */
+  if(postResults.length){
+    html += '<div class="blog-grid">';
+    html += postResults.slice(0,12).map(function(p,i){
+      return blogCardHtml(p, POSTS.indexOf(p)+1, 'rv');
+    }).join('');
+    html += '</div>';
+  }
+
+  /* Oeuvre results */
+  if(oeuvreResults.length){
+    html += '<p style="font-family:var(--ff-t);font-size:13px;color:var(--gold);margin:24px 0 12px;letter-spacing:.1em">📚 ŒUVRES</p>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">';
+    html += oeuvreResults.map(function(o){
+      return '<div style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:16px;cursor:pointer" onclick="showView(\'oeuvres\')">'+
+        '<p style="font-family:var(--ff-t);font-size:16px;color:var(--g2)">'+esc(o.title)+'</p>'+
+        '<p style="font-size:11px;color:var(--g3);margin-top:4px">'+esc(o.type==='recueil'?'Recueil':o.type==='album'?'Album':'Peinture')+'</p>'+
+      '</div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  /* Audio results */
+  if(audioResults.length){
+    html += '<p style="font-family:var(--ff-t);font-size:13px;color:var(--gold);margin:24px 0 12px;letter-spacing:.1em">🎵 AUDIO</p>';
+    html += audioResults.map(function(a){
+      return '<div style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:16px;margin-bottom:8px;cursor:pointer" onclick="showView(\'audio\')">'+
+        '<p style="font-family:var(--ff-t);font-size:16px;color:var(--g2)">'+esc(a.title)+'</p>'+
+        (a.poet?'<p style="font-size:11px;color:var(--g3);margin-top:4px">'+esc(a.poet)+'</p>':'')+
+      '</div>';
+    }).join('');
+  }
+
+  resultsEl.innerHTML = html;
+  resultsEl.style.display = 'block';
+  if(gridEl) gridEl.style.display = 'none';
+  if(filtersEl) filtersEl.style.display = 'none';
+  if(moreBtn && moreBtn.parentNode) moreBtn.parentNode.style.display = 'none';
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1549,6 +1715,133 @@ function renderAudio(){
 }
 
 /* ════════════════════════════════════════════════════════════════
+   RENDER — OEUVRES (recueils, albums, peintures)
+   ════════════════════════════════════════════════════════════════ */
+var oeuvresFilter = 'TOUS';
+
+function renderOeuvres(){
+  var grid = document.getElementById('oeuvresGrid');
+  var filters = document.getElementById('oeuvresFilters');
+  if(!grid) return;
+  var items = OEUVRES.filter(function(o){return o.published!==false}).sort(function(a,b){return (a.order||0)-(b.order||0)});
+  if(!items.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;font-family:var(--ff-t);font-style:italic;color:var(--g3);font-size:16px">Les œuvres arrivent bientôt…</div>';
+    if(filters) filters.innerHTML = '';
+    return;
+  }
+  /* Type filters */
+  var types = ['TOUS'];
+  items.forEach(function(o){var t=o.type||''; if(types.indexOf(t)===-1) types.push(t)});
+  var typeLabels = {recueil:'📖 Recueils',album:'🎤 Albums',peinture:'🎨 Peintures'};
+  if(filters){
+    filters.innerHTML = types.map(function(t){
+      return '<button class="bf'+(oeuvresFilter===t?' active':'')+'" data-ofilter="'+t+'">'+(t==='TOUS'?'TOUS':typeLabels[t]||t)+'</button>';
+    }).join('');
+    filters.querySelectorAll('.bf').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        oeuvresFilter=this.getAttribute('data-ofilter');
+        renderOeuvres();
+      });
+    });
+  }
+  var filtered = oeuvresFilter==='TOUS' ? items : items.filter(function(o){return o.type===oeuvresFilter});
+  grid.innerHTML = filtered.map(function(o){
+    var links = '';
+    if(o.amazon) links+='<a href="'+esc(o.amazon)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Amazon</a>';
+    if(o.bookelis) links+='<a href="'+esc(o.bookelis)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Bookelis</a>';
+    if(o.fnac) links+='<a href="'+esc(o.fnac)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Fnac</a>';
+    if(o.spotify) links+='<a href="'+esc(o.spotify)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Écouter</a>';
+    if(o.other_link) links+='<a href="'+esc(o.other_link)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">'+esc(o.other_label||'Acheter')+'</a>';
+    var typeIcon = o.type==='recueil'?'📖':o.type==='album'?'🎤':o.type==='peinture'?'🎨':'✦';
+    return '<div class="rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);overflow:hidden">'+
+      (o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.title)+'" loading="lazy" decoding="async" style="width:100%;height:200px;object-fit:cover" onerror="this.style.display=\'none\'">':'')+
+      '<div style="padding:20px">'+
+        '<p style="font-size:11px;color:var(--g3);margin-bottom:6px">'+typeIcon+' '+esc(o.type==='recueil'?'Recueil':o.type==='album'?'Album':o.type==='peinture'?'Peinture':'')+'</p>'+
+        '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:8px">'+esc(o.title)+'</p>'+
+        (o.description?'<p style="font-size:13px;color:var(--txt);line-height:1.6;margin-bottom:12px">'+esc(o.description)+'</p>':'')+
+        (o.price?'<p style="font-family:var(--ff-t);font-size:18px;color:var(--gold);margin-bottom:12px">'+esc(o.price)+'</p>':'')+
+        (links?'<div style="margin-top:8px">'+links+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RENDER — SECTIONS PERSONNALISÉES (dynamiques depuis le CMS)
+   ════════════════════════════════════════════════════════════════ */
+function renderCustomSections(){
+  var container = document.getElementById('customSectionsContainer');
+  if(!container) return;
+  container.innerHTML = '';
+  var visible = CUSTOM_SECTIONS.filter(function(s){return s.visible});
+  visible.forEach(function(sec){
+    var div = document.createElement('div');
+    div.className = 'view';
+    div.id = 'v-custom-'+sec.id;
+    var contentHtml = '';
+    if(sec.type==='text' && sec.content){
+      contentHtml = '<div class="wrap-narrow" style="font-family:var(--ff-b);font-size:15px;line-height:2;color:var(--txt)">'+simpleMarkdown(sec.content)+'</div>';
+    } else if(sec.type==='blog' && sec.items && sec.items.length){
+      var cats = (sec.categories||[]).map(function(c){return c.name});
+      var catBtns = cats.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:30px">'+cats.map(function(c){return '<button class="bf" onclick="filterCustom(\''+sec.id+'\',\''+esc(c)+'\')">'+esc(c)+'</button>'}).join('')+'</div>' : '';
+      contentHtml = catBtns+'<div id="customGrid-'+sec.id+'" class="blog-grid">'+sec.items.filter(function(i){return i.published!==false}).map(function(i){
+        return '<div class="bc rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:20px">'+
+          (i.image?'<img src="'+esc(i.image)+'" loading="lazy" decoding="async" style="width:100%;height:160px;object-fit:cover;margin-bottom:12px" onerror="this.style.display=\'none\'">':'')+
+          '<p style="font-family:var(--ff-t);font-size:18px;color:var(--g2)">'+esc(i.title)+'</p>'+
+          (i.text?'<p style="font-size:13px;color:var(--txt);margin-top:6px;line-height:1.6">'+esc(i.text)+'</p>':'')+
+          (i.link?'<a href="'+esc(i.link)+'" target="_blank" style="display:inline-block;margin-top:10px;font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">En savoir plus →</a>':'')+
+        '</div>';
+      }).join('')+'</div>';
+    } else if(sec.type==='gallery' && sec.items && sec.items.length){
+      contentHtml = '<div class="gallery-grid">'+sec.items.filter(function(i){return i.published!==false}).map(function(i){
+        return '<div class="uv rv" style="position:relative;min-height:200px;background:rgba(13,29,44,.95)">'+
+          (i.image?'<img src="'+esc(i.image)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">':'')+
+          '<div class="uv-cap">'+esc(i.title)+'</div></div>';
+      }).join('')+'</div>';
+    } else if(sec.type==='links' && sec.items && sec.items.length){
+      contentHtml = '<div style="max-width:600px;margin:0 auto">'+sec.items.filter(function(i){return i.published!==false}).map(function(i){
+        return '<a href="'+esc(i.link||'#')+'" target="_blank" rel="noopener" style="display:block;padding:16px 20px;margin-bottom:8px;border:1px solid rgba(201,169,110,.1);background:rgba(6,13,24,.5);transition:border-color .3s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.3)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.1)\'">'+
+          '<p style="font-family:var(--ff-t);font-size:17px;color:var(--g2)">'+esc(i.title)+'</p>'+
+          (i.text?'<p style="font-size:12px;color:var(--txt);margin-top:4px">'+esc(i.text)+'</p>':'')+
+        '</a>';
+      }).join('')+'</div>';
+    }
+    div.innerHTML = '<section class="ph s-deep"><div class="wrap tac"><p class="t-label rv">'+(sec.icon||'✦')+'</p><h2 class="t-title xl rv d1" style="margin-top:12px">'+esc(sec.name)+'</h2>'+(sec.subtitle?'<p class="t-italic rv d2" style="margin-top:8px">'+esc(sec.subtitle)+'</p>':'')+'</div></section><section class="s-night"><div class="wrap">'+contentHtml+'</div></section>';
+    container.appendChild(div);
+  });
+  /* Add custom sections to nav dynamically */
+  var navUl = document.getElementById('navLinks');
+  var footerLinks = document.querySelector('.footer-links');
+  document.querySelectorAll('.custom-nav-item').forEach(function(el){el.remove()});
+  document.querySelectorAll('.custom-footer-item').forEach(function(el){el.remove()});
+  visible.forEach(function(sec){
+    var li = document.createElement('li');
+    li.className = 'custom-nav-item';
+    li.innerHTML = '<a data-page="custom-'+sec.id+'">'+esc(sec.name)+'</a>';
+    var contactLi = navUl.querySelector('[data-page="contact"]');
+    if(contactLi) navUl.insertBefore(li, contactLi.parentElement);
+    if(footerLinks){
+      var a = document.createElement('a');
+      a.className = 'custom-footer-item';
+      a.setAttribute('data-page','custom-'+sec.id);
+      a.textContent = sec.name;
+      var contactA = footerLinks.querySelector('[data-page="contact"]');
+      if(contactA) footerLinks.insertBefore(a, contactA);
+    }
+  });
+}
+
+/* Simple markdown → HTML for custom text sections */
+function simpleMarkdown(md){
+  return md.split('\n\n').map(function(p){
+    p = p.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--g2)">$1</strong>');
+    p = p.replace(/\*(.+?)\*/g,'<em>$1</em>');
+    p = p.replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>');
+    return '<p style="margin-bottom:1.5em">'+p+'</p>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════════
    SCHEDULED PUBLISHING — filter posts by publishDate
    ════════════════════════════════════════════════════════════════ */
 function filterScheduled(posts){
@@ -1564,45 +1857,43 @@ function filterScheduled(posts){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SECTION VISIBILITY + RENAMING + HERO TEXTS + PRIVACY
+   SECTION VISIBILITY + RENAMING + HERO + PRIVACY (uses SECTIONS_CONFIG)
    ════════════════════════════════════════════════════════════════ */
 function applySectionVisibility(){
+  var SC = SECTIONS_CONFIG;
   var sections = {
-    'blog': SETTINGS.show_blog !== false,
-    'univers': SETTINGS.show_univers !== false,
-    'audio': SETTINGS.show_audio !== false,
-    'apropos': SETTINGS.show_apropos !== false,
-    'contact': SETTINGS.show_contact !== false
+    'blog': SC.show_blog !== false,
+    'univers': SC.show_univers !== false,
+    'audio': SC.show_audio !== false,
+    'oeuvres': SC.show_oeuvres === true,
+    'apropos': SC.show_apropos !== false,
+    'contact': SC.show_contact !== false
   };
   document.querySelectorAll('.nav-links a[data-page]').forEach(function(a){
     var page = a.getAttribute('data-page');
-    if(page in sections){
-      a.parentElement.style.display = sections[page] ? '' : 'none';
-    }
+    if(page in sections) a.parentElement.style.display = sections[page] ? '' : 'none';
   });
   document.querySelectorAll('.footer-links a[data-page]').forEach(function(a){
     var page = a.getAttribute('data-page');
-    if(page in sections){
-      a.style.display = sections[page] ? '' : 'none';
-    }
+    if(page in sections) a.style.display = sections[page] ? '' : 'none';
   });
 
-  /* Section renaming from settings */
   var names = {
-    blog: SETTINGS.name_blog || 'Blog',
-    univers: SETTINGS.name_univers || 'Univers',
-    apropos: SETTINGS.name_apropos || 'À propos',
-    audio: SETTINGS.name_audio || 'Audio',
-    contact: SETTINGS.name_contact || 'Contact'
+    blog: SC.name_blog || 'Blog',
+    univers: SC.name_univers || 'Univers',
+    oeuvres: SC.name_oeuvres || 'Œuvres',
+    apropos: SC.name_apropos || 'À propos',
+    audio: SC.name_audio || 'Audio',
+    contact: SC.name_contact || 'Contact'
   };
-  ['blog','univers','apropos','audio','contact'].forEach(function(key){
+  ['blog','univers','oeuvres','apropos','audio','contact'].forEach(function(key){
     var navEl = document.getElementById('nav-'+key);
     if(navEl) navEl.textContent = names[key];
     var ftEl = document.getElementById('ft-'+key);
     if(ftEl) ftEl.textContent = names[key];
   });
 
-  /* Hero texts from settings */
+  /* Hero texts */
   var heroTitle = document.getElementById('heroTitle');
   if(heroTitle && SETTINGS.hero_title) heroTitle.textContent = SETTINGS.hero_title;
   var heroSub = document.getElementById('heroSubtitle');
@@ -1610,7 +1901,7 @@ function applySectionVisibility(){
   var heroTag = document.getElementById('heroTagline');
   if(heroTag && SETTINGS.tagline) heroTag.textContent = SETTINGS.tagline;
 
-  /* Dynamic background images from CMS */
+  /* Dynamic backgrounds */
   if(SETTINGS.hero_bg){
     var heroBgEl = document.querySelector('.hero-bg');
     if(heroBgEl) heroBgEl.style.background = 'url('+SETTINGS.hero_bg+') center/cover no-repeat';
@@ -1620,7 +1911,7 @@ function applySectionVisibility(){
     if(siteBgEl) siteBgEl.style.background = 'url('+SETTINGS.site_bg+') center/cover no-repeat';
   }
 
-  /* Privacy content from CMS */
+  /* Privacy */
   if(SETTINGS.privacy_text){
     var privEl = document.getElementById('privacyContent');
     if(privEl){
@@ -1635,7 +1926,7 @@ function applySectionVisibility(){
    ════════════════════════════════════════════════════════════════ */
 function applyTheme(){
   var root = document.documentElement.style;
-  var S = SETTINGS;
+  var S = THEME;
 
   /* Couleurs */
   if(S.theme_deep) root.setProperty('--deep', S.theme_deep);
@@ -1703,6 +1994,8 @@ function renderAll(){
   renderGallery();
   renderAbout();
   renderAudio();
+  renderOeuvres();
+  renderCustomSections();
   applySectionVisibility();
   applyTheme();
   

@@ -3,5 +3,7 @@
 /apropos           /index.html  200
 /contact           /index.html  200
 /audio             /index.html  200
+/oeuvres           /index.html  200
 /confidentialite   /index.html  200
 /article/:slug     /index.html  200
+/custom-:id        /index.html  200

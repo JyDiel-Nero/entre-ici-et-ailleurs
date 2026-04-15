@@ -7,7 +7,6 @@ backend:
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
-
 locale: "fr"
 
 collections:
@@ -21,94 +20,168 @@ collections:
           - name: "posts"
             widget: "list"
             label: "Articles"
+            collapsed: true
+            summary: "{{fields.title}} — {{fields.tag}}"
             fields:
-              - { name: slug,        widget: string,   label: "Slug (unique, tirets)" }
-              - { name: title,       widget: string,   label: "Titre" }
-              - { name: date,        widget: string,   label: "Date affichée (ex: 15 avril 2025)" }
-              - { name: publishDate, widget: datetime,  label: "Publication programmée", required: false }
-              - { name: tag,         widget: select,   label: "Catégorie",
-                  options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"] }
-              - { name: excerpt,     widget: text,     label: "Extrait (2–3 lignes)" }
-              - { name: cover,       widget: image,    label: "Image couverture", required: false }
-              - { name: thumb,       widget: image,    label: "Miniature carte",  required: false }
-              - { name: body,        widget: markdown,  label: "Contenu complet" }
-              - { name: published,   widget: boolean,  label: "Publié", default: true }
+              - { name: slug, widget: string, label: "Slug (unique, tirets)" }
+              - { name: title, widget: string, label: "Titre" }
+              - { name: date, widget: string, label: "Date affichée" }
+              - { name: publishDate, widget: datetime, label: "Publication programmée", required: false }
+              - { name: tag, widget: string, label: "Catégorie", hint: "Ex: MÉDITATION, POÉSIE, PRIÈRE, RÉFLEXION, RÉCIT" }
+              - { name: excerpt, widget: text, label: "Extrait" }
+              - { name: cover, widget: image, label: "Image couverture", required: false }
+              - { name: thumb, widget: image, label: "Miniature", required: false }
+              - { name: body, widget: markdown, label: "Contenu" }
+              - { name: published, widget: boolean, label: "Publié", default: true }
 
-  - name: "galerie"
-    label: "🌌 Galerie Univers"
+  - name: "oeuvres"
+    label: "📚 Œuvres"
     files:
-      - file: "data/gallery.json"
-        name: "toutes_les_images"
-        label: "Gérer la galerie"
+      - file: "data/oeuvres.json"
+        name: "toutes_les_oeuvres"
+        label: "Recueils, albums, tableaux"
         fields:
-          - name: items
-            widget: list
-            label: "Images"
+          - name: "oeuvres"
+            widget: "list"
+            label: "Œuvres"
+            collapsed: true
+            summary: "{{fields.title}} ({{fields.type}})"
             fields:
-              - { name: title, widget: string, label: "Légende" }
-              - { name: image, widget: image,  label: "Image" }
+              - { name: title, widget: string, label: "Titre" }
+              - { name: type, widget: select, label: "Type", options: [{ label: "📖 Recueil de poésie", value: "recueil" }, { label: "🎤 Album slam/musique", value: "album" }, { label: "🎨 Tableau/peinture", value: "peinture" }] }
+              - { name: description, widget: text, label: "Description", required: false }
+              - { name: image, widget: image, label: "Image/couverture" }
+              - { name: price, widget: string, label: "Prix", required: false }
+              - { name: amazon, widget: string, label: "Lien Amazon", required: false }
+              - { name: bookelis, widget: string, label: "Lien Bookelis", required: false }
+              - { name: fnac, widget: string, label: "Lien Fnac", required: false }
+              - { name: spotify, widget: string, label: "Lien Spotify/streaming", required: false }
+              - { name: other_link, widget: string, label: "Autre lien", required: false }
+              - { name: other_label, widget: string, label: "Texte du lien", required: false, default: "Acheter" }
               - { name: order, widget: number, label: "Ordre", default: 1 }
+              - { name: published, widget: boolean, label: "Publié", default: true }
 
   - name: "audio"
     label: "🎵 Audio"
     files:
       - file: "data/audio.json"
         name: "tous_les_audios"
-        label: "Gérer les enregistrements"
+        label: "Enregistrements"
         fields:
           - name: tracks
             widget: list
             label: "Enregistrements"
+            collapsed: true
+            summary: "{{fields.title}}"
             fields:
-              - { name: title,       widget: string,  label: "Titre" }
-              - { name: poet,        widget: string,  label: "Auteur", required: false, default: "J.Y.D." }
-              - { name: description,  widget: text,    label: "Description", required: false }
-              - { name: file,        widget: file,    label: "Fichier MP3", required: false }
-              - { name: youtube,     widget: string,  label: "Lien YouTube", required: false }
-              - { name: instagram,   widget: string,  label: "Lien Instagram", required: false }
-              - { name: tiktok,      widget: string,  label: "Lien TikTok", required: false }
-              - { name: link,        widget: string,  label: "Autre lien", required: false }
-              - { name: link_label,  widget: string,  label: "Texte du lien", required: false, default: "Écouter" }
-              - { name: cover,       widget: image,   label: "Couverture", required: false }
-              - { name: order,       widget: number,  label: "Ordre", default: 1 }
-              - { name: published,   widget: boolean, label: "Publié", default: true }
+              - { name: title, widget: string, label: "Titre" }
+              - { name: poet, widget: string, label: "Auteur", required: false, default: "J.Y.D." }
+              - { name: description, widget: text, label: "Description", required: false }
+              - { name: file, widget: file, label: "Fichier MP3", required: false }
+              - { name: youtube, widget: string, label: "Lien YouTube", required: false }
+              - { name: instagram, widget: string, label: "Lien Instagram", required: false }
+              - { name: tiktok, widget: string, label: "Lien TikTok", required: false }
+              - { name: link, widget: string, label: "Autre lien", required: false }
+              - { name: link_label, widget: string, label: "Texte du lien", required: false, default: "Écouter" }
+              - { name: cover, widget: image, label: "Couverture", required: false }
+              - { name: order, widget: number, label: "Ordre", default: 1 }
+              - { name: published, widget: boolean, label: "Publié", default: true }
 
-  - name: "parametres"
-    label: "⚙️ Paramètres"
+  - name: "galerie"
+    label: "🌌 Galerie"
+    files:
+      - file: "data/gallery.json"
+        name: "toutes_les_images"
+        label: "Images"
+        fields:
+          - name: items
+            widget: list
+            label: "Images"
+            collapsed: true
+            summary: "{{fields.title}}"
+            fields:
+              - { name: title, widget: string, label: "Légende" }
+              - { name: image, widget: image, label: "Image" }
+              - { name: order, widget: number, label: "Ordre", default: 1 }
+
+  - name: "sections_custom"
+    label: "➕ Sections perso"
+    files:
+      - file: "data/custom-sections.json"
+        name: "sections"
+        label: "Créer des sections"
+        fields:
+          - name: "sections"
+            widget: "list"
+            label: "Sections personnalisées"
+            collapsed: true
+            summary: "{{fields.name}} ({{fields.type}})"
+            fields:
+              - { name: id, widget: string, label: "Identifiant (minuscules, tirets)", hint: "Ex: reflexions" }
+              - { name: name, widget: string, label: "Nom affiché" }
+              - { name: type, widget: select, label: "Type", options: [{ label: "📝 Blog (articles)", value: "blog" }, { label: "🖼️ Galerie (images)", value: "gallery" }, { label: "📄 Page texte", value: "text" }, { label: "🔗 Liens", value: "links" }] }
+              - { name: subtitle, widget: string, label: "Sous-titre", required: false }
+              - { name: visible, widget: boolean, label: "Visible", default: false }
+              - { name: categories, widget: list, label: "Sous-catégories", required: false, fields: [{ name: name, widget: string, label: "Nom" }] }
+              - { name: content, widget: markdown, label: "Contenu (type texte)", required: false }
+              - { name: items, widget: list, label: "Éléments", required: false, collapsed: true, summary: "{{fields.title}}", fields: [{ name: title, widget: string, label: "Titre" }, { name: text, widget: text, label: "Texte", required: false }, { name: image, widget: image, label: "Image", required: false }, { name: link, widget: string, label: "Lien", required: false }, { name: category, widget: string, label: "Catégorie", required: false }, { name: published, widget: boolean, label: "Publié", default: true }] }
+
+  - name: "param_general"
+    label: "⚙️ Général"
     files:
       - file: "data/settings.json"
         name: "site"
-        label: "Textes, noms et visibilité"
+        label: "Textes du site"
         fields:
-          - { name: hero_bg,      widget: image,   label: "Image de fond Hero", required: false }
-          - { name: site_bg,      widget: image,   label: "Image de fond globale", required: false }
-          - { name: hero_title,    widget: string,  label: "Titre Hero", default: "Entre ici et ailleurs" }
-          - { name: hero_subtitle, widget: string,  label: "Sous-titre Hero", default: "méditation sur la création" }
-          - { name: tagline,       widget: string,  label: "Tagline" }
-          - { name: man1,          widget: string,  label: "Manifeste ligne 1" }
-          - { name: man2,          widget: string,  label: "Manifeste ligne 2" }
-          - { name: apropos,       widget: text,    label: "Texte À propos" }
-          - { name: instagram,     widget: string,  label: "Instagram", required: false }
-          - { name: name_blog,     widget: string,  label: "Nom section Blog", default: "Blog" }
-          - { name: name_univers,  widget: string,  label: "Nom section Univers", default: "Univers" }
-          - { name: name_apropos,  widget: string,  label: "Nom section À propos", default: "À propos" }
-          - { name: name_audio,    widget: string,  label: "Nom section Audio", default: "Audio" }
-          - { name: name_contact,  widget: string,  label: "Nom section Contact", default: "Contact" }
-          - { name: show_blog,     widget: boolean, label: "Afficher Blog", default: true }
-          - { name: show_univers,  widget: boolean, label: "Afficher Univers", default: true }
-          - { name: show_audio,    widget: boolean, label: "Afficher Audio", default: true }
-          - { name: show_apropos,  widget: boolean, label: "Afficher À propos", default: true }
-          - { name: show_contact,  widget: boolean, label: "Afficher Contact", default: true }
-          - { name: privacy_text,  widget: text,    label: "Texte Confidentialité", required: false }
-          - { name: theme_deep,    widget: color,   label: "🎨 Couleur fond principal", required: false, default: "#03050A", hint: "Fond sombre du site" }
-          - { name: theme_night,   widget: color,   label: "🎨 Couleur fond sections", required: false, default: "#060D18" }
-          - { name: theme_ink,     widget: color,   label: "🎨 Couleur fond encarts", required: false, default: "#0D1D2C" }
-          - { name: theme_gold,    widget: color,   label: "🎨 Couleur accent (or)", required: false, default: "#C9A96E", hint: "Couleur principale des titres, liens, bordures" }
-          - { name: theme_gold_light, widget: color, label: "🎨 Couleur accent clair", required: false, default: "#E8C98A" }
-          - { name: theme_gold_dark,  widget: color, label: "🎨 Couleur accent foncé", required: false, default: "#A8884E" }
-          - { name: theme_font_title, widget: select, label: "🔤 Police des titres", required: false, default: "Cormorant Garamond",
-              options: ["Cormorant Garamond", "Playfair Display", "Lora", "EB Garamond", "Libre Baskerville", "Crimson Text", "Spectral", "DM Serif Display", "Bodoni Moda", "Cormorant"] }
-          - { name: theme_font_body, widget: select, label: "🔤 Police du texte", required: false, default: "Merriweather",
-              options: ["Merriweather", "Lora", "Source Serif 4", "Libre Baskerville", "Crimson Text", "Spectral", "Newsreader", "Literata", "Bitter", "PT Serif"] }
-          - { name: theme_section_opacity, widget: select, label: "🌓 Transparence des sections", required: false, default: "0.85",
-              options: [{ label: "Très transparent (fond visible)", value: "0.4" }, { label: "Semi-transparent", value: "0.6" }, { label: "Modéré (par défaut)", value: "0.85" }, { label: "Opaque", value: "0.95" }, { label: "Complètement opaque", value: "1" }] }
+          - { name: hero_bg, widget: image, label: "Image de fond Hero", required: false }
+          - { name: site_bg, widget: image, label: "Image de fond globale", required: false }
+          - { name: hero_title, widget: string, label: "Titre Hero", default: "Entre ici et ailleurs" }
+          - { name: hero_subtitle, widget: string, label: "Sous-titre Hero", default: "méditation sur la création" }
+          - { name: tagline, widget: string, label: "Tagline" }
+          - { name: man1, widget: string, label: "Manifeste ligne 1" }
+          - { name: man2, widget: string, label: "Manifeste ligne 2" }
+          - { name: apropos, widget: text, label: "Texte À propos" }
+          - { name: instagram, widget: string, label: "Instagram", required: false }
+          - { name: privacy_text, widget: text, label: "Texte Confidentialité", required: false }
+
+  - name: "param_sections"
+    label: "📂 Sections"
+    files:
+      - file: "data/sections-config.json"
+        name: "sc"
+        label: "Visibilité et noms"
+        fields:
+          - { name: name_blog, widget: string, label: "Nom : Blog", default: "Blog" }
+          - { name: show_blog, widget: boolean, label: "✅ Afficher Blog", default: true }
+          - { name: name_oeuvres, widget: string, label: "Nom : Œuvres", default: "Œuvres" }
+          - { name: show_oeuvres, widget: boolean, label: "✅ Afficher Œuvres", default: false }
+          - { name: name_univers, widget: string, label: "Nom : Univers", default: "Univers" }
+          - { name: show_univers, widget: boolean, label: "✅ Afficher Univers", default: true }
+          - { name: name_audio, widget: string, label: "Nom : Audio", default: "Audio" }
+          - { name: show_audio, widget: boolean, label: "✅ Afficher Audio", default: true }
+          - { name: name_apropos, widget: string, label: "Nom : À propos", default: "À propos" }
+          - { name: show_apropos, widget: boolean, label: "✅ Afficher À propos", default: true }
+          - { name: name_contact, widget: string, label: "Nom : Contact", default: "Contact" }
+          - { name: show_contact, widget: boolean, label: "✅ Afficher Contact", default: true }
+          - name: blog_categories
+            widget: list
+            label: "Catégories du blog"
+            fields: [{ name: name, widget: string, label: "Nom" }]
+            default: [{ name: "MÉDITATION" }, { name: "POÉSIE" }, { name: "PRIÈRE" }, { name: "RÉFLEXION" }, { name: "RÉCIT" }]
+
+  - name: "param_theme"
+    label: "🎨 Thème"
+    files:
+      - file: "data/theme.json"
+        name: "theme"
+        label: "Couleurs et polices"
+        fields:
+          - { name: theme_deep, widget: color, label: "Fond principal", required: false, default: "#03050A" }
+          - { name: theme_night, widget: color, label: "Fond sections", required: false, default: "#060D18" }
+          - { name: theme_ink, widget: color, label: "Fond encarts", required: false, default: "#0D1D2C" }
+          - { name: theme_gold, widget: color, label: "Accent (or)", required: false, default: "#C9A96E" }
+          - { name: theme_gold_light, widget: color, label: "Accent clair", required: false, default: "#E8C98A" }
+          - { name: theme_gold_dark, widget: color, label: "Accent foncé", required: false, default: "#A8884E" }
+          - { name: theme_font_title, widget: select, label: "Police titres", required: false, default: "Cormorant Garamond", options: ["Cormorant Garamond", "Playfair Display", "Lora", "EB Garamond", "Libre Baskerville", "Crimson Text", "Spectral", "DM Serif Display", "Bodoni Moda", "Cormorant"] }
+          - { name: theme_font_body, widget: select, label: "Police texte", required: false, default: "Merriweather", options: ["Merriweather", "Lora", "Source Serif 4", "Libre Baskerville", "Crimson Text", "Spectral", "Newsreader", "Literata", "Bitter", "PT Serif"] }
+          - { name: theme_section_opacity, widget: select, label: "Transparence sections", required: false, default: "0.85", options: [{ label: "Très transparent", value: "0.4" }, { label: "Semi-transparent", value: "0.6" }, { label: "Modéré", value: "0.85" }, { label: "Opaque", value: "0.95" }, { label: "Complètement opaque", value: "1" }] }

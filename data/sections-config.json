@@ -1,0 +1,21 @@
+{
+  "name_blog": "Blog",
+  "show_blog": true,
+  "name_oeuvres": "Œuvres",
+  "show_oeuvres": false,
+  "name_univers": "Univers",
+  "show_univers": true,
+  "name_audio": "Audio",
+  "show_audio": true,
+  "name_apropos": "À propos",
+  "show_apropos": true,
+  "name_contact": "Contact",
+  "show_contact": true,
+  "blog_categories": [
+    {"name": "MÉDITATION"},
+    {"name": "POÉSIE"},
+    {"name": "PRIÈRE"},
+    {"name": "RÉFLEXION"},
+    {"name": "RÉCIT"}
+  ]
+}
