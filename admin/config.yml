@@ -100,3 +100,15 @@ collections:
           - { name: show_apropos,  widget: boolean, label: "Afficher À propos", default: true }
           - { name: show_contact,  widget: boolean, label: "Afficher Contact", default: true }
           - { name: privacy_text,  widget: text,    label: "Texte Confidentialité", required: false }
+          - { name: theme_deep,    widget: color,   label: "🎨 Couleur fond principal", required: false, default: "#03050A", hint: "Fond sombre du site" }
+          - { name: theme_night,   widget: color,   label: "🎨 Couleur fond sections", required: false, default: "#060D18" }
+          - { name: theme_ink,     widget: color,   label: "🎨 Couleur fond encarts", required: false, default: "#0D1D2C" }
+          - { name: theme_gold,    widget: color,   label: "🎨 Couleur accent (or)", required: false, default: "#C9A96E", hint: "Couleur principale des titres, liens, bordures" }
+          - { name: theme_gold_light, widget: color, label: "🎨 Couleur accent clair", required: false, default: "#E8C98A" }
+          - { name: theme_gold_dark,  widget: color, label: "🎨 Couleur accent foncé", required: false, default: "#A8884E" }
+          - { name: theme_font_title, widget: select, label: "🔤 Police des titres", required: false, default: "Cormorant Garamond",
+              options: ["Cormorant Garamond", "Playfair Display", "Lora", "EB Garamond", "Libre Baskerville", "Crimson Text", "Spectral", "DM Serif Display", "Bodoni Moda", "Cormorant"] }
+          - { name: theme_font_body, widget: select, label: "🔤 Police du texte", required: false, default: "Merriweather",
+              options: ["Merriweather", "Lora", "Source Serif 4", "Libre Baskerville", "Crimson Text", "Spectral", "Newsreader", "Literata", "Bitter", "PT Serif"] }
+          - { name: theme_section_opacity, widget: select, label: "🌓 Transparence des sections", required: false, default: "0.85",
+              options: [{ label: "Très transparent (fond visible)", value: "0.4" }, { label: "Semi-transparent", value: "0.6" }, { label: "Modéré (par défaut)", value: "0.85" }, { label: "Opaque", value: "0.95" }, { label: "Complètement opaque", value: "1" }] }

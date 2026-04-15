@@ -5,11 +5,6 @@
 [build.environment]
   NODE_VERSION = "18"
 
-[[headers]]
-  for = "/images/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000"
-
 [[redirects]]
   from = "/blog"
   to = "/index.html"

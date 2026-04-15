@@ -6,6 +6,20 @@
 <title>Entre ici et ailleurs — Poésie, prière & méditation</title>
 <meta name="description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
 <meta name="theme-color" content="#03050A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Entre ici et ailleurs — Poésie, prière & méditation">
+<meta property="og:description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
+<meta property="og:image" content="https://entre-ici-et-ailleurs.pages.dev/images/clock.jpg">
+<meta property="og:url" content="https://entre-ici-et-ailleurs.pages.dev">
+<meta property="og:site_name" content="Entre ici et ailleurs">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Entre ici et ailleurs">
+<meta name="twitter:description" content="Poésie, prière & méditation par J.Y.D.">
+<meta name="twitter:image" content="https://entre-ici-et-ailleurs.pages.dev/images/clock.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
@@ -888,7 +902,9 @@ var EMBEDDED_SETTINGS = {
   site_bg:"",
   name_blog:"Blog",name_univers:"Univers",name_apropos:"À propos",name_audio:"Audio",name_contact:"Contact",
   show_blog:true,show_univers:true,show_audio:true,show_apropos:true,show_contact:true,
-  privacy_text:""
+  privacy_text:"",
+  theme_deep:"",theme_night:"",theme_ink:"",theme_gold:"",theme_gold_light:"",theme_gold_dark:"",
+  theme_font_title:"",theme_font_body:"",theme_section_opacity:""
 };
 
 /* ════════════════════════════════════════════════════════════════
@@ -1096,6 +1112,9 @@ function blogCardHtml(p, num, cls){
   '</div>';
 }
 
+var blogPage = 0;
+var BLOG_PER_PAGE = 6;
+
 function renderBlog(){
   /* Filters */
   const tags = ['TOUS','MÉDITATION','POÉSIE','PRIÈRE','RÉFLEXION','RÉCIT'];
@@ -1103,16 +1122,40 @@ function renderBlog(){
     '<button class="bf'+(activeFilter===t?' active':'')+'" data-filter="'+t+'">'+t+'</button>'
   ).join('');
 
-  /* Cards */
+  /* Cards with pagination */
   const filtered = activeFilter==='TOUS' ? POSTS : POSTS.filter(p=>(p.tag||'')===activeFilter);
-  document.getElementById('blogGrid').innerHTML = filtered.map((p,i) =>
+  const visible = filtered.slice(0, (blogPage+1)*BLOG_PER_PAGE);
+  const hasMore = visible.length < filtered.length;
+
+  document.getElementById('blogGrid').innerHTML = visible.map((p,i) =>
     blogCardHtml(p, POSTS.indexOf(p)+1, 'rv d'+(Math.min(i%4+1,4)))
   ).join('');
 
-  /* Filter click */
+  /* "Voir plus" button */
+  var moreBtn = document.getElementById('blogMore');
+  if(!moreBtn){
+    var blogSection = document.getElementById('blogGrid').parentNode;
+    var btnDiv = document.createElement('div');
+    btnDiv.className = 'tac';
+    btnDiv.style.cssText = 'margin-top:40px';
+    btnDiv.innerHTML = '<button id="blogMore" class="see-more" style="font-size:10px;letter-spacing:.15em;cursor:pointer;background:none;border:1px solid var(--gold);color:var(--gold);padding:10px 28px">VOIR PLUS</button>';
+    blogSection.appendChild(btnDiv);
+    moreBtn = document.getElementById('blogMore');
+  }
+  if(moreBtn){
+    moreBtn.parentNode.style.display = hasMore ? 'block' : 'none';
+    moreBtn.onclick = function(){
+      blogPage++;
+      renderBlog();
+      setTimeout(function(){initReveal()},50);
+    };
+  }
+
+  /* Filter click — reset pagination */
   document.querySelectorAll('.bf').forEach(btn=>{
     btn.addEventListener('click', function(){
       activeFilter = this.getAttribute('data-filter');
+      blogPage = 0;
       renderBlog();
       setTimeout(()=>initReveal(),50);
     });
@@ -1588,6 +1631,67 @@ function applySectionVisibility(){
 }
 
 /* ════════════════════════════════════════════════════════════════
+   THEME — Couleurs, polices, opacité depuis le CMS
+   ════════════════════════════════════════════════════════════════ */
+function applyTheme(){
+  var root = document.documentElement.style;
+  var S = SETTINGS;
+
+  /* Couleurs */
+  if(S.theme_deep) root.setProperty('--deep', S.theme_deep);
+  if(S.theme_night) root.setProperty('--night', S.theme_night);
+  if(S.theme_ink) root.setProperty('--ink', S.theme_ink);
+  if(S.theme_gold) root.setProperty('--gold', S.theme_gold);
+  if(S.theme_gold_light) root.setProperty('--g2', S.theme_gold_light);
+  if(S.theme_gold_dark) root.setProperty('--g3', S.theme_gold_dark);
+
+  /* Texte — recalculer les rgba à partir de la couleur or */
+  if(S.theme_gold){
+    var hex = S.theme_gold.replace('#','');
+    var r = parseInt(hex.substring(0,2),16);
+    var g = parseInt(hex.substring(2,4),16);
+    var b = parseInt(hex.substring(4,6),16);
+    root.setProperty('--txt', 'rgba('+r+','+g+','+b+',.6)');
+    root.setProperty('--txt2', 'rgba('+r+','+g+','+b+',.85)');
+    /* Mettre à jour couleur des liens */
+    document.body.style.color = 'rgba('+r+','+g+','+b+',.6)';
+  }
+
+  /* Polices Google Fonts dynamiques */
+  if(S.theme_font_title && S.theme_font_title !== 'Cormorant Garamond'){
+    loadGoogleFont(S.theme_font_title);
+    root.setProperty('--ff-t', "'"+S.theme_font_title+"',Georgia,serif");
+  }
+  if(S.theme_font_body && S.theme_font_body !== 'Merriweather'){
+    loadGoogleFont(S.theme_font_body);
+    root.setProperty('--ff-b', "'"+S.theme_font_body+"',Georgia,serif");
+  }
+
+  /* Opacité des sections */
+  if(S.theme_section_opacity){
+    var op = parseFloat(S.theme_section_opacity);
+    if(!isNaN(op) && op >= 0 && op <= 1){
+      document.querySelectorAll('.s-deep,.s-night,.s-ink').forEach(function(el){
+        el.style.backgroundColor = el.classList.contains('s-deep') ?
+          'rgba(3,5,10,'+op+')' :
+          el.classList.contains('s-night') ? 'rgba(6,13,24,'+op+')' :
+          'rgba(13,29,44,'+op+')';
+      });
+    }
+  }
+}
+
+/* Charger une police Google Fonts dynamiquement */
+function loadGoogleFont(name){
+  if(document.querySelector('link[data-font="'+name+'"]')) return;
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family='+encodeURIComponent(name)+':ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap';
+  link.setAttribute('data-font', name);
+  document.head.appendChild(link);
+}
+
+/* ════════════════════════════════════════════════════════════════
    RENDER ALL
    ════════════════════════════════════════════════════════════════ */
 function renderAll(){
@@ -1600,6 +1704,7 @@ function renderAll(){
   renderAbout();
   renderAudio();
   applySectionVisibility();
+  applyTheme();
   
   /* Parse URL to restore the correct view */
   var route = parseUrl();
@@ -1785,6 +1890,11 @@ function initNewsletter(){
    INIT
    ════════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function(){
+  /* PWA Service Worker */
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  }
+
   initNavbar();
   initClock();
   initDust();

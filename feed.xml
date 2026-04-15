@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Entre ici et ailleurs</title>
+  <link>https://entre-ici-et-ailleurs.pages.dev</link>
+  <description>Poésie, prière et méditation par J.Y.D.</description>
+  <language>fr</language>
+  <atom:link href="https://entre-ici-et-ailleurs.pages.dev/feed.xml" rel="self" type="application/rss+xml"/>
+  <item>
+    <title>Et une, et deux, et…</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/et-une-et-deux</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/et-une-et-deux</guid>
+    <description>Tu as mis en nos cœurs la pensée de l&#x27;éternité, et en nos êtres la capacité de te trouver.</description>
+    <category>PRIÈRE</category>
+  </item>
+  <item>
+    <title>Un autre pas ?</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/un-autre-pas</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/un-autre-pas</guid>
+    <description>Paraît que des gens se souviennent plus de moi. Que vais-je donc faire ?</description>
+    <category>RÉFLEXION</category>
+  </item>
+  <item>
+    <title>Chemin</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/chemin</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/chemin</guid>
+    <description>Je me suis cherché, mais je ne me suis pas trouvé. Je me suis recherché, et je me suis égaré.</description>
+    <category>PRIÈRE</category>
+  </item>
+  <item>
+    <title>Longtemps</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/longtemps</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/longtemps</guid>
+    <description>Bientôt ça fera longtemps que ça dure depuis longtemps. De quoi écrire mille poèmes sur le temps.</description>
+    <category>POÉSIE</category>
+  </item>
+  <item>
+    <title>Mon Armature</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/mon-armature</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/mon-armature</guid>
+    <description>Vous auriez tort de penser que je suis fort parce que j&#x27;en ai l&#x27;apparence.</description>
+    <category>PRIÈRE</category>
+  </item>
+  <item>
+    <title>Fils</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/fils</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/fils</guid>
+    <description>Ce n&#x27;est depuis toujours qu&#x27;une q…</description>
+    <category>MÉDITATION</category>
+  </item>
+  <item>
+    <title>Humain</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/humain</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/humain</guid>
+    <description>Nous l&#x27;appelons Dieu et nous Lui refusons l&#x27;humain, ce caractère faible et blessé.</description>
+    <category>RÉFLEXION</category>
+  </item>
+  <item>
+    <title>Aveu</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/aveu</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/aveu</guid>
+    <description>Me foirer, me rend à fleur de peau! Je comprends David quand il évoque le mal des os.</description>
+    <category>PRIÈRE</category>
+  </item>
+  <item>
+    <title>Calme</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/calme</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/calme</guid>
+    <description>Quand s&#x27;agite la foule et se trouble la houle, dans le silence de la grève il importe que je mène ma trêve.</description>
+    <category>MÉDITATION</category>
+  </item>
+  <item>
+    <title>Ami ?</title>
+    <link>https://entre-ici-et-ailleurs.pages.dev/article/ami</link>
+    <guid>https://entre-ici-et-ailleurs.pages.dev/article/ami</guid>
+    <description>Le soleil est parti, il ne reviendra pas. Je laisse mes pieds dans le vide en attendant ce jour-là.</description>
+    <category>POÉSIE</category>
+  </item>
+</channel>
+</rss>
