@@ -168,7 +168,10 @@ collections:
           - { name: oeuvres_per_page, widget: string, label: "Œuvres par page", default: "12" }
           - { name: audio_per_page, widget: string, label: "Audio par page", default: "12" }
           - { name: univers_shuffle, widget: boolean, label: "🔀 Mélanger les images Univers", default: false }
-          - { name: hide_light_mode, widget: boolean, label: "🌙 Cacher le bouton mode jour", default: false }
+          - { name: theme_default, widget: select, label: "🎨 Thème par défaut", default: "dark", options: [{ label: "🌙 Nuit (or sur noir)", value: "dark" }, { label: "☀️ Jour (bleu sur blanc)", value: "light" }, { label: "◐ Sépia (brun sur parchemin)", value: "sepia" }] }
+          - { name: theme_enable_dark, widget: boolean, label: "🌙 Activer le thème Nuit", default: true }
+          - { name: theme_enable_light, widget: boolean, label: "☀️ Activer le thème Jour", default: true }
+          - { name: theme_enable_sepia, widget: boolean, label: "◐ Activer le thème Sépia", default: true }
           - name: blog_categories
             widget: list
             label: "Catégories du blog"

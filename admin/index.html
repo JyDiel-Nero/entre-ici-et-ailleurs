@@ -4,7 +4,201 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin — Entre ici et ailleurs</title>
-  <style>body{font-family:sans-serif;background:#03050A;color:#C9A96E}</style>
+  <style>
+    /* ═══ EIA CMS — Dark Gold Theme ═══
+       Decap CMS uses CSS-in-JS with random class names.
+       We target elements broadly with !important overrides. */
+
+    /* Root colors */
+    html, body, #nc-root, #root {
+      background: #0A0E14 !important;
+      color: #C9A96E !important;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+    }
+
+    /* All divs default */
+    div { border-color: rgba(201,169,110,.1) !important; }
+
+    /* Override all white/gray backgrounds */
+    main, section, aside, nav, header, footer,
+    div[class*="css-"] {
+      background-color: transparent !important;
+    }
+
+    /* Top bar */
+    header {
+      background: #111820 !important;
+      border-bottom: 1px solid rgba(201,169,110,.1) !important;
+    }
+    header a, header span, header button, header svg {
+      color: #C9A96E !important;
+      fill: #C9A96E !important;
+    }
+
+    /* Sidebar */
+    aside, nav {
+      background: #111820 !important;
+    }
+    aside a, nav a, aside li, nav li {
+      color: rgba(201,169,110,.6) !important;
+      transition: all .2s;
+    }
+    aside a:hover, nav a:hover, aside li:hover, nav li:hover,
+    aside a[aria-current], nav a[aria-current] {
+      color: #E8C98A !important;
+      background: rgba(201,169,110,.05) !important;
+    }
+
+    /* Main content area */
+    main {
+      background: #0A0E14 !important;
+    }
+
+    /* All text */
+    h1, h2, h3, h4, h5, h6 {
+      color: #C9A96E !important;
+    }
+    label, legend {
+      color: #C9A96E !important;
+      text-transform: uppercase !important;
+      letter-spacing: .08em !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+    }
+    p, span, li, td, th, div {
+      color: rgba(201,169,110,.7);
+    }
+
+    /* Inputs */
+    input, textarea, select {
+      background: #0A0E14 !important;
+      border: 1px solid rgba(201,169,110,.15) !important;
+      color: #E8C98A !important;
+      border-radius: 4px !important;
+      padding: 10px 12px !important;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #C9A96E !important;
+      outline: none !important;
+      box-shadow: 0 0 0 2px rgba(201,169,110,.1) !important;
+    }
+    input[type="color"] {
+      height: 40px !important;
+      cursor: pointer !important;
+      padding: 4px !important;
+    }
+
+    /* Buttons */
+    button {
+      background: transparent !important;
+      color: #C9A96E !important;
+      border: 1px solid rgba(201,169,110,.15) !important;
+      border-radius: 4px !important;
+      transition: all .2s !important;
+    }
+    button:hover {
+      border-color: #C9A96E !important;
+      background: rgba(201,169,110,.06) !important;
+    }
+
+    /* Save/Publish button - make it stand out */
+    button[class*="publish"], button[class*="save"],
+    div[class*="ToolbarButton"] button,
+    div[class*="publish"] button {
+      background: rgba(201,169,110,.12) !important;
+      border-color: #C9A96E !important;
+      color: #E8C98A !important;
+    }
+    button[class*="publish"]:hover, button[class*="save"]:hover {
+      background: rgba(201,169,110,.2) !important;
+    }
+
+    /* Cards / list items / object widgets */
+    fieldset, details {
+      background: #161E28 !important;
+      border: 1px solid rgba(201,169,110,.1) !important;
+      border-radius: 6px !important;
+    }
+
+    /* Links */
+    a { color: #C9A96E !important; }
+    a:hover { color: #E8C98A !important; }
+
+    /* Dropdown menus */
+    ul[role="listbox"], div[role="listbox"],
+    div[class*="menu"], div[class*="Menu"] {
+      background: #161E28 !important;
+      border: 1px solid rgba(201,169,110,.1) !important;
+    }
+    div[class*="option"]:hover, li[role="option"]:hover {
+      background: rgba(201,169,110,.08) !important;
+    }
+
+    /* Toggle switches */
+    input[type="checkbox"] {
+      accent-color: #C9A96E !important;
+    }
+
+    /* Markdown editor toolbar */
+    div[class*="toolbar"], div[class*="Toolbar"] {
+      background: #161E28 !important;
+      border-color: rgba(201,169,110,.1) !important;
+    }
+
+    /* Markdown editor body */
+    div[contenteditable="true"], div[data-slate-editor="true"],
+    div[class*="editor"], div[class*="Editor"] {
+      background: #0A0E14 !important;
+      color: #E8C98A !important;
+    }
+
+    /* Image upload area */
+    div[class*="image"], div[class*="Image"],
+    div[class*="file"], div[class*="File"] {
+      border-style: dashed !important;
+      border-color: rgba(201,169,110,.15) !important;
+    }
+
+    /* Notification / toast */
+    div[class*="toast"], div[class*="Toast"],
+    div[class*="notification"], div[class*="Notification"] {
+      background: #161E28 !important;
+      color: #E8C98A !important;
+      border: 1px solid rgba(201,169,110,.15) !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0A0E14; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.3); }
+
+    /* Login page */
+    div[class*="login"], div[class*="Login"] {
+      background: #0A0E14 !important;
+    }
+
+    /* Status badges */
+    span[class*="status"], span[class*="Status"],
+    div[class*="status"], div[class*="Status"] {
+      background: rgba(201,169,110,.1) !important;
+      color: #C9A96E !important;
+      border: 1px solid rgba(201,169,110,.15) !important;
+    }
+
+    /* Loading spinner area */
+    div[class*="loading"], div[class*="Loading"] {
+      background: #0A0E14 !important;
+    }
+
+    /* SVG icons */
+    svg { fill: currentColor !important; }
+
+    /* Summary text in collapsed list items */
+    summary, div[class*="summary"] {
+      color: rgba(201,169,110,.5) !important;
+    }
+  </style>
 </head>
 <body>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
