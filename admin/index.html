@@ -4,120 +4,168 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin — Entre ici et ailleurs</title>
-  <style>
-    /* ═══ EIA CMS — Dark Gold Theme ═══
-       Decap CMS uses CSS-in-JS with random class names.
-       We target elements broadly with !important overrides. */
+  <style id="cms-dark-theme">
+    /* ═══ EIA CMS — Mode Nuit ═══ */
 
-    /* Root colors */
     html, body, #nc-root, #root {
-      background: #0A0E14 !important;
-      color: #C9A96E !important;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
-    }
-
-    /* All divs default */
-    div { border-color: rgba(201,169,110,.1) !important; }
-
-    /* Override all white/gray backgrounds */
-    main, section, aside, nav, header, footer,
-    div[class*="css-"] {
-      background-color: transparent !important;
+      background: #0D0F12 !important;
+      color: rgba(201,169,110,.75) !important;
     }
 
     /* Top bar */
-    header {
-      background: #111820 !important;
-      border-bottom: 1px solid rgba(201,169,110,.1) !important;
+    header, [class*="AppHeader"] {
+      background: #141820 !important;
+      border-bottom: 1px solid rgba(201,169,110,.08) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3) !important;
     }
-    header a, header span, header button, header svg {
+    header *, [class*="AppHeader"] * {
       color: #C9A96E !important;
-      fill: #C9A96E !important;
     }
 
     /* Sidebar */
-    aside, nav {
-      background: #111820 !important;
+    aside, nav, [class*="Sidebar"] {
+      background: #141820 !important;
+      border-right: 1px solid rgba(201,169,110,.06) !important;
     }
-    aside a, nav a, aside li, nav li {
-      color: rgba(201,169,110,.6) !important;
-      transition: all .2s;
+    aside a, aside li, nav a, nav li,
+    [class*="SidebarNav"] a {
+      color: rgba(201,169,110,.55) !important;
+      border-left: 3px solid transparent !important;
     }
-    aside a:hover, nav a:hover, aside li:hover, nav li:hover,
-    aside a[aria-current], nav a[aria-current] {
+    aside a:hover, nav a:hover,
+    aside a[class*="active"], [class*="SidebarNav"] a[class*="active"],
+    aside a[aria-current="page"] {
       color: #E8C98A !important;
-      background: rgba(201,169,110,.05) !important;
+      background: rgba(201,169,110,.04) !important;
+      border-left-color: #C9A96E !important;
     }
 
-    /* Main content area */
-    main {
-      background: #0A0E14 !important;
+    /* Main area */
+    main, [class*="Main"], section {
+      background: #0D0F12 !important;
     }
 
-    /* All text */
-    h1, h2, h3, h4, h5, h6 {
-      color: #C9A96E !important;
+    /* Section headings (ARTICLES, POLICES, EN-TÊTE, etc) */
+    h1 {
+      color: #E8C98A !important;
+      font-size: 18px !important;
+      font-weight: 400 !important;
     }
-    label, legend {
+    h2 {
       color: #C9A96E !important;
+      font-size: 15px !important;
+      font-weight: 500 !important;
       text-transform: uppercase !important;
-      letter-spacing: .08em !important;
-      font-size: 12px !important;
+      letter-spacing: .06em !important;
+      padding-top: 8px !important;
+    }
+
+    /* Field labels */
+    label, legend, [class*="Label"], [class*="ControlLabel"] {
+      color: #A8884E !important;
+      text-transform: uppercase !important;
+      letter-spacing: .06em !important;
+      font-size: 11px !important;
       font-weight: 500 !important;
     }
-    p, span, li, td, th, div {
-      color: rgba(201,169,110,.7);
+
+    /* All text defaults */
+    p, span, li, td, th, div, summary {
+      color: rgba(201,169,110,.6);
+    }
+    /* Hint text */
+    [class*="hint"], [class*="Hint"], small {
+      color: rgba(201,169,110,.35) !important;
+      font-size: 11px !important;
     }
 
-    /* Inputs */
-    input, textarea, select {
-      background: #0A0E14 !important;
-      border: 1px solid rgba(201,169,110,.15) !important;
+    /* Inputs — dark with golden border on focus */
+    input[type="text"], input[type="number"], input[type="url"],
+    input[type="email"], input[type="password"],
+    input[type="datetime-local"], input[type="date"],
+    textarea, select {
+      background: #0A0C10 !important;
+      border: 1px solid rgba(201,169,110,.12) !important;
       color: #E8C98A !important;
-      border-radius: 4px !important;
+      border-radius: 3px !important;
+      font-size: 14px !important;
       padding: 10px 12px !important;
+      transition: border-color .2s !important;
     }
     input:focus, textarea:focus, select:focus {
       border-color: #C9A96E !important;
       outline: none !important;
-      box-shadow: 0 0 0 2px rgba(201,169,110,.1) !important;
-    }
-    input[type="color"] {
-      height: 40px !important;
-      cursor: pointer !important;
-      padding: 4px !important;
+      box-shadow: 0 0 0 1px rgba(201,169,110,.15) !important;
     }
 
-    /* Buttons */
+    /* Color picker */
+    input[type="color"] {
+      background: #0A0C10 !important;
+      border: 1px solid rgba(201,169,110,.12) !important;
+      height: 38px !important;
+      border-radius: 3px !important;
+      cursor: pointer !important;
+      padding: 3px !important;
+    }
+
+    /* Checkbox / toggle */
+    input[type="checkbox"] {
+      accent-color: #C9A96E !important;
+    }
+
+    /* Buttons — subtle gold border */
     button {
       background: transparent !important;
       color: #C9A96E !important;
-      border: 1px solid rgba(201,169,110,.15) !important;
-      border-radius: 4px !important;
-      transition: all .2s !important;
+      border: 1px solid rgba(201,169,110,.12) !important;
+      border-radius: 3px !important;
+      transition: all .15s !important;
+      font-size: 13px !important;
     }
     button:hover {
-      border-color: #C9A96E !important;
-      background: rgba(201,169,110,.06) !important;
+      border-color: rgba(201,169,110,.3) !important;
+      background: rgba(201,169,110,.04) !important;
     }
 
-    /* Save/Publish button - make it stand out */
-    button[class*="publish"], button[class*="save"],
-    div[class*="ToolbarButton"] button,
-    div[class*="publish"] button {
-      background: rgba(201,169,110,.12) !important;
-      border-color: #C9A96E !important;
+    /* Publish/Save — accent */
+    [class*="ublish"] button, [class*="ToolbarButton"] > button:first-child,
+    button[class*="ublish"], button[class*="save"], button[class*="Save"] {
+      background: rgba(201,169,110,.1) !important;
+      border: 1px solid rgba(201,169,110,.25) !important;
       color: #E8C98A !important;
+      font-weight: 500 !important;
     }
-    button[class*="publish"]:hover, button[class*="save"]:hover {
-      background: rgba(201,169,110,.2) !important;
+    [class*="ublish"] button:hover, button[class*="ublish"]:hover {
+      background: rgba(201,169,110,.18) !important;
     }
 
-    /* Cards / list items / object widgets */
-    fieldset, details {
-      background: #161E28 !important;
-      border: 1px solid rgba(201,169,110,.1) !important;
-      border-radius: 6px !important;
+    /* Status badge */
+    [class*="ublish"] span, [class*="status"] {
+      background: rgba(46,139,87,.15) !important;
+      color: #5cb85c !important;
+      border: 1px solid rgba(46,139,87,.2) !important;
+      border-radius: 3px !important;
+      font-size: 12px !important;
+    }
+
+    /* Cards / fieldsets / object widgets */
+    fieldset, details, [class*="ObjectWidget"], [class*="ListItem"] {
+      background: rgba(20,24,32,.6) !important;
+      border: 1px solid rgba(201,169,110,.06) !important;
+      border-radius: 4px !important;
+      margin-bottom: 6px !important;
+    }
+    fieldset:hover, details:hover {
+      border-color: rgba(201,169,110,.12) !important;
+    }
+
+    /* Expand/collapse summary */
+    summary {
+      color: rgba(201,169,110,.5) !important;
+      cursor: pointer !important;
+    }
+    summary:hover {
+      color: #C9A96E !important;
     }
 
     /* Links */
@@ -126,81 +174,152 @@
 
     /* Dropdown menus */
     ul[role="listbox"], div[role="listbox"],
-    div[class*="menu"], div[class*="Menu"] {
-      background: #161E28 !important;
+    [class*="MenuList"], [class*="menu-list"] {
+      background: #1A1E26 !important;
       border: 1px solid rgba(201,169,110,.1) !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4) !important;
     }
-    div[class*="option"]:hover, li[role="option"]:hover {
-      background: rgba(201,169,110,.08) !important;
+    [class*="option"]:hover, li[role="option"]:hover {
+      background: rgba(201,169,110,.06) !important;
     }
-
-    /* Toggle switches */
-    input[type="checkbox"] {
-      accent-color: #C9A96E !important;
-    }
-
-    /* Markdown editor toolbar */
-    div[class*="toolbar"], div[class*="Toolbar"] {
-      background: #161E28 !important;
-      border-color: rgba(201,169,110,.1) !important;
-    }
-
-    /* Markdown editor body */
-    div[contenteditable="true"], div[data-slate-editor="true"],
-    div[class*="editor"], div[class*="Editor"] {
-      background: #0A0E14 !important;
+    [class*="singleValue"], [class*="placeholder"] {
       color: #E8C98A !important;
     }
+    [class*="indicatorSeparator"] {
+      background: rgba(201,169,110,.1) !important;
+    }
 
-    /* Image upload area */
-    div[class*="image"], div[class*="Image"],
-    div[class*="file"], div[class*="File"] {
-      border-style: dashed !important;
+    /* Markdown editor */
+    [class*="toolbar"], [class*="Toolbar"] {
+      background: #141820 !important;
+      border: 1px solid rgba(201,169,110,.06) !important;
+    }
+    [class*="toolbar"] button, [class*="Toolbar"] button {
+      color: rgba(201,169,110,.5) !important;
+      border: none !important;
+    }
+    [class*="toolbar"] button:hover, [class*="Toolbar"] button:hover {
+      color: #E8C98A !important;
+      background: rgba(201,169,110,.06) !important;
+    }
+    [contenteditable="true"], [data-slate-editor="true"] {
+      background: #0A0C10 !important;
+      color: rgba(201,169,110,.7) !important;
+      border: 1px solid rgba(201,169,110,.08) !important;
+      caret-color: #E8C98A !important;
+    }
+
+    /* Image/File upload area */
+    [class*="mageUpload"], [class*="ileUpload"],
+    [class*="image-widget"], [class*="file-widget"] {
+      border: 1px dashed rgba(201,169,110,.12) !important;
+      background: rgba(10,12,16,.5) !important;
+      border-radius: 4px !important;
+    }
+
+    /* Collection list / entry cards */
+    [class*="ListCard"], [class*="EntryCard"],
+    [class*="listCard"], [class*="entryCard"] {
+      background: #141820 !important;
+      border: 1px solid rgba(201,169,110,.06) !important;
+    }
+    [class*="ListCard"]:hover, [class*="EntryCard"]:hover {
       border-color: rgba(201,169,110,.15) !important;
     }
-
-    /* Notification / toast */
-    div[class*="toast"], div[class*="Toast"],
-    div[class*="notification"], div[class*="Notification"] {
-      background: #161E28 !important;
+    [class*="ListCard"] h2, [class*="EntryCard"] h2 {
       color: #E8C98A !important;
-      border: 1px solid rgba(201,169,110,.15) !important;
+    }
+
+    /* Toast / Notification */
+    [class*="oast"], [class*="otification"] {
+      background: #1A1E26 !important;
+      color: #E8C98A !important;
+      border: 1px solid rgba(201,169,110,.12) !important;
+    }
+
+    /* Login page */
+    [class*="ogin"] {
+      background: #0D0F12 !important;
+    }
+    [class*="oginButton"] button {
+      background: rgba(201,169,110,.08) !important;
+      border: 1px solid rgba(201,169,110,.2) !important;
+      color: #E8C98A !important;
+      padding: 12px 28px !important;
     }
 
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0A0E14; }
-    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.15); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.3); }
-
-    /* Login page */
-    div[class*="login"], div[class*="Login"] {
-      background: #0A0E14 !important;
-    }
-
-    /* Status badges */
-    span[class*="status"], span[class*="Status"],
-    div[class*="status"], div[class*="Status"] {
-      background: rgba(201,169,110,.1) !important;
-      color: #C9A96E !important;
-      border: 1px solid rgba(201,169,110,.15) !important;
-    }
-
-    /* Loading spinner area */
-    div[class*="loading"], div[class*="Loading"] {
-      background: #0A0E14 !important;
-    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0D0F12; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.12); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.25); }
 
     /* SVG icons */
-    svg { fill: currentColor !important; }
+    svg { fill: currentColor !important; color: inherit !important; }
 
-    /* Summary text in collapsed list items */
-    summary, div[class*="summary"] {
-      color: rgba(201,169,110,.5) !important;
+    /* CMS theme toggle */
+    #cms-theme-toggle {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 99999;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(20,24,32,.9) !important;
+      border: 1px solid rgba(201,169,110,.15) !important;
+      color: #C9A96E !important;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      transition: all .2s;
+    }
+    #cms-theme-toggle:hover {
+      border-color: rgba(201,169,110,.4) !important;
+      transform: scale(1.1);
     }
   </style>
 </head>
 <body>
+  <!-- CMS Theme Toggle -->
+  <button id="cms-theme-toggle" title="Thème CMS jour/nuit">☽</button>
+
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    (function(){
+      var btn = document.getElementById('cms-theme-toggle');
+      var sheet = document.getElementById('cms-dark-theme');
+      var saved = localStorage.getItem('eia-cms-theme') || 'dark';
+
+      function apply(mode){
+        if(mode === 'light'){
+          sheet.disabled = true;
+          btn.textContent = '☀';
+          btn.title = 'Passer en mode nuit';
+          btn.style.background = 'rgba(240,240,240,.9)';
+          btn.style.borderColor = 'rgba(0,0,0,.1)';
+          btn.style.color = '#666';
+        } else {
+          sheet.disabled = false;
+          btn.textContent = '☽';
+          btn.title = 'Passer en mode jour';
+          btn.style.background = 'rgba(20,24,32,.9)';
+          btn.style.borderColor = 'rgba(201,169,110,.15)';
+          btn.style.color = '#C9A96E';
+        }
+      }
+      apply(saved);
+
+      btn.addEventListener('click', function(){
+        var current = sheet.disabled ? 'light' : 'dark';
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('eia-cms-theme', next);
+        apply(next);
+      });
+    })();
+  </script>
 </body>
 </html>
