@@ -12,10 +12,25 @@
   "name_contact": "Contact",
   "show_contact": true,
   "blog_categories": [
-    {"name": "MÉDITATION"},
-    {"name": "POÉSIE"},
-    {"name": "PRIÈRE"},
-    {"name": "RÉFLEXION"},
-    {"name": "RÉCIT"}
-  ]
+    {
+      "name": "MÉDITATION"
+    },
+    {
+      "name": "POÉSIE"
+    },
+    {
+      "name": "PRIÈRE"
+    },
+    {
+      "name": "RÉFLEXION"
+    },
+    {
+      "name": "RÉCIT"
+    }
+  ],
+  "blog_per_page": "6",
+  "oeuvres_per_page": "12",
+  "audio_per_page": "12",
+  "univers_shuffle": false,
+  "hide_light_mode": false
 }

@@ -1,78 +1,43 @@
-# 💬 Tutoriel Commentaires & Likes — Entre ici et ailleurs
+# 💬 Tutoriel Commentaires & Likes — EIA
 
-## Comment fonctionnent les commentaires
+## Fonctionnement
 
-Les commentaires utilisent **Netlify Blobs**, un système de stockage serverless inclus gratuitement avec Netlify. Chaque article a son propre espace de stockage identifié par son slug.
+Les commentaires et likes sont stockés dans Cloudflare KV (namespace EIA_KV).
+Sur Netlify, ils sont stockés dans Netlify Blobs (indépendamment).
 
-### Architecture technique
+### Poster un commentaire
+1. Ouvrez un article sur le site
+2. Remplissez le prénom (2+ caractères) et le commentaire (10-500 caractères)
+3. Cliquez LAISSER UN COMMENTAIRE
+4. Le commentaire apparaît immédiatement
 
-- **Stockage** : Netlify Blobs (clé `comments:{slug}`)
-- **Serveur** : Netlify Functions (Node.js)
-- **Client** : Requêtes AJAX sans rechargement de page
-- **Validation** : côté serveur (prénom ≥ 2 caractères, texte 10-500 caractères)
-- **Sécurité** : les balises HTML sont supprimées automatiquement (anti-XSS)
+### Liker un article
+1. Cliquez ♡ AIMER CE TEXTE sur un article
+2. Le compteur s'incrémente
+3. Anti-spam : 1 like par IP par article
 
-### Fonctions serverless
-
-| Fonction | Méthode | Usage |
-|----------|---------|-------|
-| `add-comment` | POST | Ajouter un commentaire |
-| `get-comments` | GET | Lire les commentaires d'un article |
-| `like-post` | POST | Aimer / ne plus aimer un article |
-| `get-likes` | GET | Lire le nombre de likes |
+### Répondre en tant qu'admin
+Le système détecte automatiquement si l'utilisateur est authentifié via GitHub (bearer token). Si oui, le commentaire affiche le badge AUTEUR doré.
 
 ## Modérer les commentaires
 
-### Via le dashboard Netlify
+### Sur Cloudflare
+1. Dashboard → Workers & Pages → KV
+2. Cliquez sur le namespace EIA_KV
+3. Cherchez la clé `comments:slug-de-l-article`
+4. Cliquez sur la clé → modifiez le JSON → supprimez le commentaire indésirable
+5. Save
 
-1. Connectez-vous à [app.netlify.com](https://app.netlify.com)
-2. Allez sur votre site → **Blobs** (dans le menu)
-3. Ouvrez le store `eia-comments`
-4. Chaque clé correspond à un article : `comments:slug-de-l-article`
-5. Cliquez sur une clé pour voir le JSON des commentaires
-6. Pour supprimer un commentaire :
-   - Copiez le JSON
-   - Retirez le commentaire indésirable du tableau `comments`
-   - Remplacez le contenu de la clé avec le JSON modifié
+### Sur Netlify
+Les commentaires sont dans Netlify Blobs — accessibles uniquement via l'API ou le dashboard Netlify.
 
-### Supprimer tous les commentaires d'un article
+## Limites
+| Limite | Valeur |
+|--------|--------|
+| KV lectures/jour | 100 000 |
+| KV écritures/jour | 1 000 |
+| Taille commentaire | 10-500 caractères |
+| Anti-spam likes | 1 par IP/article |
 
-1. Dans Netlify Blobs, supprimez la clé `comments:slug`
-2. Les commentaires disparaîtront immédiatement du site
-
-## Système de Likes
-
-### Fonctionnement
-
-- Chaque visiteur peut liker un article une seule fois
-- Le verrou côté serveur utilise l'adresse IP
-- Côté client, `localStorage` mémorise l'état du like pour l'interface
-- Un clic = like, un deuxième clic = unlike
-
-### Données stockées
-
-Dans Netlify Blobs, clé `likes:{slug}` :
-```json
-{
-  "count": 5,
-  "ips": ["1.2.3.4", "5.6.7.8", ...]
-}
-```
-
-### Réinitialiser les likes d'un article
-
-1. Dans Netlify Blobs, store `eia-likes`
-2. Supprimez ou modifiez la clé `likes:slug`
-
-## Mode hors-ligne / développement local
-
-Si les fonctions Netlify ne sont pas disponibles (développement local) :
-- Les commentaires affichent : "Commentaires disponibles sur le site en ligne."
-- Les likes restent à 0
-- Le site ne casse pas — tous les appels ont des fallbacks
-
-## Désactiver les commentaires
-
-Pour désactiver les commentaires sur tout le site, vous pouvez commenter ou supprimer la section commentaires dans le code de la fonction `renderArticle` dans `index.html`.
-
-Pour un article spécifique, vous pourriez ajouter un champ `comments_enabled` dans `config.yml` et `posts.json`, puis conditionner l'affichage dans le JavaScript.
+## Important
+Les commentaires Cloudflare et Netlify ne sont PAS synchronisés. Un commentaire posté sur `.pages.dev` n'apparaît pas sur `.netlify.app`.

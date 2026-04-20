@@ -27,6 +27,7 @@ collections:
               - { name: title, widget: string, label: "Titre" }
               - { name: date, widget: string, label: "Date affichée" }
               - { name: publishDate, widget: datetime, label: "Publication programmée", required: false }
+              - { name: author, widget: string, label: "Auteur", required: false, default: "J.Y.D.", hint: "Laisser vide pour J.Y.D." }
               - { name: tag, widget: string, label: "Catégorie", hint: "Ex: MÉDITATION, POÉSIE, PRIÈRE, RÉFLEXION, RÉCIT" }
               - { name: excerpt, widget: text, label: "Extrait" }
               - { name: cover, widget: image, label: "Image couverture", required: false }
@@ -163,6 +164,11 @@ collections:
           - { name: show_apropos, widget: boolean, label: "✅ Afficher À propos", default: true }
           - { name: name_contact, widget: string, label: "Nom : Contact", default: "Contact" }
           - { name: show_contact, widget: boolean, label: "✅ Afficher Contact", default: true }
+          - { name: blog_per_page, widget: string, label: "Articles par page (Blog)", default: "6" }
+          - { name: oeuvres_per_page, widget: string, label: "Œuvres par page", default: "12" }
+          - { name: audio_per_page, widget: string, label: "Audio par page", default: "12" }
+          - { name: univers_shuffle, widget: boolean, label: "🔀 Mélanger les images Univers", default: false }
+          - { name: hide_light_mode, widget: boolean, label: "🌙 Cacher le bouton mode jour", default: false }
           - name: blog_categories
             widget: list
             label: "Catégories du blog"
@@ -184,4 +190,8 @@ collections:
           - { name: theme_gold_dark, widget: color, label: "Accent foncé", required: false, default: "#A8884E" }
           - { name: theme_font_title, widget: select, label: "Police titres", required: false, default: "Cormorant Garamond", options: ["Cormorant Garamond", "Playfair Display", "Lora", "EB Garamond", "Libre Baskerville", "Crimson Text", "Spectral", "DM Serif Display", "Bodoni Moda", "Cormorant"] }
           - { name: theme_font_body, widget: select, label: "Police texte", required: false, default: "Merriweather", options: ["Merriweather", "Lora", "Source Serif 4", "Libre Baskerville", "Crimson Text", "Spectral", "Newsreader", "Literata", "Bitter", "PT Serif"] }
+          - { name: light_deep, widget: color, label: "☀️ Jour : fond principal", required: false, default: "#FFF8F0" }
+          - { name: light_gold, widget: color, label: "☀️ Jour : accent (bleu)", required: false, default: "#1A3A5C" }
+          - { name: light_gold_light, widget: color, label: "☀️ Jour : accent clair", required: false, default: "#0D2240" }
+          - { name: light_gold_dark, widget: color, label: "☀️ Jour : accent foncé", required: false, default: "#2E5A88" }
           - { name: theme_section_opacity, widget: select, label: "Transparence sections", required: false, default: "0.85", options: [{ label: "Très transparent", value: "0.4" }, { label: "Semi-transparent", value: "0.6" }, { label: "Modéré", value: "0.85" }, { label: "Opaque", value: "0.95" }, { label: "Complètement opaque", value: "1" }] }
