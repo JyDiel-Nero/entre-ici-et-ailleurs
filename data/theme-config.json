@@ -4,7 +4,7 @@
   "theme_enable_light": false,
   "theme_enable_sepia": false,
   "theme_enable_notos": false,
-  "theme_enable_argeste": true,
+  "theme_enable_argeste": false,
   "theme_enable_boree": true,
   "theme_enable_zephyr": true
 }
