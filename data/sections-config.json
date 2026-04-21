@@ -1,16 +1,16 @@
 {
-  "name_blog": "Blog",
+  "name_audio": "Audio",
   "show_blog": true,
-  "name_oeuvres": "Œuvres",
+  "show_apropos": true,
+  "oeuvres_per_page": "12",
   "show_oeuvres": false,
   "name_univers": "Univers",
-  "show_univers": true,
-  "name_audio": "Audio",
-  "show_audio": true,
-  "name_apropos": "À propos",
-  "show_apropos": true,
   "name_contact": "Contact",
-  "show_contact": true,
+  "blog_per_page": "6",
+  "show_audio": false,
+  "name_apropos": "À propos",
+  "name_oeuvres": "Œuvres",
+  "name_blog": "Blog",
   "blog_categories": [
     {
       "name": "MÉDITATION"
@@ -28,8 +28,8 @@
       "name": "RÉCIT"
     }
   ],
-  "blog_per_page": "6",
-  "oeuvres_per_page": "12",
   "audio_per_page": "12",
-  "univers_shuffle": false
+  "univers_shuffle": false,
+  "show_contact": true,
+  "show_univers": true
 }
