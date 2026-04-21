@@ -5,277 +5,283 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin — Entre ici et ailleurs</title>
   <style id="cms-dark-theme">
-    /* ═══ EIA CMS — Mode Nuit ═══ */
+    /* ═══ EIA CMS — Mode Nuit ═══ 
+       Force EVERY element dark. No white anywhere. */
 
-    html, body, #nc-root, #root {
-      background: #0D0F12 !important;
-      color: rgba(201,169,110,.75) !important;
+    *, *::before, *::after {
+      border-color: rgba(201,169,110,.1) !important;
     }
 
-    /* Top bar */
-    header, [class*="AppHeader"] {
-      background: #141820 !important;
+    html, body, #nc-root, #root,
+    [id="nc-root"] > div,
+    [id="nc-root"] > div > div {
+      background-color: #0D0F12 !important;
+      color: rgba(201,169,110,.7) !important;
+      font-family: -apple-system, 'Segoe UI', system-ui, sans-serif !important;
+    }
+
+    /* KILL all white/gray backgrounds globally */
+    div, section, main, aside, nav, article, footer,
+    header, form, fieldset, details, summary,
+    ul, ol, li, dl, dt, dd, figure, figcaption,
+    [class*="css-"] {
+      background-color: transparent !important;
+      color: inherit;
+    }
+
+    /* Top bar only */
+    header, [class*="AppHeader"],
+    [class*="css-"][class*="Header"],
+    body > div > div > div:first-child > header,
+    #nc-root > div > div > header {
+      background-color: #111620 !important;
       border-bottom: 1px solid rgba(201,169,110,.08) !important;
-      box-shadow: 0 1px 4px rgba(0,0,0,.3) !important;
     }
     header *, [class*="AppHeader"] * {
       color: #C9A96E !important;
+      background-color: transparent !important;
     }
 
     /* Sidebar */
-    aside, nav, [class*="Sidebar"] {
-      background: #141820 !important;
-      border-right: 1px solid rgba(201,169,110,.06) !important;
+    aside, [class*="Sidebar"],
+    nav[class*="css-"] {
+      background-color: #111620 !important;
     }
-    aside a, aside li, nav a, nav li,
-    [class*="SidebarNav"] a {
-      color: rgba(201,169,110,.55) !important;
-      border-left: 3px solid transparent !important;
+    aside a, nav a, aside li, nav li,
+    aside span, nav span {
+      color: rgba(201,169,110,.5) !important;
+      background-color: transparent !important;
     }
     aside a:hover, nav a:hover,
-    aside a[class*="active"], [class*="SidebarNav"] a[class*="active"],
+    aside a[class*="active"],
     aside a[aria-current="page"] {
       color: #E8C98A !important;
-      background: rgba(201,169,110,.04) !important;
-      border-left-color: #C9A96E !important;
+      background-color: rgba(201,169,110,.04) !important;
     }
 
-    /* Main area */
-    main, [class*="Main"], section {
-      background: #0D0F12 !important;
-    }
-
-    /* Section headings (ARTICLES, POLICES, EN-TÊTE, etc) */
-    h1 {
-      color: #E8C98A !important;
-      font-size: 18px !important;
-      font-weight: 400 !important;
+    /* ALL headings */
+    h1, h2, h3, h4, h5, h6 {
+      color: #C9A96E !important;
+      background-color: transparent !important;
     }
     h2 {
-      color: #C9A96E !important;
-      font-size: 15px !important;
-      font-weight: 500 !important;
       text-transform: uppercase !important;
       letter-spacing: .06em !important;
-      padding-top: 8px !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      padding: 4px 0 !important;
     }
 
-    /* Field labels */
-    label, legend, [class*="Label"], [class*="ControlLabel"] {
+    /* Labels — gold directly on dark */
+    label, legend,
+    [class*="ControlLabel"],
+    [class*="Label"],
+    span[class*="css-"] {
       color: #A8884E !important;
+      background-color: transparent !important;
       text-transform: uppercase !important;
       letter-spacing: .06em !important;
       font-size: 11px !important;
       font-weight: 500 !important;
     }
 
-    /* All text defaults */
-    p, span, li, td, th, div, summary {
+    /* All text */
+    p, span, li, td, th, div, summary, a {
       color: rgba(201,169,110,.6);
+      background-color: transparent !important;
     }
-    /* Hint text */
-    [class*="hint"], [class*="Hint"], small {
-      color: rgba(201,169,110,.35) !important;
-      font-size: 11px !important;
+    small, [class*="hint"], [class*="Hint"] {
+      color: rgba(201,169,110,.3) !important;
     }
 
-    /* Inputs — dark with golden border on focus */
+    /* Inputs */
     input[type="text"], input[type="number"], input[type="url"],
     input[type="email"], input[type="password"],
     input[type="datetime-local"], input[type="date"],
     textarea, select {
-      background: #0A0C10 !important;
+      background-color: #080A0E !important;
       border: 1px solid rgba(201,169,110,.12) !important;
       color: #E8C98A !important;
       border-radius: 3px !important;
-      font-size: 14px !important;
       padding: 10px 12px !important;
-      transition: border-color .2s !important;
     }
     input:focus, textarea:focus, select:focus {
       border-color: #C9A96E !important;
       outline: none !important;
-      box-shadow: 0 0 0 1px rgba(201,169,110,.15) !important;
+      box-shadow: 0 0 0 1px rgba(201,169,110,.12) !important;
     }
-
-    /* Color picker */
     input[type="color"] {
-      background: #0A0C10 !important;
-      border: 1px solid rgba(201,169,110,.12) !important;
+      background-color: #080A0E !important;
       height: 38px !important;
-      border-radius: 3px !important;
-      cursor: pointer !important;
       padding: 3px !important;
+      cursor: pointer !important;
     }
+    input[type="checkbox"] { accent-color: #C9A96E !important; }
+    select { appearance: auto !important; }
 
-    /* Checkbox / toggle */
-    input[type="checkbox"] {
-      accent-color: #C9A96E !important;
-    }
-
-    /* Buttons — subtle gold border */
+    /* Buttons */
     button {
-      background: transparent !important;
+      background-color: transparent !important;
       color: #C9A96E !important;
       border: 1px solid rgba(201,169,110,.12) !important;
       border-radius: 3px !important;
-      transition: all .15s !important;
-      font-size: 13px !important;
     }
     button:hover {
-      border-color: rgba(201,169,110,.3) !important;
-      background: rgba(201,169,110,.04) !important;
+      border-color: rgba(201,169,110,.25) !important;
+      background-color: rgba(201,169,110,.04) !important;
     }
 
-    /* Publish/Save — accent */
-    [class*="ublish"] button, [class*="ToolbarButton"] > button:first-child,
-    button[class*="ublish"], button[class*="save"], button[class*="Save"] {
-      background: rgba(201,169,110,.1) !important;
-      border: 1px solid rgba(201,169,110,.25) !important;
+    /* Publish/save */
+    [class*="ublish"] button,
+    [class*="ToolbarButton"] > button:first-child {
+      background-color: rgba(201,169,110,.1) !important;
+      border-color: rgba(201,169,110,.25) !important;
       color: #E8C98A !important;
-      font-weight: 500 !important;
     }
-    [class*="ublish"] button:hover, button[class*="ublish"]:hover {
-      background: rgba(201,169,110,.18) !important;
-    }
-
-    /* Status badge */
-    [class*="ublish"] span, [class*="status"] {
-      background: rgba(46,139,87,.15) !important;
+    [class*="ublish"] span {
+      background-color: rgba(46,139,87,.12) !important;
       color: #5cb85c !important;
       border: 1px solid rgba(46,139,87,.2) !important;
       border-radius: 3px !important;
-      font-size: 12px !important;
     }
 
-    /* Cards / fieldsets / object widgets */
-    fieldset, details, [class*="ObjectWidget"], [class*="ListItem"] {
-      background: rgba(20,24,32,.6) !important;
+    /* List items / cards - NO gray boxes, just borders */
+    fieldset, details {
+      background-color: transparent !important;
       border: 1px solid rgba(201,169,110,.06) !important;
       border-radius: 4px !important;
-      margin-bottom: 6px !important;
+      margin-bottom: 4px !important;
     }
     fieldset:hover, details:hover {
       border-color: rgba(201,169,110,.12) !important;
     }
-
-    /* Expand/collapse summary */
     summary {
       color: rgba(201,169,110,.5) !important;
       cursor: pointer !important;
     }
-    summary:hover {
-      color: #C9A96E !important;
+    summary:hover { color: #C9A96E !important; }
+
+    /* Collection list items — the main offender for white bg */
+    [class*="ListCard"], [class*="EntryCard"],
+    [class*="listCard"], [class*="entryCard"],
+    [class*="ObjectControl"],
+    [class*="ListItemTopBar"],
+    [class*="TopBar"],
+    [class*="NestedObjectLabel"],
+    [class*="StyledListItemTopBar"] {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    /* The expand/collapse bar area */
+    [class*="TopBar"],
+    [class*="ListItemTopBar"],
+    [class*="StyledListItemTopBar"],
+    [class*="css-"][draggable="true"],
+    li[class*="css-"],
+    li > div[class*="css-"] {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    /* Object widget containers */
+    [class*="ObjectWidget"],
+    [class*="ObjectControl"],
+    [class*="ListControl"],
+    [class*="ExpandedListItem"],
+    [class*="ListItem"] {
+      background-color: transparent !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid rgba(201,169,110,.05) !important;
+    }
+
+    /* Preview pane */
+    [class*="PreviewPane"],
+    [class*="previewPane"],
+    [class*="EditorPreview"] {
+      background-color: #0D0F12 !important;
     }
 
     /* Links */
     a { color: #C9A96E !important; }
     a:hover { color: #E8C98A !important; }
 
-    /* Dropdown menus */
+    /* Dropdowns */
     ul[role="listbox"], div[role="listbox"],
-    [class*="MenuList"], [class*="menu-list"] {
-      background: #1A1E26 !important;
+    [class*="MenuList"], [class*="menu"] {
+      background-color: #151A22 !important;
       border: 1px solid rgba(201,169,110,.1) !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,.4) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,.5) !important;
     }
     [class*="option"]:hover, li[role="option"]:hover {
-      background: rgba(201,169,110,.06) !important;
+      background-color: rgba(201,169,110,.06) !important;
     }
-    [class*="singleValue"], [class*="placeholder"] {
-      color: #E8C98A !important;
-    }
-    [class*="indicatorSeparator"] {
-      background: rgba(201,169,110,.1) !important;
+    [class*="singleValue"], [class*="placeholder"] { color: #E8C98A !important; }
+    [class*="indicatorSeparator"] { background-color: rgba(201,169,110,.1) !important; }
+    [class*="control"] {
+      background-color: #080A0E !important;
+      border-color: rgba(201,169,110,.12) !important;
     }
 
     /* Markdown editor */
     [class*="toolbar"], [class*="Toolbar"] {
-      background: #141820 !important;
-      border: 1px solid rgba(201,169,110,.06) !important;
+      background-color: #111620 !important;
     }
     [class*="toolbar"] button, [class*="Toolbar"] button {
-      color: rgba(201,169,110,.5) !important;
+      color: rgba(201,169,110,.4) !important;
       border: none !important;
     }
-    [class*="toolbar"] button:hover, [class*="Toolbar"] button:hover {
-      color: #E8C98A !important;
-      background: rgba(201,169,110,.06) !important;
-    }
+    [class*="toolbar"] button:hover { color: #E8C98A !important; }
     [contenteditable="true"], [data-slate-editor="true"] {
-      background: #0A0C10 !important;
+      background-color: #080A0E !important;
       color: rgba(201,169,110,.7) !important;
-      border: 1px solid rgba(201,169,110,.08) !important;
       caret-color: #E8C98A !important;
     }
 
-    /* Image/File upload area */
-    [class*="mageUpload"], [class*="ileUpload"],
-    [class*="image-widget"], [class*="file-widget"] {
+    /* File/Image upload */
+    [class*="imageUpload"], [class*="ImageUpload"],
+    [class*="fileUpload"], [class*="FileUpload"] {
       border: 1px dashed rgba(201,169,110,.12) !important;
-      background: rgba(10,12,16,.5) !important;
-      border-radius: 4px !important;
+      background-color: transparent !important;
     }
 
-    /* Collection list / entry cards */
-    [class*="ListCard"], [class*="EntryCard"],
-    [class*="listCard"], [class*="entryCard"] {
-      background: #141820 !important;
-      border: 1px solid rgba(201,169,110,.06) !important;
-    }
-    [class*="ListCard"]:hover, [class*="EntryCard"]:hover {
-      border-color: rgba(201,169,110,.15) !important;
-    }
-    [class*="ListCard"] h2, [class*="EntryCard"] h2 {
-      color: #E8C98A !important;
-    }
-
-    /* Toast / Notification */
+    /* Toast */
     [class*="oast"], [class*="otification"] {
-      background: #1A1E26 !important;
+      background-color: #151A22 !important;
       color: #E8C98A !important;
-      border: 1px solid rgba(201,169,110,.12) !important;
     }
 
-    /* Login page */
-    [class*="ogin"] {
-      background: #0D0F12 !important;
-    }
+    /* Login */
+    [class*="ogin"] { background-color: #0D0F12 !important; }
     [class*="oginButton"] button {
-      background: rgba(201,169,110,.08) !important;
+      background-color: rgba(201,169,110,.08) !important;
       border: 1px solid rgba(201,169,110,.2) !important;
       color: #E8C98A !important;
-      padding: 12px 28px !important;
     }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #0D0F12; }
-    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.12); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.25); }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.2); }
 
-    /* SVG icons */
+    /* SVG */
     svg { fill: currentColor !important; color: inherit !important; }
+    svg path { fill: inherit !important; }
 
-    /* CMS theme toggle */
+    /* Image preview in editor */
+    img { border-radius: 4px; }
+
+    /* CMS toggle */
     #cms-theme-toggle {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 99999;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(20,24,32,.9) !important;
+      position: fixed; bottom: 16px; right: 16px; z-index: 99999;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(17,22,32,.95) !important;
       border: 1px solid rgba(201,169,110,.15) !important;
-      color: #C9A96E !important;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(8px);
-      transition: all .2s;
+      color: #C9A96E !important; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px); transition: all .2s;
     }
     #cms-theme-toggle:hover {
       border-color: rgba(201,169,110,.4) !important;
@@ -284,39 +290,32 @@
   </style>
 </head>
 <body>
-  <!-- CMS Theme Toggle -->
-  <button id="cms-theme-toggle" title="Thème CMS jour/nuit">☽</button>
-
+  <button id="cms-theme-toggle" title="Theme CMS jour/nuit">☽</button>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   <script>
     (function(){
       var btn = document.getElementById('cms-theme-toggle');
       var sheet = document.getElementById('cms-dark-theme');
       var saved = localStorage.getItem('eia-cms-theme') || 'dark';
-
-      function apply(mode){
-        if(mode === 'light'){
-          sheet.disabled = true;
-          btn.textContent = '☀';
-          btn.title = 'Passer en mode nuit';
-          btn.style.background = 'rgba(240,240,240,.9)';
-          btn.style.borderColor = 'rgba(0,0,0,.1)';
-          btn.style.color = '#666';
+      function apply(m){
+        if(m==='light'){
+          sheet.disabled=true;
+          btn.textContent='☀';btn.title='Mode nuit';
+          btn.style.background='rgba(240,240,240,.9)';
+          btn.style.borderColor='rgba(0,0,0,.1)';
+          btn.style.color='#666';
         } else {
-          sheet.disabled = false;
-          btn.textContent = '☽';
-          btn.title = 'Passer en mode jour';
-          btn.style.background = 'rgba(20,24,32,.9)';
-          btn.style.borderColor = 'rgba(201,169,110,.15)';
-          btn.style.color = '#C9A96E';
+          sheet.disabled=false;
+          btn.textContent='☽';btn.title='Mode jour';
+          btn.style.background='rgba(17,22,32,.95)';
+          btn.style.borderColor='rgba(201,169,110,.15)';
+          btn.style.color='#C9A96E';
         }
       }
       apply(saved);
-
-      btn.addEventListener('click', function(){
-        var current = sheet.disabled ? 'light' : 'dark';
-        var next = current === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('eia-cms-theme', next);
+      btn.addEventListener('click',function(){
+        var next=sheet.disabled?'dark':'light';
+        localStorage.setItem('eia-cms-theme',next);
         apply(next);
       });
     })();

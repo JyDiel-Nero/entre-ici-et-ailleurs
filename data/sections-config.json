@@ -31,9 +31,5 @@
   "blog_per_page": "6",
   "oeuvres_per_page": "12",
   "audio_per_page": "12",
-  "univers_shuffle": false,
-  "theme_default": "dark",
-  "theme_enable_dark": true,
-  "theme_enable_light": true,
-  "theme_enable_sepia": true
+  "univers_shuffle": false
 }

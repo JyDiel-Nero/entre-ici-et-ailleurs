@@ -49,7 +49,7 @@ collections:
             summary: "{{fields.title}} ({{fields.type}})"
             fields:
               - { name: title, widget: string, label: "Titre" }
-              - { name: type, widget: select, label: "Type", options: [{ label: "📖 Recueil de poésie", value: "recueil" }, { label: "🎤 Album slam/musique", value: "album" }, { label: "🎨 Tableau/peinture", value: "peinture" }] }
+              - { name: type, widget: select, label: "Type", options: [{ label: "📖 Recueil", value: "recueil" }, { label: "🎤 Album", value: "album" }, { label: "🎨 Peinture", value: "peinture" }] }
               - { name: description, widget: text, label: "Description", required: false }
               - { name: image, widget: image, label: "Image/couverture" }
               - { name: price, widget: string, label: "Prix", required: false }
@@ -118,9 +118,9 @@ collections:
             collapsed: true
             summary: "{{fields.name}} ({{fields.type}})"
             fields:
-              - { name: id, widget: string, label: "Identifiant (minuscules, tirets)", hint: "Ex: reflexions" }
+              - { name: id, widget: string, label: "Identifiant (minuscules, tirets)" }
               - { name: name, widget: string, label: "Nom affiché" }
-              - { name: type, widget: select, label: "Type", options: [{ label: "📝 Blog (articles)", value: "blog" }, { label: "🖼️ Galerie (images)", value: "gallery" }, { label: "📄 Page texte", value: "text" }, { label: "🔗 Liens", value: "links" }] }
+              - { name: type, widget: select, label: "Type", options: [{ label: "📝 Blog", value: "blog" }, { label: "🖼️ Galerie", value: "gallery" }, { label: "📄 Texte", value: "text" }, { label: "🔗 Liens", value: "links" }] }
               - { name: subtitle, widget: string, label: "Sous-titre", required: false }
               - { name: visible, widget: boolean, label: "Visible", default: false }
               - { name: categories, widget: list, label: "Sous-catégories", required: false, fields: [{ name: name, widget: string, label: "Nom" }] }
@@ -132,7 +132,7 @@ collections:
     files:
       - file: "data/settings.json"
         name: "site"
-        label: "Textes du site"
+        label: "Textes et images du site"
         fields:
           - { name: hero_bg, widget: image, label: "Image de fond Hero", required: false }
           - { name: site_bg, widget: image, label: "Image de fond globale", required: false }
@@ -150,7 +150,7 @@ collections:
     files:
       - file: "data/sections-config.json"
         name: "sc"
-        label: "Visibilité et noms"
+        label: "Visibilité, noms et pagination"
         fields:
           - { name: name_blog, widget: string, label: "Nom : Blog", default: "Blog" }
           - { name: show_blog, widget: boolean, label: "✅ Afficher Blog", default: true }
@@ -168,33 +168,45 @@ collections:
           - { name: oeuvres_per_page, widget: string, label: "Œuvres par page", default: "12" }
           - { name: audio_per_page, widget: string, label: "Audio par page", default: "12" }
           - { name: univers_shuffle, widget: boolean, label: "🔀 Mélanger les images Univers", default: false }
-          - { name: theme_default, widget: select, label: "🎨 Thème par défaut", default: "dark", options: [{ label: "🌙 Nuit (or sur noir)", value: "dark" }, { label: "☀️ Jour (bleu sur blanc)", value: "light" }, { label: "◐ Sépia (brun sur parchemin)", value: "sepia" }] }
-          - { name: theme_enable_dark, widget: boolean, label: "🌙 Activer le thème Nuit", default: true }
-          - { name: theme_enable_light, widget: boolean, label: "☀️ Activer le thème Jour", default: true }
-          - { name: theme_enable_sepia, widget: boolean, label: "◐ Activer le thème Sépia", default: true }
           - name: blog_categories
             widget: list
             label: "Catégories du blog"
             fields: [{ name: name, widget: string, label: "Nom" }]
             default: [{ name: "MÉDITATION" }, { name: "POÉSIE" }, { name: "PRIÈRE" }, { name: "RÉFLEXION" }, { name: "RÉCIT" }]
 
-  - name: "param_theme"
-    label: "🎨 Thème"
+  - name: "param_themes"
+    label: "🌗 Thèmes du site"
+    files:
+      - file: "data/theme-config.json"
+        name: "theme_toggle"
+        label: "Activer/désactiver les thèmes"
+        fields:
+          - { name: theme_default, widget: select, label: "Thème par défaut", default: "dark", options: [{ label: "🌙 Nuit", value: "dark" }, { label: "☀️ Jour", value: "light" }, { label: "◐ Sépia", value: "sepia" }, { label: "☀ Notos (été)", value: "notos" }, { label: "◐ Argeste (automne)", value: "argeste" }, { label: "❄ Borée (hiver)", value: "boree" }, { label: "❀ Zéphyr (printemps)", value: "zephyr" }] }
+          - { name: theme_enable_dark, widget: boolean, label: "🌙 Thème Nuit disponible", default: true }
+          - { name: theme_enable_light, widget: boolean, label: "☀️ Thème Jour disponible", default: true }
+          - { name: theme_enable_sepia, widget: boolean, label: "◐ Thème Sépia disponible", default: true }
+          - { name: theme_enable_notos, widget: boolean, label: "☀ Notos — été (cuivre sur crème)", default: false }
+          - { name: theme_enable_argeste, widget: boolean, label: "◐ Argeste — automne (ardoise sur lin)", default: false }
+          - { name: theme_enable_boree, widget: boolean, label: "❄ Borée — hiver (bleu profond sur cristal)", default: false }
+          - { name: theme_enable_zephyr, widget: boolean, label: "❀ Zéphyr — printemps (vert forêt sur rosée)", default: false }
+
+  - name: "param_colors"
+    label: "🎨 Couleurs & polices"
     files:
       - file: "data/theme.json"
         name: "theme"
-        label: "Couleurs et polices"
+        label: "Personnalisation visuelle"
         fields:
-          - { name: theme_deep, widget: color, label: "Fond principal", required: false, default: "#03050A" }
-          - { name: theme_night, widget: color, label: "Fond sections", required: false, default: "#060D18" }
-          - { name: theme_ink, widget: color, label: "Fond encarts", required: false, default: "#0D1D2C" }
-          - { name: theme_gold, widget: color, label: "Accent (or)", required: false, default: "#C9A96E" }
-          - { name: theme_gold_light, widget: color, label: "Accent clair", required: false, default: "#E8C98A" }
-          - { name: theme_gold_dark, widget: color, label: "Accent foncé", required: false, default: "#A8884E" }
+          - { name: theme_deep, widget: color, label: "🌙 Nuit — fond principal", required: false, default: "#03050A" }
+          - { name: theme_night, widget: color, label: "🌙 Nuit — fond sections", required: false, default: "#060D18" }
+          - { name: theme_ink, widget: color, label: "🌙 Nuit — fond encarts", required: false, default: "#0D1D2C" }
+          - { name: theme_gold, widget: color, label: "🌙 Nuit — accent (or)", required: false, default: "#C9A96E" }
+          - { name: theme_gold_light, widget: color, label: "🌙 Nuit — accent clair", required: false, default: "#E8C98A" }
+          - { name: theme_gold_dark, widget: color, label: "🌙 Nuit — accent foncé", required: false, default: "#A8884E" }
+          - { name: light_deep, widget: color, label: "☀️ Jour — fond principal", required: false, default: "#FFFDF9" }
+          - { name: light_gold, widget: color, label: "☀️ Jour — accent (bleu)", required: false, default: "#14325A" }
+          - { name: light_gold_light, widget: color, label: "☀️ Jour — accent clair", required: false, default: "#0C2444" }
+          - { name: light_gold_dark, widget: color, label: "☀️ Jour — accent foncé", required: false, default: "#3D6BA3" }
           - { name: theme_font_title, widget: select, label: "Police titres", required: false, default: "Cormorant Garamond", options: ["Cormorant Garamond", "Playfair Display", "Lora", "EB Garamond", "Libre Baskerville", "Crimson Text", "Spectral", "DM Serif Display", "Bodoni Moda", "Cormorant"] }
           - { name: theme_font_body, widget: select, label: "Police texte", required: false, default: "Merriweather", options: ["Merriweather", "Lora", "Source Serif 4", "Libre Baskerville", "Crimson Text", "Spectral", "Newsreader", "Literata", "Bitter", "PT Serif"] }
-          - { name: light_deep, widget: color, label: "☀️ Jour : fond principal", required: false, default: "#FFF8F0" }
-          - { name: light_gold, widget: color, label: "☀️ Jour : accent (bleu)", required: false, default: "#1A3A5C" }
-          - { name: light_gold_light, widget: color, label: "☀️ Jour : accent clair", required: false, default: "#0D2240" }
-          - { name: light_gold_dark, widget: color, label: "☀️ Jour : accent foncé", required: false, default: "#2E5A88" }
           - { name: theme_section_opacity, widget: select, label: "Transparence sections", required: false, default: "0.85", options: [{ label: "Très transparent", value: "0.4" }, { label: "Semi-transparent", value: "0.6" }, { label: "Modéré", value: "0.85" }, { label: "Opaque", value: "0.95" }, { label: "Complètement opaque", value: "1" }] }
