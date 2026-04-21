@@ -1,273 +1,257 @@
 #!/usr/bin/env python3
 """
-╔══════════════════════════════════════════════════════════════╗
-║          EIA — Optimiseur d'images pour le blog             ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  Ce script convertit vos images en JPEG léger + base64       ║
-║  pour les intégrer au site sans dépasser les limites de      ║
-║  GitHub (25 MB par fichier via le navigateur).               ║
-║                                                              ║
-║  INSTALLATION :                                              ║
-║    pip install Pillow                                        ║
-║                                                              ║
-║  USAGE :                                                     ║
-║    python3 eia_images.py photo.jpg                           ║
-║    python3 eia_images.py photo.jpg --mode thumb              ║
-║    python3 eia_images.py photo.jpg --mode cover              ║
-║    python3 eia_images.py photo.jpg --mode fond               ║
-║    python3 eia_images.py dossier/                            ║
-║    python3 eia_images.py photo.jpg --url                     ║
-║                                                              ║
-║  MODES :                                                     ║
-║    article  → 600px, qualité 50 (pour les images d'article) ║
-║    thumb    → 300px, qualité 40 (miniatures cartes blog)     ║
-║    cover    → 800px, qualité 55 (couvertures)                ║
-║    fond     → 800px, qualité 40 + flou léger (arrière-plan)  ║
-║    galerie  → 400px, qualité 50 (galerie Univers)            ║
-║                                                              ║
-║  SORTIE :                                                    ║
-║    Crée un fichier .optimized.jpg (image compressée)         ║
-║    Crée un fichier .b64.txt (base64 prêt à coller)           ║
-║    --url : affiche le data:URI pour coller dans le CMS       ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+EIA — Optimiseur d'images pour le blog
+
+USAGE :
+  python eia_images.py photo.jpg
+  python eia_images.py photo.jpg --mode thumb
+  python eia_images.py C:\mon_dossier
+  python eia_images.py "C:\mon dossier\photos"
+
+MODES :
+  article  600px q50  (image dans un article)
+  thumb    300px q40  (miniature carte blog)
+  cover    800px q55  (couverture)
+  fond     800px q40  (arriere-plan, flou leger)
+  galerie  400px q50  (galerie Univers)
 """
+import os, sys, argparse, base64
+from io import BytesIO
 
-import sys
-import os
-import argparse
-import base64
-import io
-
-# Vérification de Pillow
 try:
     from PIL import Image, ImageFilter, ImageEnhance
 except ImportError:
-    print("\n❌ Pillow n'est pas installé.")
-    print("   Installez-le avec : pip install Pillow")
-    print("   Ou : pip3 install Pillow")
-    print("   Ou : python -m pip install Pillow\n")
+    print("Installez Pillow: pip install Pillow")
     sys.exit(1)
 
-# Modes prédéfinis
 MODES = {
-    "article": {"width": 600, "quality": 50, "blur": False, "desc": "Image dans un article"},
-    "thumb":   {"width": 300, "quality": 40, "blur": False, "desc": "Miniature carte blog"},
-    "cover":   {"width": 800, "quality": 55, "blur": False, "desc": "Image de couverture"},
-    "fond":    {"width": 800, "quality": 40, "blur": True,  "desc": "Arrière-plan du site"},
-    "galerie": {"width": 400, "quality": 50, "blur": False, "desc": "Image galerie Univers"},
+    'article': {'width': 600, 'quality': 50, 'blur': False, 'desc': 'Image dans un article'},
+    'thumb':   {'width': 300, 'quality': 40, 'blur': False, 'desc': 'Miniature carte blog'},
+    'cover':   {'width': 800, 'quality': 55, 'blur': False, 'desc': 'Couverture'},
+    'fond':    {'width': 800, 'quality': 40, 'blur': True,  'desc': 'Arriere-plan (flou)'},
+    'galerie': {'width': 400, 'quality': 50, 'blur': False, 'desc': 'Galerie Univers'},
 }
 
-def optimize_image(path, width=600, quality=50, blur=False):
-    """Convertit une image en JPEG optimisé + base64."""
-    try:
-        img = Image.open(path)
-    except Exception as e:
-        print(f"  ❌ Impossible d'ouvrir {path}: {e}")
-        return None
+EXTENSIONS = ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.tiff')
 
-    # Convertir en RGB (supprime la transparence PNG)
+
+def to_rgb(img):
     if img.mode in ('RGBA', 'P', 'LA'):
-        background = Image.new('RGB', img.size, (3, 5, 10))  # fond nuit EIA
-        if img.mode == 'P':
-            img = img.convert('RGBA')
-        background.paste(img, mask=img.split()[-1] if 'A' in img.mode else None)
-        img = background
+        bg = Image.new('RGB', img.size, (3, 5, 10))
+        try:
+            bg.paste(img, mask=img.split()[-1])
+        except:
+            bg.paste(img.convert('RGB'))
+        return bg
     elif img.mode != 'RGB':
-        img = img.convert('RGB')
+        return img.convert('RGB')
+    return img
 
-    # Orientation EXIF (correction auto-rotation)
+
+def auto_rotate(img):
     try:
         from PIL import ExifTags
         exif = img.getexif()
         for key, val in ExifTags.TAGS.items():
             if val == 'Orientation':
-                orientation = exif.get(key)
-                if orientation == 3:
-                    img = img.rotate(180, expand=True)
-                elif orientation == 6:
-                    img = img.rotate(270, expand=True)
-                elif orientation == 8:
-                    img = img.rotate(90, expand=True)
+                o = exif.get(key)
+                if o == 3: return img.rotate(180, expand=True)
+                elif o == 6: return img.rotate(270, expand=True)
+                elif o == 8: return img.rotate(90, expand=True)
                 break
-    except Exception:
+    except:
         pass
-
-    # Redimensionner
-    w, h = img.size
-    if w > width:
-        ratio = width / w
-        new_h = int(h * ratio)
-        img = img.resize((width, new_h), Image.LANCZOS)
-
-    # Flou léger pour les fonds
-    if blur:
-        img = img.filter(ImageFilter.GaussianBlur(radius=1.5))
-        # Légère désaturation pour un fond plus doux
-        enhancer = ImageEnhance.Color(img)
-        img = enhancer.enhance(0.85)
-
-    # Compression JPEG
-    buf = io.BytesIO()
-    img.save(buf, format='JPEG', quality=quality, optimize=True, progressive=True)
-    jpeg_bytes = buf.getvalue()
-    b64 = base64.b64encode(jpeg_bytes).decode('ascii')
-
-    return {
-        "bytes": jpeg_bytes,
-        "b64": b64,
-        "size_kb": len(jpeg_bytes) / 1024,
-        "original_kb": os.path.getsize(path) / 1024,
-        "dimensions": img.size,
-        "data_uri": f"data:image/jpeg;base64,{b64}",
-    }
+    return img
 
 
-def process_file(path, mode_config, show_url=False):
-    """Traite un fichier image."""
-    result = optimize_image(
-        path,
-        width=mode_config["width"],
-        quality=mode_config["quality"],
-        blur=mode_config["blur"],
-    )
+def process_file(filepath, config, show_url=False):
+    filename = os.path.basename(filepath)
+    dirname = os.path.dirname(filepath) or '.'
 
-    if result is None:
+    try:
+        original_size = os.path.getsize(filepath)
+        img = Image.open(filepath)
+        img = auto_rotate(img)
+        img = to_rgb(img)
+
+        w, h = img.size
+        max_w = config['width']
+
+        if w > max_w:
+            ratio = max_w / w
+            img = img.resize((max_w, int(h * ratio)), Image.LANCZOS)
+
+        if config.get('blur'):
+            img = img.filter(ImageFilter.GaussianBlur(radius=2))
+
+        # Save optimized JPEG
+        buf = BytesIO()
+        img.save(buf, 'JPEG', quality=config['quality'], optimize=True, progressive=True)
+        opt_bytes = buf.getvalue()
+        opt_size = len(opt_bytes)
+
+        # Output paths
+        name_base = os.path.splitext(filename)[0]
+        out_jpg = os.path.join(dirname, f"{name_base}.optimized.jpg")
+        out_b64 = os.path.join(dirname, f"{name_base}.b64.txt")
+
+        with open(out_jpg, 'wb') as f:
+            f.write(opt_bytes)
+
+        # Base64
+        b64_str = f"data:image/jpeg;base64,{base64.b64encode(opt_bytes).decode()}"
+        with open(out_b64, 'w') as f:
+            f.write(b64_str)
+
+        # Report
+        reduction = max(0, 100 - (opt_size * 100 // original_size))
+        new_w, new_h = img.size
+        print(f"\n  V {filename}")
+        print(f"    Original : {original_size // 1024} KB")
+        print(f"    Optimise : {opt_size // 1024} KB ({reduction}% de reduction)")
+        print(f"    Dimensions : {new_w}x{new_h}px")
+        print(f"    JPEG : {out_jpg}")
+        print(f"    Base64 : {out_b64}")
+
+        if show_url:
+            print(f"    data:URI : {b64_str[:80]}...")
+
+        return opt_size / 1024
+
+    except Exception as e:
+        print(f"\n  X Erreur sur {filename}: {e}")
         return 0
 
-    basename = os.path.splitext(path)[0]
 
-    # Sauvegarder le JPEG optimisé
-    jpg_path = basename + ".optimized.jpg"
-    with open(jpg_path, 'wb') as f:
-        f.write(result["bytes"])
+def clean_path(path):
+    """Fix Windows path issues: trailing backslash+quote, extra quotes."""
+    # Remove wrapping quotes
+    path = path.strip('"').strip("'")
+    # Remove trailing backslash (Windows drag-drop adds it)
+    path = path.rstrip('\\').rstrip('/')
+    # Normalize
+    path = os.path.normpath(path)
+    return path
 
-    # Sauvegarder le base64
-    b64_path = basename + ".b64.txt"
-    with open(b64_path, 'w') as f:
-        f.write(result["data_uri"])
 
-    # Affichage
-    ratio = (1 - result["size_kb"] / result["original_kb"]) * 100 if result["original_kb"] > 0 else 0
-    print(f"  ✓ {os.path.basename(path)}")
-    print(f"    Original : {result['original_kb']:.0f} KB")
-    print(f"    Optimisé : {result['size_kb']:.0f} KB ({ratio:.0f}% de réduction)")
-    print(f"    Dimensions : {result['dimensions'][0]}×{result['dimensions'][1]}px")
-    print(f"    JPEG : {jpg_path}")
-    print(f"    Base64 : {b64_path}")
-
-    if show_url:
-        print(f"\n    📋 DATA URI (à coller dans le CMS) :")
-        # Tronquer pour l'affichage
-        uri = result["data_uri"]
-        if len(uri) > 200:
-            print(f"    {uri[:100]}...{uri[-50:]}")
-            print(f"    (URI complète dans {b64_path})")
-        else:
-            print(f"    {uri}")
-
-    print()
-    return result["size_kb"]
+def find_images(directory):
+    """Find all images in a directory (non-recursive)."""
+    images = []
+    try:
+        for f in sorted(os.listdir(directory)):
+            full = os.path.join(directory, f)
+            if os.path.isfile(full) and f.lower().endswith(EXTENSIONS) and '.optimized.' not in f.lower():
+                images.append(full)
+    except PermissionError:
+        print(f"  X Acces refuse au dossier: {directory}")
+    except Exception as e:
+        print(f"  X Erreur lecture dossier: {e}")
+    return images
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="EIA — Optimiseur d'images pour le blog",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Exemples :
-  python3 eia_images.py photo.jpg                  # Mode article (600px)
-  python3 eia_images.py photo.jpg --mode thumb     # Miniature (300px)
-  python3 eia_images.py photo.jpg --mode fond      # Fond avec flou (800px)
-  python3 eia_images.py photos/                    # Tout un dossier
-  python3 eia_images.py photo.jpg --url            # Affiche le data:URI
-  python3 eia_images.py photo.jpg -w 500 -q 60    # Personnalisé
-
-Modes disponibles :
-  article  → 600px, q50  (image dans un article)
-  thumb    → 300px, q40  (miniature carte blog)
-  cover    → 800px, q55  (couverture)
-  fond     → 800px, q40  (arrière-plan, flou léger)
-  galerie  → 400px, q50  (galerie Univers)
-""")
-
-    parser.add_argument('input', help='Image ou dossier à convertir')
-    parser.add_argument('--mode', '-m', choices=list(MODES.keys()), default='article',
-                        help='Mode prédéfini (défaut: article)')
-    parser.add_argument('--width', '-w', type=int, help='Largeur max (écrase le mode)')
-    parser.add_argument('--quality', '-q', type=int, help='Qualité JPEG 1-100 (écrase le mode)')
-    parser.add_argument('--blur', '-b', action='store_true', help='Appliquer un flou léger')
+        description="EIA - Optimiseur d'images",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('input', nargs='+', help='Image(s) ou dossier(s)')
+    parser.add_argument('--mode', '-m', choices=list(MODES.keys()), default='article')
+    parser.add_argument('--width', '-w', type=int, help='Largeur max')
+    parser.add_argument('--quality', '-q', type=int, help='Qualite JPEG 1-100')
+    parser.add_argument('--blur', '-b', action='store_true', help='Appliquer un flou')
     parser.add_argument('--url', '-u', action='store_true', help='Afficher le data:URI')
 
     args = parser.parse_args()
 
-    # Construire la config
     config = MODES[args.mode].copy()
-    if args.width:
-        config["width"] = args.width
-    if args.quality:
-        config["quality"] = args.quality
-    if args.blur:
-        config["blur"] = True
+    if args.width: config['width'] = args.width
+    if args.quality: config['quality'] = args.quality
+    if args.blur: config['blur'] = True
 
-    print(f"\n╔══ EIA Image Optimizer ══╗")
-    print(f"  Mode : {args.mode} ({MODES[args.mode]['desc']})")
+    print(f"\n== EIA Image Optimizer ==")
+    print(f"  Mode : {args.mode} ({config['desc']})")
     print(f"  Largeur : {config['width']}px")
-    print(f"  Qualité : {config['quality']}")
+    print(f"  Qualite : {config['quality']}")
     print(f"  Flou : {'oui' if config['blur'] else 'non'}")
-    print(f"╚════════════════════════╝\n")
+    print(f"========================\n")
 
     total_kb = 0
-    extensions = ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.tiff')
+    total_files = 0
 
-    if os.path.isdir(args.input):
-        files = sorted([
-            os.path.join(args.input, f) for f in os.listdir(args.input)
-            if f.lower().endswith(extensions) and not f.endswith('.optimized.jpg')
-        ])
-        if not files:
-            print(f"  Aucune image trouvée dans {args.input}")
-            print(f"  Formats acceptés : {', '.join(extensions)}")
-            sys.exit(1)
-        print(f"  Dossier : {args.input} ({len(files)} images)\n")
-        for f in files:
-            total_kb += process_file(f, config, args.url)
-    elif os.path.isfile(args.input):
-        if not args.input.lower().endswith(extensions):
-            print(f"  ⚠️ Format non reconnu : {os.path.splitext(args.input)[1]}")
-            print(f"  Formats acceptés : {', '.join(extensions)}")
-            print(f"  On tente quand même...\n")
-        total_kb = process_file(args.input, config, args.url)
-    else:
-        print(f"  ❌ Fichier introuvable : {args.input}")
+    # Collect all files to process
+    all_files = []
+    for inp in args.input:
+        inp = clean_path(inp)
+
+        if os.path.isdir(inp):
+            images = find_images(inp)
+            if not images:
+                print(f"  ! Aucune image trouvee dans: {inp}")
+                print(f"    Formats acceptes: {', '.join(EXTENSIONS)}")
+                # Check if path itself looks wrong
+                if not os.path.exists(inp):
+                    print(f"    Le dossier n'existe pas: {inp}")
+                    # Try without trailing characters
+                    alt = inp.rstrip('"').rstrip("'")
+                    if alt != inp and os.path.isdir(alt):
+                        print(f"    Essai avec: {alt}")
+                        images = find_images(alt)
+            else:
+                print(f"  Dossier : {inp} ({len(images)} images)")
+            all_files.extend(images)
+
+        elif os.path.isfile(inp):
+            all_files.append(inp)
+
+        else:
+            # Try common fixes
+            fixed = False
+            for attempt in [inp.rstrip('"'), inp.rstrip("'"), inp.replace('"', ''),
+                          os.path.expanduser(inp)]:
+                if os.path.exists(attempt):
+                    if os.path.isdir(attempt):
+                        all_files.extend(find_images(attempt))
+                    else:
+                        all_files.append(attempt)
+                    fixed = True
+                    break
+            if not fixed:
+                print(f"  X Fichier introuvable : {inp}")
+                print(f"    Verifiez le chemin (pas de guillemet a la fin)")
+
+    if not all_files:
+        print(f"\n  Aucun fichier a traiter.")
+        print(f"\n  Exemples d'utilisation:")
+        print(f'    python eia_images.py photo.jpg')
+        print(f'    python eia_images.py C:\\mes_photos')
+        print(f'    python eia_images.py "C:\\mes photos" --mode galerie')
         sys.exit(1)
 
-    print(f"═══ Total optimisé : {total_kb:.0f} KB ═══\n")
+    # Process
+    for f in all_files:
+        kb = process_file(f, config, args.url)
+        total_kb += kb
+        total_files += 1
 
-    # Guide contextuel
-    print("📖 UTILISATION DES FICHIERS PRODUITS :")
-    print("────────────────────────────────────────")
+    print(f"\n== Total : {total_files} fichiers, {total_kb:.0f} KB ==\n")
+
+    print("UTILISATION DES FICHIERS PRODUITS :")
+    print("------------------------------------")
     if args.mode == 'thumb':
-        print("  Pour une miniature de carte blog :")
-        print("  → CMS : collez l'URL du .b64.txt dans le champ 'Miniature carte'")
-        print("  → JSON : collez dans le champ 'thumb' de posts.json")
+        print("  Miniature carte blog :")
+        print("  -> CMS : champ 'Miniature' -> collez l'URL")
     elif args.mode == 'cover':
-        print("  Pour une image de couverture :")
-        print("  → CMS : champ 'Image couverture' → Insérer depuis une adresse web")
-        print("  → Uploadez le .optimized.jpg sur PostImages.org → collez l'URL")
+        print("  Couverture :")
+        print("  -> Uploadez .optimized.jpg sur PostImages.org -> collez l'URL")
     elif args.mode == 'fond':
-        print("  Pour un arrière-plan :")
-        print("  → CMS : Paramètres → 'Image de fond Hero' ou 'Image de fond globale'")
-        print("  → Collez l'URL web du .optimized.jpg")
+        print("  Arriere-plan :")
+        print("  -> CMS : Parametres -> 'Image de fond'")
     elif args.mode == 'galerie':
-        print("  Pour la galerie Univers :")
-        print("  → CMS : Galerie Univers → champ 'Image'")
-        print("  → Uploadez le .optimized.jpg ou collez une URL")
+        print("  Galerie Univers :")
+        print("  -> CMS : Galerie -> champ 'Image'")
     else:
-        print("  Pour une image dans un article :")
-        print("  → Markdown : ![description](URL-de-l-image)")
-        print("  → Uploadez le .optimized.jpg sur PostImages.org → collez l'URL")
+        print("  Image dans un article :")
+        print("  -> Markdown : ![description](URL-de-l-image)")
+        print("  -> Uploadez .optimized.jpg sur PostImages.org -> collez l'URL")
     print()
 
 
