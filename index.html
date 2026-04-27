@@ -1159,28 +1159,29 @@ async function loadData(){
   renderAll();
 
   try{
-    var pRes = await fetch('data/posts.json').then(function(r){return r.ok?r.json():null});
+    var cb = '?t=' + Date.now();
+    var pRes = await fetch('data/posts.json' + cb).then(function(r){return r.ok?r.json():null});
     if(pRes && pRes.posts && pRes.posts.length){
       POSTS = sortPosts(pRes.posts.filter(function(p){return p.published!==false}));
     }
-    var gRes = await fetch('data/gallery.json').then(function(r){return r.ok?r.json():null});
+    var gRes = await fetch('data/gallery.json' + cb).then(function(r){return r.ok?r.json():null});
     if(gRes && gRes.items && gRes.items.length){
       GALLERY = gRes.items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
     }
-    var sRes = await fetch('data/settings.json').then(function(r){return r.ok?r.json():null});
+    var sRes = await fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null});
     if(sRes && sRes.tagline) SETTINGS = sRes;
-    var aRes = await fetch('data/audio.json').then(function(r){return r.ok?r.json():null});
+    var aRes = await fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null});
     if(aRes && aRes.tracks) AUDIO = aRes.tracks;
     /* New split config files */
-    var scRes = await fetch('data/sections-config.json').then(function(r){return r.ok?r.json():null});
+    var scRes = await fetch('data/sections-config.json' + cb).then(function(r){return r.ok?r.json():null});
     if(scRes) SECTIONS_CONFIG = scRes;
-    var tcRes = await fetch('data/theme-config.json').then(function(r){return r.ok?r.json():null});
+    var tcRes = await fetch('data/theme-config.json' + cb).then(function(r){return r.ok?r.json():null});
     if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
-    var thRes = await fetch('data/theme.json').then(function(r){return r.ok?r.json():null});
+    var thRes = await fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null});
     if(thRes) THEME = thRes;
-    var oRes = await fetch('data/oeuvres.json').then(function(r){return r.ok?r.json():null});
+    var oRes = await fetch('data/oeuvres.json' + cb).then(function(r){return r.ok?r.json():null});
     if(oRes && oRes.oeuvres) OEUVRES = oRes.oeuvres;
-    var csRes = await fetch('data/custom-sections.json').then(function(r){return r.ok?r.json():null});
+    var csRes = await fetch('data/custom-sections.json' + cb).then(function(r){return r.ok?r.json():null});
     if(csRes && csRes.sections) CUSTOM_SECTIONS = csRes.sections;
     renderAll();
   }catch(e){}
@@ -1262,7 +1263,7 @@ function showViewSilent(name, slug){
 
 /* Parse URL on load to restore view */
 function parseUrl(){
-  var path = window.location.pathname;
+  var path = window.location.pathname.replace(/\/+$/, '') || '/';
   if(path==='/blog') return {view:'blog'};
   if(path==='/univers') return {view:'univers'};
   if(path==='/apropos') return {view:'apropos'};
@@ -1469,10 +1470,16 @@ function renderBlog(){
   var suggestBox = null;
   var searchInput = null;
 
-  document.addEventListener('DOMContentLoaded', function(){
+  function setup(){
     searchInput = document.getElementById('searchInput');
     suggestBox = document.getElementById('searchSuggest');
-    if(!searchInput) return;
+    if(!searchInput){
+      /* Not ready yet, retry */
+      setTimeout(setup, 100);
+      return;
+    }
+    if(searchInput._searchBound) return;
+    searchInput._searchBound = true;
 
     searchInput.addEventListener('input', function(){
       clearTimeout(timer);
@@ -1503,7 +1510,7 @@ function renderBlog(){
         if(searchInput) searchInput.style.borderColor = 'rgba(201,169,110,.15)';
       }
     });
-  });
+  }
 
   function hideSuggest(){
     if(suggestBox){ suggestBox.style.display = 'none'; suggestBox.innerHTML = ''; }
@@ -1558,6 +1565,12 @@ function renderBlog(){
   }
 
   window.showSuggestions = showSuggestions;
+  /* Init immediately or after DOM ready */
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 })();
 
 
@@ -1836,21 +1849,29 @@ function initLikes(slug){
 /* ════════════════════════════════════════════════════════════════
    COMMENTS SYSTEM (with admin reply)
    ════════════════════════════════════════════════════════════════ */
-/* Detect if current user is admin (logged in via Netlify Identity) */
+/* Detect if current user is admin (logged in via Decap CMS / GitHub OAuth) */
 function getAdminUser(){
   try{
-    if(window.netlifyIdentity){
-      var user = window.netlifyIdentity.currentUser();
-      if(user && user.token) return user;
+    /* Decap CMS stores GitHub token under various keys */
+    var keys = ['netlify-cms-user', 'decap-cms-user', 'cms-user'];
+    for(var i=0; i<keys.length; i++){
+      var stored = localStorage.getItem(keys[i]);
+      if(stored){
+        var user = JSON.parse(stored);
+        if(user && user.token) return user;
+      }
     }
+    /* Also check for GitHub OAuth token directly */
+    var ghToken = localStorage.getItem('github-oauth-token');
+    if(ghToken) return {token: ghToken, name: 'Admin'};
   }catch(e){}
   return null;
 }
 
 function getAuthHeaders(){
   var user = getAdminUser();
-  if(user && user.token && user.token.access_token){
-    return {'Content-Type':'application/json','Authorization':'Bearer '+user.token.access_token};
+  if(user && user.token){
+    return {'Content-Type':'application/json','Authorization':'Bearer '+user.token};
   }
   return {'Content-Type':'application/json'};
 }
@@ -1947,43 +1968,43 @@ function renderComments(comments, container, slug, admin){
   });
   container.innerHTML = html;
 
-  /* Attach reply button handlers for admin */
-  if(admin){
-    container.querySelectorAll('.reply-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var cId = this.getAttribute('data-reply-to');
-        var replyBox = container.querySelector('.reply-box-'+cId);
-        if(replyBox) replyBox.style.display = replyBox.style.display==='none'?'block':'none';
-      });
+  /* Attach reply button handlers for all users */
+  container.querySelectorAll('.reply-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var cId = this.getAttribute('data-reply-to');
+      var replyBox = container.querySelector('.reply-box-'+cId);
+      if(replyBox) replyBox.style.display = replyBox.style.display==='none'?'block':'none';
     });
-    container.querySelectorAll('.reply-submit').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var cId = this.getAttribute('data-reply-to');
-        var textarea = container.querySelector('.reply-text-'+cId);
-        var text = (textarea.value||'').trim();
-        if(text.length<10){ alert('La réponse doit contenir au moins 10 caractères.'); return; }
-        btn.disabled = true;
-        btn.textContent = 'Envoi…';
-        fetch(API_BASE+'/add-comment', {
-          method:'POST',
-          headers: getAuthHeaders(),
-          body:JSON.stringify({slug:slug, name:'Daniel (auteur)', text:text, replyTo:cId, adminReply:true})
-        })
-        .then(function(r){return r.json()})
-        .then(function(c){
-          if(!c.error){
-            textarea.value='';
-            container.querySelector('.reply-box-'+cId).style.display='none';
-            /* Insert reply after the comment */
-            var parentEl = btn.closest('.comment-item');
-            if(parentEl) parentEl.insertAdjacentHTML('afterend', commentHtml(c, admin, slug, true));
-          }
-        })
-        .catch(function(){alert('Erreur — réessayez.')})
-        .finally(function(){btn.disabled=false;btn.textContent='Répondre';});
-      });
+  });
+  container.querySelectorAll('.reply-submit').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var cId = this.getAttribute('data-reply-to');
+      var nameInput = container.querySelector('.reply-name-'+cId);
+      var textarea = container.querySelector('.reply-text-'+cId);
+      var name = (nameInput.value||'').trim();
+      var text = (textarea.value||'').trim();
+      if(name.length<2){ alert('Le prénom doit contenir au moins 2 caractères.'); return; }
+      if(text.length<10){ alert('La réponse doit contenir au moins 10 caractères.'); return; }
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+      fetch(API_BASE+'/add-comment', {
+        method:'POST',
+        headers: getAuthHeaders(),
+        body:JSON.stringify({slug:slug, name:name, text:text, replyTo:cId, adminReply:!!admin})
+      })
+      .then(function(r){return r.json()})
+      .then(function(c){
+        if(!c.error){
+          textarea.value='';
+          container.querySelector('.reply-box-'+cId).style.display='none';
+          var parentEl = btn.closest('.comment-item');
+          if(parentEl) parentEl.insertAdjacentHTML('afterend', commentHtml(c, admin, slug, true));
+        }
+      })
+      .catch(function(){alert('Erreur — réessayez.')})
+      .finally(function(){btn.disabled=false;btn.textContent='Répondre';});
     });
-  }
+  });
 }
 
 function appendComment(c, container){
@@ -1998,9 +2019,10 @@ function commentHtml(c, admin, slug, isReply){
   var indent = isReply ? 'margin-left:32px;border-left:2px solid rgba(201,169,110,.15);padding-left:16px;' : '';
   var adminBadge = c.isAdmin ? '<span style="font-family:var(--ff-b);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-left:8px;border:1px solid var(--gold);padding:1px 6px;border-radius:2px">AUTEUR</span>' : '';
   var replyBtn = '';
-  if(admin && !isReply && slug){
+  if(!isReply && slug){
     replyBtn = '<button class="reply-btn" data-reply-to="'+esc(c.id)+'" style="font-family:var(--ff-b);font-size:10px;color:var(--g3);margin-top:6px;text-decoration:underline;cursor:pointer;background:none;border:none">Répondre</button>'+
       '<div class="reply-box-'+esc(c.id)+'" style="display:none;margin-top:10px">'+
+        '<input class="reply-name-'+esc(c.id)+'" placeholder="Votre prénom" maxlength="50" style="display:block;width:100%;padding:8px 10px;margin-bottom:6px;background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.12);color:var(--g2);font-family:var(--ff-b);font-size:13px;outline:none"'+(admin?' value="Daniel (auteur)"':'')+'>'+
         '<textarea class="reply-text-'+esc(c.id)+'" placeholder="Votre réponse…" maxlength="500" style="display:block;width:100%;padding:10px;margin-bottom:8px;background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.12);color:var(--g2);font-family:var(--ff-b);font-size:13px;min-height:70px;resize:vertical;outline:none"></textarea>'+
         '<button class="reply-submit" data-reply-to="'+esc(c.id)+'" style="padding:6px 18px;border:1px solid var(--gold);color:var(--gold);font-family:var(--ff-b);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;cursor:pointer">Répondre</button>'+
       '</div>';
@@ -2640,18 +2662,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 })();
-</script>
-<script>
-  /* Netlify Identity — redirect to /admin after login */
-  if(window.netlifyIdentity){
-    window.netlifyIdentity.on("init",function(user){
-      if(!user){
-        window.netlifyIdentity.on("login",function(){
-          document.location.href="/admin/";
-        });
-      }
-    });
-  }
 </script>
 </body>
 </html>

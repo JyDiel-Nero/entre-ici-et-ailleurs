@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════
    EIA Service Worker — Cache poems for offline reading
    ════════════════════════════════════════════════════════════════ */
-var CACHE_NAME = 'eia-v1';
+var CACHE_NAME = 'eia-v3';
 var STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -44,9 +44,14 @@ self.addEventListener('fetch', function(event) {
   if (url.pathname.startsWith('/api/')) return;
   if (url.pathname.startsWith('/.netlify/')) return;
   if (url.pathname.startsWith('/functions/')) return;
+  if (url.pathname.startsWith('/admin')) return;
+
+  /* SPA: serve index.html for navigation routes */
+  var spaRoutes = ['/blog','/univers','/apropos','/contact','/audio','/oeuvres','/confidentialite'];
+  var isSpaRoute = spaRoutes.indexOf(url.pathname.replace(/\/+$/,'')) !== -1 || url.pathname.startsWith('/article/') || url.pathname.startsWith('/custom-');
 
   event.respondWith(
-    fetch(event.request).then(function(response) {
+    fetch(isSpaRoute ? new Request('/index.html') : event.request).then(function(response) {
       /* Cache successful responses */
       if (response.ok) {
         var clone = response.clone();
