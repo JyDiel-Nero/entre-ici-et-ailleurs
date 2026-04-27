@@ -1,6 +1,12 @@
 /* Cloudflare Pages Middleware — Dynamic OG tags for article pages */
 export async function onRequest(context) {
   const url = new URL(context.request.url);
+  
+  /* Skip API routes and admin */
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin')) {
+    return context.next();
+  }
+  
   const ua = (context.request.headers.get('user-agent') || '').toLowerCase();
   
   /* Only modify for social media crawlers on article pages */
