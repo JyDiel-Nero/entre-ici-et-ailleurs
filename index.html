@@ -755,7 +755,7 @@ audio{border-radius:4px;max-width:100%}
   <section class="s-night">
     <div class="wrap">
       <div style="max-width:480px;margin:0 auto 30px;position:relative">
-        <input type="text" id="searchInput" placeholder="Rechercher un texte, un mot, un thème…" autocomplete="off" style="width:100%;padding:12px 44px 12px 18px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.15);color:var(--g2);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .3s" onfocus="this.style.borderColor='rgba(201,169,110,.4)'" onblur="var s=this;setTimeout(function(){document.getElementById('searchSuggest').style.display='none';s.style.borderColor='rgba(201,169,110,.15)'},300)">>
+        <input type="text" id="searchInput" placeholder="Rechercher un texte, un mot, un thème…" autocomplete="off" style="width:100%;padding:12px 44px 12px 18px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.15);color:var(--g2);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .3s">
         <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:16px;pointer-events:none">⌕</span>
         <div id="searchSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--night,#060D18);border:1px solid rgba(201,169,110,.15);border-top:none;max-height:280px;overflow-y:auto;font-family:var(--ff-b);font-size:13px"></div>
       </div>
@@ -1466,67 +1466,100 @@ function renderBlog(){
    ════════════════════════════════════════════════════════════════ */
 (function(){
   var timer;
-  document.addEventListener('input', function(e){
-    if(e.target.id !== 'searchInput') return;
-    clearTimeout(timer);
-    var val = e.target.value.trim();
-    showSuggestions(val);
-    timer = setTimeout(function(){
-      document.getElementById('searchSuggest').style.display = 'none';
-      doSearch(val);
-    }, 600);
-  });
-  document.addEventListener('keydown', function(e){
-    if(e.target.id === 'searchInput' && e.key === 'Enter'){
-      e.preventDefault();
-      clearTimeout(timer);
-      document.getElementById('searchSuggest').style.display = 'none';
-      doSearch(e.target.value.trim());
-    }
-  });
-})();
+  var suggestBox = null;
+  var searchInput = null;
 
-function showSuggestions(query){
-  var box = document.getElementById('searchSuggest');
-  if(!box) return;
-  if(!query || query.length < 2){ box.style.display = 'none'; box.innerHTML = ''; return; }
-  var q = query.toLowerCase();
-  var hits = [];
-  POSTS.forEach(function(p){
-    if((p.title||'').toLowerCase().indexOf(q)!==-1 || (p.excerpt||'').toLowerCase().indexOf(q)!==-1 || (p.tag||'').toLowerCase().indexOf(q)!==-1)
-      hits.push({title:p.title, tag:p.tag, type:'article', slug:p.slug});
-  });
-  OEUVRES.forEach(function(o){
-    if(o.published!==false && ((o.title||'').toLowerCase().indexOf(q)!==-1 || (o.type||'').toLowerCase().indexOf(q)!==-1))
-      hits.push({title:o.title, tag:o.type, type:'oeuvre'});
-  });
-  AUDIO.forEach(function(a){
-    if(a.published!==false && ((a.title||'').toLowerCase().indexOf(q)!==-1))
-      hits.push({title:a.title, tag:'audio', type:'audio'});
-  });
-  if(!hits.length){ box.style.display = 'none'; return; }
-  var icons = {article:'✍',oeuvre:'📚',audio:'🎵'};
-  box.innerHTML = hits.slice(0,8).map(function(h){
-    return '<div class="search-sug" data-type="'+h.type+'" data-slug="'+(h.slug||'')+'" style="padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(201,169,110,.06);display:flex;align-items:center;gap:10px;transition:background .15s"'+
-      ' onmouseover="this.style.background=\'rgba(201,169,110,.06)\'" onmouseout="this.style.background=\'transparent\'"'+
-      '><span style="font-size:14px">'+(icons[h.type]||'')+'</span>'+
-      '<span style="flex:1;color:var(--gold,#C9A96E)">'+esc(h.title)+'</span>'+
-      '<span style="font-size:10px;color:var(--g3,#A8884E);letter-spacing:.06em">'+(h.tag||'').toUpperCase()+'</span></div>';
-  }).join('');
-  box.style.display = 'block';
-  box.querySelectorAll('.search-sug').forEach(function(el){
-    el.addEventListener('mousedown', function(ev){
-      ev.preventDefault();
-      var type = this.getAttribute('data-type');
-      var slug = this.getAttribute('data-slug');
-      box.style.display = 'none';
-      document.getElementById('searchInput').value = '';
-      if(type==='article' && slug) showView('article', slug);
-      else if(type==='oeuvre') showView('oeuvres');
-      else if(type==='audio') showView('audio');
+  document.addEventListener('DOMContentLoaded', function(){
+    searchInput = document.getElementById('searchInput');
+    suggestBox = document.getElementById('searchSuggest');
+    if(!searchInput) return;
+
+    searchInput.addEventListener('input', function(){
+      clearTimeout(timer);
+      var val = this.value.trim();
+      if(val.length >= 2) showSuggestions(val);
+      else hideSuggest();
+    });
+
+    searchInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        clearTimeout(timer);
+        hideSuggest();
+        doSearch(this.value.trim());
+      }
+    });
+
+    searchInput.addEventListener('focus', function(){
+      this.style.borderColor = 'rgba(201,169,110,.4)';
+      var val = this.value.trim();
+      if(val.length >= 2) showSuggestions(val);
+    });
+
+    /* Close suggestions when clicking outside */
+    document.addEventListener('click', function(e){
+      if(suggestBox && !suggestBox.contains(e.target) && e.target !== searchInput){
+        hideSuggest();
+        if(searchInput) searchInput.style.borderColor = 'rgba(201,169,110,.15)';
+      }
     });
   });
-}
+
+  function hideSuggest(){
+    if(suggestBox){ suggestBox.style.display = 'none'; suggestBox.innerHTML = ''; }
+  }
+
+  function showSuggestions(query){
+    if(!suggestBox) return;
+    var q = query.toLowerCase();
+    var hits = [];
+    POSTS.forEach(function(p){
+      if(!p.published) return;
+      if((p.title||'').toLowerCase().indexOf(q)!==-1 || (p.excerpt||'').toLowerCase().indexOf(q)!==-1 || (p.tag||'').toLowerCase().indexOf(q)!==-1 || (p.body||'').toLowerCase().indexOf(q)!==-1)
+        hits.push({title:p.title, tag:p.tag, type:'article', slug:p.slug});
+    });
+    OEUVRES.forEach(function(o){
+      if(o.published===false) return;
+      if((o.title||'').toLowerCase().indexOf(q)!==-1 || (o.type||'').toLowerCase().indexOf(q)!==-1)
+        hits.push({title:o.title, tag:o.type, type:'oeuvre'});
+    });
+    AUDIO.forEach(function(a){
+      if(a.published===false) return;
+      if((a.title||'').toLowerCase().indexOf(q)!==-1)
+        hits.push({title:a.title, tag:'audio', type:'audio'});
+    });
+    if(!hits.length){ hideSuggest(); return; }
+    var icons = {article:'\u270d',oeuvre:'\ud83d\udcda',audio:'\ud83c\udfb5'};
+    suggestBox.innerHTML = hits.slice(0,8).map(function(h,i){
+      return '<div data-sug-idx="'+i+'" data-sug-type="'+h.type+'" data-sug-slug="'+(h.slug||'')+'" style="padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(201,169,110,.06);display:flex;align-items:center;gap:10px"'+
+        '><span style="font-size:14px">'+icons[h.type]+'</span>'+
+        '<span style="flex:1;color:var(--gold,#C9A96E)">'+esc(h.title)+'</span>'+
+        '<span style="font-size:10px;color:var(--g3,#A8884E);letter-spacing:.06em">'+(h.tag||'').toUpperCase()+'</span></div>';
+    }).join('');
+    suggestBox.style.display = 'block';
+
+    /* Bind clicks — use mousedown to fire before blur */
+    suggestBox.querySelectorAll('[data-sug-idx]').forEach(function(el){
+      el.addEventListener('mousedown', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        var type = this.getAttribute('data-sug-type');
+        var slug = this.getAttribute('data-sug-slug');
+        hideSuggest();
+        searchInput.value = '';
+        searchInput.blur();
+        if(type==='article' && slug) showView('article', slug);
+        else if(type==='oeuvre') showView('oeuvres');
+        else if(type==='audio') showView('audio');
+      });
+      el.addEventListener('mouseover', function(){ this.style.background='rgba(201,169,110,.06)'; });
+      el.addEventListener('mouseout', function(){ this.style.background='transparent'; });
+    });
+  }
+
+  window.showSuggestions = showSuggestions;
+})();
+
 
 function doSearch(query){
   var resultsEl = document.getElementById('searchResults');
