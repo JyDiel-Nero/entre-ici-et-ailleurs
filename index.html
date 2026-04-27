@@ -755,7 +755,7 @@ audio{border-radius:4px;max-width:100%}
   <section class="s-night">
     <div class="wrap">
       <div style="max-width:480px;margin:0 auto 30px;position:relative">
-        <input type="text" id="searchInput" placeholder="Rechercher un texte, un mot, un thème…" autocomplete="off" style="width:100%;padding:12px 44px 12px 18px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.15);color:var(--g2);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .3s" onfocus="this.style.borderColor='rgba(201,169,110,.4)'" onblur="setTimeout(function(){document.getElementById('searchSuggest').style.display='none'},200);this.style.borderColor='rgba(201,169,110,.15)'">
+        <input type="text" id="searchInput" placeholder="Rechercher un texte, un mot, un thème…" autocomplete="off" style="width:100%;padding:12px 44px 12px 18px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.15);color:var(--g2);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .3s" onfocus="this.style.borderColor='rgba(201,169,110,.4)'" onblur="var s=this;setTimeout(function(){document.getElementById('searchSuggest').style.display='none';s.style.borderColor='rgba(201,169,110,.15)'},300)">>
         <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:16px;pointer-events:none">⌕</span>
         <div id="searchSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--night,#060D18);border:1px solid rgba(201,169,110,.15);border-top:none;max-height:280px;overflow-y:auto;font-family:var(--ff-b);font-size:13px"></div>
       </div>
@@ -1471,15 +1471,16 @@ function renderBlog(){
     clearTimeout(timer);
     var val = e.target.value.trim();
     showSuggestions(val);
-    timer = setTimeout(function(){ doSearch(val); }, 400);
+    timer = setTimeout(function(){
+      document.getElementById('searchSuggest').style.display = 'none';
+      doSearch(val);
+    }, 600);
   });
   document.addEventListener('keydown', function(e){
     if(e.target.id === 'searchInput' && e.key === 'Enter'){
       e.preventDefault();
       clearTimeout(timer);
       document.getElementById('searchSuggest').style.display = 'none';
-      var sortEl = document.getElementById('blogSort');
-      if(sortEl) sortEl.parentNode.style.display = 'none';
       doSearch(e.target.value.trim());
     }
   });
@@ -1514,13 +1515,15 @@ function showSuggestions(query){
   }).join('');
   box.style.display = 'block';
   box.querySelectorAll('.search-sug').forEach(function(el){
-    el.addEventListener('click', function(){
+    el.addEventListener('mousedown', function(ev){
+      ev.preventDefault();
       var type = this.getAttribute('data-type');
       var slug = this.getAttribute('data-slug');
       box.style.display = 'none';
-      if(type==='article' && slug) navigate('/article/'+slug);
-      else if(type==='oeuvre') navigate('/oeuvres');
-      else if(type==='audio') navigate('/audio');
+      document.getElementById('searchInput').value = '';
+      if(type==='article' && slug) showView('article', slug);
+      else if(type==='oeuvre') showView('oeuvres');
+      else if(type==='audio') showView('audio');
     });
   });
 }
@@ -1530,6 +1533,7 @@ function doSearch(query){
   var gridEl = document.getElementById('blogGrid');
   var filtersEl = document.getElementById('blogFilters');
   var moreBtn = document.getElementById('blogMore');
+  var sortEl = document.getElementById('blogSort');
   if(!resultsEl) return;
 
   if(!query || query.length < 2){
@@ -1537,9 +1541,16 @@ function doSearch(query){
     resultsEl.innerHTML = '';
     if(gridEl) gridEl.style.display = '';
     if(filtersEl) filtersEl.style.display = '';
+    if(sortEl) sortEl.parentNode.style.display = '';
     if(moreBtn && moreBtn.parentNode) moreBtn.parentNode.style.display = '';
     return;
   }
+
+  /* Hide blog grid, filters, sort — show results */
+  if(gridEl) gridEl.style.display = 'none';
+  if(filtersEl) filtersEl.style.display = 'none';
+  if(sortEl) sortEl.parentNode.style.display = 'none';
+  if(moreBtn && moreBtn.parentNode) moreBtn.parentNode.style.display = 'none';
 
   var q = query.toLowerCase();
 
