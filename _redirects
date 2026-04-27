@@ -5,5 +5,5 @@
 /audio             /index.html  200
 /oeuvres           /index.html  200
 /confidentialite   /index.html  200
-/article/*         /index.html  200
-/custom-*          /index.html  200
+/article/:slug     /index.html  200
+/custom-:id        /index.html  200
