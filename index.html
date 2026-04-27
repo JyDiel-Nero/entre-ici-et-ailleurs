@@ -1475,8 +1475,11 @@ function renderBlog(){
   });
   document.addEventListener('keydown', function(e){
     if(e.target.id === 'searchInput' && e.key === 'Enter'){
+      e.preventDefault();
       clearTimeout(timer);
       document.getElementById('searchSuggest').style.display = 'none';
+      var sortEl = document.getElementById('blogSort');
+      if(sortEl) sortEl.parentNode.style.display = 'none';
       doSearch(e.target.value.trim());
     }
   });
