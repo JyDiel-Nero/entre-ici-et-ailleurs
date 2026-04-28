@@ -12,6 +12,7 @@ locale: "fr"
 collections:
   - name: "articles"
     label: "✍ Articles & Poèmes"
+    sortable_fields: ["title", "date", "tag"]
     files:
       - file: "data/posts.json"
         name: "tous_les_articles"
@@ -142,6 +143,12 @@ collections:
           - { name: man1, widget: string, label: "Manifeste ligne 1" }
           - { name: man2, widget: string, label: "Manifeste ligne 2" }
           - { name: apropos, widget: text, label: "Texte À propos" }
+          - { name: contact_label, widget: string, label: "Contact — label", required: false, default: "REJOINDRE LE VOYAGE" }
+          - { name: contact_title, widget: string, label: "Contact — titre", required: false, default: "Ici ou ailleurs ?" }
+          - { name: contact_subtitle, widget: string, label: "Contact — sous-titre", required: false, default: "Il suffit d'un pas." }
+          - { name: contact_note, widget: string, label: "Contact — note sous le formulaire", required: false, default: "Aucun spam — uniquement des textes, des mots, de la poésie." }
+          - { name: nl_success_title, widget: string, label: "Newsletter — titre de confirmation", required: false, default: "Bienvenue dans le Temps" }
+          - { name: nl_success_text, widget: text, label: "Newsletter — texte de confirmation", required: false, default: "Merci pour votre confiance. Vous recevrez nos prochains instants entre ici et ailleurs, au détour d'un courrier." }
           - { name: instagram, widget: string, label: "Instagram", required: false }
           - { name: privacy_text, widget: text, label: "Texte Confidentialité", required: false }
 
