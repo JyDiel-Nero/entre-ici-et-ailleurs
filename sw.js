@@ -42,7 +42,7 @@ self.addEventListener('fetch', function(event) {
   /* Skip non-GET and API/function calls */
   if (event.request.method !== 'GET') return;
   if (url.pathname.startsWith('/api/')) return;
-  if (url.pathname.startsWith('/.netlify/')) return;
+  
   if (url.pathname.startsWith('/functions/')) return;
   if (url.pathname.startsWith('/admin')) return;
 

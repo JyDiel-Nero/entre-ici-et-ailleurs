@@ -589,6 +589,36 @@ audio{border-radius:4px;max-width:100%}
 /* Theme toggle button */
 .theme-toggle{position:fixed;bottom:20px;right:20px;z-index:9999;width:40px;height:40px;border-radius:50%;border:1px solid rgba(201,169,110,.2);background:rgba(3,5,10,.6);color:var(--gold);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(8px)}
 .theme-toggle:hover{border-color:rgba(201,169,110,.5);transform:scale(1.1)}
+/* Reading progress bar */
+#readProgress{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:10000;width:0;transition:width .1s linear;pointer-events:none;opacity:0}
+#readProgress.visible{opacity:1}
+/* Back to top */
+#backTop{position:fixed;bottom:70px;right:20px;z-index:9998;width:36px;height:36px;border-radius:50%;border:1px solid rgba(201,169,110,.15);background:rgba(3,5,10,.5);color:var(--gold);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(8px)}
+#backTop:hover{border-color:rgba(201,169,110,.4);transform:scale(1.1)}
+[data-theme="light"] #backTop{background:rgba(255,253,249,.8);border-color:rgba(20,50,90,.1)}
+[data-theme="sepia"] #backTop{background:rgba(255,250,240,.8);border-color:rgba(120,80,30,.1)}
+/* Focus visible */
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* WCAG contrast minimums */
+[data-theme="light"] .bc-excerpt,[data-theme="light"] .bc-date{color:rgba(20,50,90,.6)}
+[data-theme="light"] .t-label{color:rgba(20,50,90,.7)}
+[data-theme="light"] .contact-note{color:rgba(20,50,90,.55)}
+[data-theme="sepia"] .bc-excerpt,[data-theme="sepia"] .bc-date{color:rgba(74,46,16,.55)}
+[data-theme="sepia"] .t-label{color:rgba(74,46,16,.65)}
+[data-theme="notos"] .bc-excerpt,[data-theme="notos"] .bc-date{color:rgba(74,44,10,.55)}
+[data-theme="argeste"] .bc-excerpt,[data-theme="argeste"] .bc-date{color:rgba(31,36,40,.55)}
+[data-theme="boree"] .bc-excerpt,[data-theme="boree"] .bc-date{color:rgba(10,22,40,.55)}
+[data-theme="zephyr"] .bc-excerpt,[data-theme="zephyr"] .bc-date{color:rgba(26,46,23,.55)}
+/* Reading mode */
+.reading-mode .nav,.reading-mode .footer,.reading-mode .theme-toggle,.reading-mode #backTop,.reading-mode .like-section,.reading-mode .share-section,.reading-mode .comments-section,.reading-mode .article-nav,.reading-mode #readProgress{display:none!important}
+.reading-mode .article-cover{display:none}
+.reading-mode .view.active{padding-top:40px}
+.reading-mode .article-body{font-size:18px;line-height:2.2;max-width:600px;margin:0 auto}
+#readModeBtn{position:fixed;bottom:70px;right:66px;z-index:9998;width:36px;height:36px;border-radius:50%;border:1px solid rgba(201,169,110,.15);background:rgba(3,5,10,.5);color:var(--gold);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .3s}
+#readModeBtn:hover{border-color:rgba(201,169,110,.4);transform:scale(1.1)}
+[data-theme="light"] #readModeBtn{background:rgba(255,253,249,.8)}
+[data-theme="sepia"] #readModeBtn{background:rgba(255,250,240,.8)}
 [data-theme="light"] .theme-toggle{background:rgba(255,253,249,.9);border-color:rgba(20,50,90,.12);box-shadow:0 2px 8px rgba(20,50,90,.08)}
 
 /* ════════════════════════════════════════════════════════════════
@@ -625,8 +655,13 @@ audio{border-radius:4px;max-width:100%}
   [data-theme="zephyr"] .nav-links{background:rgba(243,248,238,.98)}
 }
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Entre ici et ailleurs","url":"https://entre-ici-et-ailleurs.pages.dev","description":"Poésie, prière et méditation par J.Y.D.","author":{"@type":"Person","name":"NAM Johnny Yao Daniel-Marie"},"publisher":{"@type":"Organization","name":"JyDiel In-Time"}}
+</script>
+<link rel="canonical" href="https://entre-ici-et-ailleurs.pages.dev">
 </head>
 <body>
+<a href="#main-content" style="position:absolute;top:-100px;left:0;background:var(--gold);color:var(--deep);padding:8px 16px;z-index:99999;font-size:13px;transition:top .2s" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Aller au contenu</a>
 
 <!-- ════════════════════════════════════════════════════════════════
      CURSOR
@@ -634,7 +669,10 @@ audio{border-radius:4px;max-width:100%}
 <div id="cur-dot"></div>
 <div id="cur-ring"></div>
 
+<div id="readProgress"></div>
 <button class="theme-toggle" id="themeToggle" title="Mode jour/nuit" aria-label="Changer de mode">☽</button>
+<button id="readModeBtn" title="Mode lecture" aria-label="Mode lecture">⊡</button>
+<button id="backTop" title="Retour en haut" aria-label="Retour en haut" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ════════════════════════════════════════════════════════════════
      SITE BACKGROUND
@@ -698,6 +736,26 @@ audio{border-radius:4px;max-width:100%}
         <q id="homeMan2"></q>
       </div>
       <cite class="rv d1">— J.Y.D.</cite>
+    </div>
+  </section>
+
+  <!-- BANDEAU ŒUVRES (visible si section active) -->
+  <section class="s-deep" id="heroBannerOeuvres" style="display:none;padding:50px 0;cursor:pointer" onclick="showView('oeuvres')">
+    <div class="wrap tac rv">
+      <p class="t-label" style="letter-spacing:.2em">📚</p>
+      <h3 style="font-family:var(--ff-t);font-size:clamp(22px,4vw,30px);color:var(--g2);margin:8px 0;font-weight:400;font-style:italic" id="heroBannerOeuvresTitle">Œuvres</h3>
+      <p style="font-size:13px;color:var(--txt);max-width:500px;margin:0 auto">Recueils, albums et tableaux — les fruits d'une création entre ici et ailleurs.</p>
+      <div style="margin-top:18px"><span class="see-more" style="font-size:10px">Découvrir</span></div>
+    </div>
+  </section>
+
+  <!-- BANDEAU AUDIO (visible si section active) -->
+  <section class="s-ink" id="heroBannerAudio" style="display:none;padding:50px 0;cursor:pointer" onclick="showView('audio')">
+    <div class="wrap tac rv">
+      <p class="t-label" style="letter-spacing:.2em">🎵</p>
+      <h3 style="font-family:var(--ff-t);font-size:clamp(22px,4vw,30px);color:var(--g2);margin:8px 0;font-weight:400;font-style:italic" id="heroBannerAudioTitle">Audio</h3>
+      <p style="font-size:13px;color:var(--txt);max-width:500px;margin:0 auto">Poèmes lus, enregistrements et créations sonores — des mots qui prennent vie.</p>
+      <div style="margin-top:18px"><span class="see-more" style="font-size:10px">Écouter</span></div>
     </div>
   </section>
 
@@ -949,11 +1007,7 @@ audio{border-radius:4px;max-width:100%}
           <a class="see-more" data-page="blog" style="font-size:10px">Découvrir les textes</a>
         </div>
       </div>
-      <!-- Formulaire Netlify en backup -->
-      <form name="newsletter" method="POST" data-netlify="true" style="display:none">
-        <input type="hidden" name="form-name" value="newsletter">
-        <input type="text" name="prenom"><input type="email" name="email">
-      </form>
+
       <p class="contact-note rv d1" id="contactNote">Aucun spam — uniquement des textes, des mots, de la poésie.</p>
       <p class="contact-note rv d2" style="margin-top:8px;font-size:11px;color:var(--g3)">Votre inscription vous ajoutera à notre liste de diffusion pour recevoir les nouvelles publications.</p>
     </div>
@@ -1014,6 +1068,7 @@ audio{border-radius:4px;max-width:100%}
     <a data-page="oeuvres" id="ft-oeuvres">Œuvres</a>
     <a data-page="contact" id="ft-contact">Contact</a>
   </div>
+  <p style="text-align:center;margin-bottom:8px"><a href="/feed.xml" title="Flux RSS" style="color:var(--g3);font-size:12px;text-decoration:none;letter-spacing:.1em">⊞ RSS</a></p>
   <p class="footer-copy">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · Tous droits réservés.</p>
   <p style="margin-top:12px"><a data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
 </footer>
@@ -1027,16 +1082,9 @@ audio{border-radius:4px;max-width:100%}
 
 
 /* ════════════════════════════════════════════════════════════════
-   PLATFORM DETECTION — Netlify ou Cloudflare
+   PLATFORM DETECTION — Cloudflare
    ════════════════════════════════════════════════════════════════ */
-var API_BASE = (function(){
-  var host = window.location.hostname;
-  if(host.indexOf('.netlify.app') !== -1 || host.indexOf('localhost') !== -1){
-    return '/.netlify/functions';
-  }
-  /* Cloudflare Pages ou autre */
-  return '/api';
-})();
+var API_BASE = '/api';
 
 /* ════════════════════════════════════════════════════════════════
    DATA
@@ -1214,12 +1262,14 @@ function showView(name, slug){
     document.getElementById('hamburger').classList.remove('open');
   }
   /* Update URL with pushState */
+  var R = getRoutes();
+  var routeMap = {blog:R.blog, oeuvres:R.oeuvres, univers:R.univers, audio:R.audio, apropos:R.apropos, contact:R.contact};
   var path = '/';
   var title = 'Entre ici et ailleurs';
   if(name==='accueil'){ path='/'; }
   else if(name==='article' && slug){ path='/article/'+slug; title=slug+' — EIA'; }
   else if(name.startsWith('custom-')){ path='/'+name; title=name.replace('custom-','').replace(/-/g,' ')+' — EIA'; }
-  else { path='/'+name; title=name.charAt(0).toUpperCase()+name.slice(1)+' — EIA'; }
+  else { path='/'+(routeMap[name]||name); title=(routeMap[name]||name).charAt(0).toUpperCase()+(routeMap[name]||name).slice(1)+' — EIA'; }
   if(window.history && window.history.pushState){
     window.history.pushState({view:name,slug:slug||null}, title, path);
   }
@@ -1262,14 +1312,28 @@ function showViewSilent(name, slug){
 }
 
 /* Parse URL on load to restore view */
+/* Route helpers — use CMS custom slugs or defaults */
+function getRoutes(){
+  var SC = SECTIONS_CONFIG;
+  return {
+    blog: SC.route_blog || 'blog',
+    oeuvres: SC.route_oeuvres || 'oeuvres',
+    univers: SC.route_univers || 'univers',
+    audio: SC.route_audio || 'audio',
+    apropos: SC.route_apropos || 'apropos',
+    contact: SC.route_contact || 'contact'
+  };
+}
+
 function parseUrl(){
   var path = window.location.pathname.replace(/\/+$/, '') || '/';
-  if(path==='/blog') return {view:'blog'};
-  if(path==='/univers') return {view:'univers'};
-  if(path==='/apropos') return {view:'apropos'};
-  if(path==='/contact') return {view:'contact'};
-  if(path==='/audio') return {view:'audio'};
-  if(path==='/oeuvres') return {view:'oeuvres'};
+  var R = getRoutes();
+  if(path==='/'+R.blog) return {view:'blog'};
+  if(path==='/'+R.univers) return {view:'univers'};
+  if(path==='/'+R.apropos) return {view:'apropos'};
+  if(path==='/'+R.contact) return {view:'contact'};
+  if(path==='/'+R.audio) return {view:'audio'};
+  if(path==='/'+R.oeuvres) return {view:'oeuvres'};
   if(path==='/confidentialite') return {view:'confidentialite'};
   if(path.startsWith('/article/')){
     var slug = path.replace('/article/','');
@@ -1277,6 +1341,11 @@ function parseUrl(){
   }
   if(path.startsWith('/custom-')){
     return {view:path.substring(1)};
+  }
+  /* Fallback: try matching old default routes too */
+  var sections = ['blog','univers','apropos','contact','audio','oeuvres'];
+  for(var i=0;i<sections.length;i++){
+    if(path==='/'+sections[i]) return {view:sections[i]};
   }
   return {view:'accueil'};
 }
@@ -1355,9 +1424,10 @@ function blogCardHtml(p, num, cls){
   var placeholderInner = '<span style="font-family:var(--ff-t);font-size:64px;color:var(--g3);opacity:.35">'+esc(initial)+'</span>';
   var thumbHtml;
   if(thumbUrl){
+    var altText = p.thumb_alt || p.cover_alt || p.title || '';
     thumbHtml = '<div class="bc-thumb" style="position:relative;'+placeholderBg+'">'+
       placeholderInner+
-      '<img loading="lazy" decoding="async" src="'+esc(thumbUrl)+'" alt="'+esc(p.title)+'" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
+      '<img loading="lazy" decoding="async" src="'+esc(thumbUrl)+'" alt="'+esc(altText)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'+
     '</div>';
   } else {
     thumbHtml = '<div class="bc-thumb" style="'+placeholderBg+'">'+placeholderInner+'</div>';
@@ -1368,7 +1438,7 @@ function blogCardHtml(p, num, cls){
       '<div class="bc-num">N° '+String(num).padStart(2,'0')+'</div>'+
       '<div class="bc-tag">'+esc(p.tag||'')+'</div>'+
       '<div class="bc-title">'+esc(p.title)+'</div>'+
-      '<div class="bc-date">'+esc(p.date||'')+'</div>'+
+      '<div class="bc-date">'+esc(p.date||'')+' · '+readTime(p.body)+' min</div>'+
       '<div class="bc-excerpt">'+esc(p.excerpt||'')+'</div>'+
     '</div>'+
   '</div>';
@@ -1734,7 +1804,8 @@ function renderArticle(slug){
 
   /* Cover */
   if(post.cover){
-    html += '<img loading="lazy" decoding="async" class="article-cover" loading="lazy" decoding="async" src="'+esc(post.cover)+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
+    var coverAlt = post.cover_alt || post.title || '';
+    html += '<img loading="lazy" decoding="async" class="article-cover" src="'+esc(post.cover)+'" alt="'+esc(coverAlt)+'" onerror="this.style.display=\'none\'">';
   }
 
   /* Header */
@@ -1747,10 +1818,21 @@ function renderArticle(slug){
   html += '</div>';
 
   /* Body */
+  html += '<div style="text-align:right;margin-bottom:-10px;opacity:.5"><button id="textSizeMinus" style="background:none;border:1px solid rgba(201,169,110,.15);color:var(--gold);padding:4px 10px;cursor:pointer;font-size:12px;margin-right:6px">A-</button><button id="textSizePlus" style="background:none;border:1px solid rgba(201,169,110,.15);color:var(--gold);padding:4px 10px;cursor:pointer;font-size:14px;font-weight:bold">A+</button></div>';
   const bodyHtml = mdToHtml(post.body||'');
   html += '<div class="article-body drop-cap" style="margin-top:40px">'+bodyHtml+'</div>';
 
+  /* Track view */
+  trackView(slug);
+
   /* Fin */
+  if((post.instagram_link && post.instagram_link.trim()) || (post.tiktok_link && post.tiktok_link.trim()) || (post.youtube_link && post.youtube_link.trim())){
+    html += '<div style="text-align:center;margin:20px 0 10px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap">';
+    if(post.instagram_link && post.instagram_link.trim()) html += '<a href="'+esc(post.instagram_link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.12);padding:6px 14px;letter-spacing:.06em">Instagram</a>';
+    if(post.tiktok_link && post.tiktok_link.trim()) html += '<a href="'+esc(post.tiktok_link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.12);padding:6px 14px;letter-spacing:.06em">TikTok</a>';
+    if(post.youtube_link && post.youtube_link.trim()) html += '<a href="'+esc(post.youtube_link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.12);padding:6px 14px;letter-spacing:.06em">YouTube</a>';
+    html += '</div>';
+  }
   html += '<p class="tac" style="font-family:var(--ff-t);font-style:italic;color:var(--g3);margin:40px 0;font-size:16px">— Fin —</p>';
 
   /* Likes */
@@ -1760,7 +1842,24 @@ function renderArticle(slug){
   html += '<span class="like-count" id="likeCount">0</span>';
   html += '<span class="like-label">Aimer ce texte</span>';
   html += '</button>';
+  var isFav = (JSON.parse(localStorage.getItem('eia-favs')||'[]')).indexOf(post.slug) !== -1;
+  html += '<button class="like-btn" id="favBtn" style="margin-left:12px" data-slug="'+esc(post.slug)+'">';
+  html += '<span class="heart">'+(isFav?'★':'☆')+'</span>';
+  html += '<span class="like-label">'+(isFav?'Favori':'Sauvegarder')+'</span>';
+  html += '</button>';
   html += '</div>';
+
+  /* Share */
+  var shareUrl = window.location.origin+'/article/'+post.slug;
+  var shareTitle = encodeURIComponent(post.title+' — Entre ici et ailleurs');
+  var shareText = encodeURIComponent((post.excerpt||'').substring(0,100));
+  html += '<div class="share-section" style="text-align:center;margin:24px 0 32px">';
+  html += '<p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--g3);margin-bottom:12px">Partager</p>';
+  html += '<div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">';
+  html += '<a href="https://wa.me/?text='+shareTitle+'%20'+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">WhatsApp</a>';
+  html += '<a href="https://twitter.com/intent/tweet?text='+shareTitle+'&url='+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">X / Twitter</a>';
+  html += '<button onclick="navigator.clipboard.writeText(\''+shareUrl+'\').then(function(){this.textContent=\'Copié ✓\';var b=this;setTimeout(function(){b.textContent=\'Copier le lien\'},2000)}.bind(this))" style="padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">Copier le lien</button>';
+  html += '</div></div>';
 
   html += '</div>'; /* end wrap-narrow */
 
@@ -1775,6 +1874,23 @@ function renderArticle(slug){
   html += '</div>';
   html += '<div id="commentsList"></div>';
   html += '</div>';
+
+  /* Related articles */
+  var related = POSTS.filter(function(r){ return r.slug !== post.slug && r.tag === post.tag && r.published !== false; }).slice(0,3);
+  if(!related.length) related = POSTS.filter(function(r){ return r.slug !== post.slug && r.published !== false; }).slice(0,3);
+  if(related.length){
+    html += '<div style="padding:32px 28px;max-width:680px;margin:0 auto">';
+    html += '<p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--g3);text-align:center;margin-bottom:20px">Vous pourriez aussi aimer</p>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px">';
+    related.forEach(function(r){
+      html += '<div data-article="'+esc(r.slug)+'" style="cursor:pointer;padding:16px;border:1px solid rgba(201,169,110,.08);transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.3)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.08)\'">';
+      html += '<p style="font-size:9px;color:var(--g3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">'+esc(r.tag||'')+'</p>';
+      html += '<p style="font-family:var(--ff-t);font-size:16px;color:var(--g2)">'+esc(r.title)+'</p>';
+      html += '<p style="font-size:11px;color:var(--txt);margin-top:6px">'+readTime(r.body)+' min</p>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
 
   /* Navigation prev/next */
   html += '<div class="article-nav" style="padding:32px 28px">';
@@ -1798,6 +1914,7 @@ function renderArticle(slug){
   /* Init likes & comments */
   initLikes(post.slug);
   initComments(post.slug);
+  if(typeof applyTextSize === 'function') applyTextSize();
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1853,7 +1970,7 @@ function initLikes(slug){
 function getAdminUser(){
   try{
     /* Decap CMS stores GitHub token under various keys */
-    var keys = ['netlify-cms-user', 'decap-cms-user', 'cms-user'];
+    var keys = ['decap-cms-user', 'cms-user'];
     for(var i=0; i<keys.length; i++){
       var stored = localStorage.getItem(keys[i]);
       if(stored){
@@ -2271,6 +2388,16 @@ function applySectionVisibility(){
 
   /* Hero texts */
   var heroTitle = document.getElementById('heroTitle');
+
+  /* Hero banners for Oeuvres and Audio */
+  var bannerOeuvres = document.getElementById('heroBannerOeuvres');
+  var bannerAudio = document.getElementById('heroBannerAudio');
+  if(bannerOeuvres) bannerOeuvres.style.display = sections.oeuvres ? '' : 'none';
+  if(bannerAudio) bannerAudio.style.display = sections.audio ? '' : 'none';
+  var bOTitle = document.getElementById('heroBannerOeuvresTitle');
+  if(bOTitle) bOTitle.textContent = names.oeuvres;
+  var bATitle = document.getElementById('heroBannerAudioTitle');
+  if(bATitle) bATitle.textContent = names.audio;
   if(heroTitle && SETTINGS.hero_title) heroTitle.textContent = SETTINGS.hero_title;
   var heroSub = document.getElementById('heroSubtitle');
   if(heroSub && SETTINGS.hero_subtitle) heroSub.textContent = SETTINGS.hero_subtitle;
@@ -2551,13 +2678,9 @@ function initNewsletter(){
           /* Afficher la confirmation */
           document.getElementById('nlFormWrap').style.display = 'none';
           document.getElementById('nlSuccess').style.display = 'block';
-          /* Aussi envoyer au formulaire Netlify backup */
+
           try{
-            var backup = new FormData();
-            backup.append('form-name','newsletter');
-            backup.append('prenom',name);
-            backup.append('email',email);
-            fetch('/', {method:'POST', body:backup}).catch(function(){});
+            /* Newsletter submitted */
           }catch(ex){}
         } else {
           msg.textContent = 'Erreur — veuillez réessayer.'; msg.classList.add('err');
@@ -2662,6 +2785,85 @@ document.addEventListener('DOMContentLoaded', function(){
       localStorage.setItem('eia-theme', def);
     }
     updateThemeBtn();
+  }
+
+  /* Progress bar + Back to top */
+  var progBar = document.getElementById('readProgress');
+  var backBtn = document.getElementById('backTop');
+  var readModeBtn = document.getElementById('readModeBtn');
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        var scrollY = window.scrollY || window.pageYOffset;
+        if(backBtn) backBtn.style.display = scrollY > 400 ? 'flex' : 'none';
+        if(readModeBtn) readModeBtn.style.display = currentView === 'article' ? 'flex' : 'none';
+        if(progBar && currentView === 'article'){
+          var docH = document.documentElement.scrollHeight - window.innerHeight;
+          var pct = docH > 0 ? Math.min(100, (scrollY / docH) * 100) : 0;
+          progBar.style.width = pct + '%';
+          progBar.classList.toggle('visible', scrollY > 50);
+        } else if(progBar){
+          progBar.classList.remove('visible');
+          progBar.style.width = '0';
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, {passive: true});
+
+  /* ═══ FAVORIS ═══ */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('#favBtn');
+    if(!btn) return;
+    var slug = btn.getAttribute('data-slug');
+    var favs = JSON.parse(localStorage.getItem('eia-favs')||'[]');
+    var idx = favs.indexOf(slug);
+    if(idx === -1){ favs.push(slug); } else { favs.splice(idx, 1); }
+    localStorage.setItem('eia-favs', JSON.stringify(favs));
+    var heart = btn.querySelector('.heart');
+    var label = btn.querySelector('.like-label');
+    if(heart) heart.textContent = idx === -1 ? '★' : '☆';
+    if(label) label.textContent = idx === -1 ? 'Favori' : 'Sauvegarder';
+  });
+
+  /* ═══ TEXT SIZE A-/A+ ═══ */
+  var textSizeLevel = parseInt(localStorage.getItem('eia-textsize')||'0');
+  function applyTextSize(){
+    var bodies = document.querySelectorAll('.article-body');
+    var sizes = [16, 18, 20, 22];
+    var sz = sizes[Math.max(0, Math.min(textSizeLevel, sizes.length-1))];
+    bodies.forEach(function(b){ b.style.fontSize = sz+'px'; });
+  }
+  document.addEventListener('click', function(e){
+    if(e.target.id === 'textSizePlus'){ textSizeLevel = Math.min(3, textSizeLevel+1); localStorage.setItem('eia-textsize', textSizeLevel); applyTextSize(); }
+    if(e.target.id === 'textSizeMinus'){ textSizeLevel = Math.max(0, textSizeLevel-1); localStorage.setItem('eia-textsize', textSizeLevel); applyTextSize(); }
+  });
+
+  /* ═══ KEYBOARD NAV ←/→ ═══ */
+  document.addEventListener('keydown', function(e){
+    if(currentView !== 'article') return;
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+      var links = document.querySelectorAll('.article-nav a[data-article]');
+      if(e.key === 'ArrowLeft' && links[0]) showView('article', links[0].getAttribute('data-article'));
+      if(e.key === 'ArrowRight' && links[1]) showView('article', links[1].getAttribute('data-article'));
+    }
+  });
+
+  /* ═══ READING MODE ═══ */
+  if(readModeBtn){
+    readModeBtn.addEventListener('click', function(){
+      document.body.classList.toggle('reading-mode');
+      this.textContent = document.body.classList.contains('reading-mode') ? '⊞' : '⊡';
+      this.title = document.body.classList.contains('reading-mode') ? 'Quitter le mode lecture' : 'Mode lecture';
+    });
+  }
+
+  /* ═══ VIEW COUNTER ═══ */
+  function trackView(slug){
+    fetch(API_BASE+'/like-post', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({slug:'views:'+slug, action:'view'})}).catch(function(){});
   }
 
   /* PWA Service Worker — force update on new version */
