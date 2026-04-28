@@ -882,9 +882,9 @@ audio{border-radius:4px;max-width:100%}
 <div class="view" id="v-contact">
   <section class="ph s-deep">
     <div class="wrap tac">
-      <p class="t-label rv">REJOINDRE LE VOYAGE</p>
-      <h2 class="t-title xl rv d1" style="margin-top:12px">Ici ou ailleurs ?</h2>
-      <p class="t-italic rv d2" style="margin-top:8px">Il suffit d'un pas.</p>
+      <p class="t-label rv" id="contactLabel">REJOINDRE LE VOYAGE</p>
+      <h2 class="t-title xl rv d1" style="margin-top:12px" id="contactTitle">Ici ou ailleurs ?</h2>
+      <p class="t-italic rv d2" style="margin-top:8px" id="contactSubtitle">Il suffit d'un pas.</p>
     </div>
   </section>
   <section class="s-night">
@@ -943,8 +943,8 @@ audio{border-radius:4px;max-width:100%}
             <animate attributeName="opacity" dur="1.6s" repeatCount="indefinite" values="0;.6;0" begin="0.6s"/>
           </circle>
         </svg>
-        <p style="font-family:var(--ff-t);font-size:26px;color:var(--g2);margin-bottom:16px;font-weight:700;font-style:italic;line-height:1.3">Bienvenue dans le Temps</p>
-        <p style="font-family:var(--ff-t);font-style:italic;font-size:16px;color:var(--txt);line-height:1.9;max-width:420px;margin:0 auto">Merci pour votre confiance.<br>Vous recevrez nos prochains instants entre ici et ailleurs,<br>au détour d'un courrier.</p>
+        <p style="font-family:var(--ff-t);font-size:26px;color:var(--g2);margin-bottom:16px;font-weight:700;font-style:italic;line-height:1.3" id="nlSuccessTitle">Bienvenue dans le Temps</p>
+        <p style="font-family:var(--ff-t);font-style:italic;font-size:16px;color:var(--txt);line-height:1.9;max-width:420px;margin:0 auto" id="nlSuccessText">Merci pour votre confiance.<br>Vous recevrez nos prochains instants entre ici et ailleurs,<br>au détour d'un courrier.</p>
         <div style="margin-top:28px">
           <a class="see-more" data-page="blog" style="font-size:10px">Découvrir les textes</a>
         </div>
@@ -954,7 +954,7 @@ audio{border-radius:4px;max-width:100%}
         <input type="hidden" name="form-name" value="newsletter">
         <input type="text" name="prenom"><input type="email" name="email">
       </form>
-      <p class="contact-note rv d1">Aucun spam — uniquement des textes, des mots, de la poésie.</p>
+      <p class="contact-note rv d1" id="contactNote">Aucun spam — uniquement des textes, des mots, de la poésie.</p>
       <p class="contact-note rv d2" style="margin-top:8px;font-size:11px;color:var(--g3)">Votre inscription vous ajoutera à notre liste de diffusion pour recevoir les nouvelles publications.</p>
     </div>
   </section>
@@ -982,7 +982,7 @@ audio{border-radius:4px;max-width:100%}
   <section class="s-night">
     <div class="wrap-narrow" id="privacyContent" style="font-family:var(--ff-b);font-size:14px;line-height:2;color:var(--txt)">
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Propriété intellectuelle</strong><br>
-      Les œuvres publiées sur ce site sont la création originale de NAM Johnny Yao Daniel-Marie, représenté sous l'enseigne JyDiel Records. L'ensemble des textes, poèmes, enregistrements audio et contenus visuels publiés sur ce site sont sa propriété exclusive. Toute reproduction, republication, diffusion ou utilisation, même partielle, est strictement interdite sans accord écrit préalable de l'auteur.</p>
+      Les œuvres publiées sur ce site sont la création originale de NAM Johnny Yao Daniel-Marie, représenté sous l'enseigne JyDiel In-Time. L'ensemble des textes, poèmes, enregistrements audio et contenus visuels publiés sur ce site sont sa propriété exclusive. Toute reproduction, republication, diffusion ou utilisation, même partielle, est strictement interdite sans accord écrit préalable de l'auteur.</p>
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Antériorité des œuvres</strong><br>
       Les textes publiés sur ce site ont été composés entre 2013 et aujourd'hui. Leur date de création est antérieure à toute publication en ligne. Le blog « Entre ici et ailleurs » existe en tant que support numérique depuis 2025.</p>
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Demandes de droits</strong><br>
@@ -995,7 +995,7 @@ audio{border-radius:4px;max-width:100%}
       Ce site n'utilise pas de cookies de traçage ni de publicité. Seul un stockage local (localStorage) est utilisé pour mémoriser vos « j'aime » sur les articles et votre préférence de thème.</p>
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Newsletter</strong><br>
       Vous pouvez vous désabonner à tout moment via le lien de désabonnement présent dans chaque email. Votre adresse sera alors supprimée de la liste de diffusion.</p>
-      <p style="color:var(--g3);font-style:italic">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel Records · Tous droits réservés.</p>
+      <p style="color:var(--g3);font-style:italic">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · Tous droits réservés.</p>
     </div>
   </section>
 </div>
@@ -1014,7 +1014,7 @@ audio{border-radius:4px;max-width:100%}
     <a data-page="oeuvres" id="ft-oeuvres">Œuvres</a>
     <a data-page="contact" id="ft-contact">Contact</a>
   </div>
-  <p class="footer-copy">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel Records · Tous droits réservés.</p>
+  <p class="footer-copy">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · Tous droits réservés.</p>
   <p style="margin-top:12px"><a data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
 </footer>
 
@@ -2295,6 +2295,22 @@ function applySectionVisibility(){
       privEl.innerHTML = paragraphs.map(function(p){return '<p style="margin-bottom:1.5em">'+esc(p)+'</p>'}).join('');
     }
   }
+
+  /* Contact section texts */
+  var cLabel = document.getElementById('contactLabel');
+  if(cLabel && SETTINGS.contact_label) cLabel.textContent = SETTINGS.contact_label;
+  var cTitle = document.getElementById('contactTitle');
+  if(cTitle && SETTINGS.contact_title) cTitle.textContent = SETTINGS.contact_title;
+  var cSub = document.getElementById('contactSubtitle');
+  if(cSub && SETTINGS.contact_subtitle) cSub.textContent = SETTINGS.contact_subtitle;
+  var cNote = document.getElementById('contactNote');
+  if(cNote && SETTINGS.contact_note) cNote.textContent = SETTINGS.contact_note;
+
+  /* Newsletter confirmation texts */
+  var nlTitle = document.getElementById('nlSuccessTitle');
+  if(nlTitle && SETTINGS.nl_success_title) nlTitle.textContent = SETTINGS.nl_success_title;
+  var nlText = document.getElementById('nlSuccessText');
+  if(nlText && SETTINGS.nl_success_text) nlText.innerHTML = SETTINGS.nl_success_text.replace(/\n/g,'<br>');
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2648,9 +2664,13 @@ document.addEventListener('DOMContentLoaded', function(){
     updateThemeBtn();
   }
 
-  /* PWA Service Worker */
+  /* PWA Service Worker — force update on new version */
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(reg){ reg.unregister(); });
+    }).then(function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
   }
 
   initNavbar();
