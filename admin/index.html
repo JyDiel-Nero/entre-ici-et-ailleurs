@@ -103,44 +103,16 @@
       ".pv-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#E8C98A;text-align:center;margin:12px 0;font-weight:400}" +
       ".pv-meta{font-size:12px;color:#A8884E;text-align:center;margin-bottom:24px}" +
       ".pv-sep{width:60px;height:1px;background:#C9A96E;margin:20px auto}" +
-      ".pv-body{font-size:16px;line-height:2;color:rgba(201,169,110,.6)}" +
+      ".pv-body{font-size:16px;line-height:2;color:rgba(201,169,110,.6);white-space:pre-wrap}" +
       ".pv-body p{margin-bottom:1em}" +
-      ".pv-body strong,.pv-body b{color:#E8C98A}" +
-      ".pv-body em,.pv-body i{color:#C9A96E}" +
-      ".pv-body img{max-width:100%;border-radius:4px;margin:16px 0}" +
-      ".pv-body hr{border:none;border-top:1px solid rgba(201,169,110,.1);margin:24px 0}" +
-      ".pv-cover{width:100%;max-height:300px;object-fit:cover;border-radius:4px;margin-bottom:24px}" +
       ".pv-fin{text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#A8884E;margin:32px 0;font-size:16px}" +
       ".pv-author{text-align:center;font-size:12px;color:#A8884E;margin-top:8px}",
       {raw: true}
     );
 
-    var PostPreview = createClass({
-      render: function(){
-        var e = this.props.entry;
-        var d = e.getIn(['data']);
-        var tag = d.get('tag') || '';
-        var title = d.get('title') || 'Sans titre';
-        var date = d.get('date') || '';
-        var author = d.get('author') || 'J.Y.D.';
-        var cover = d.get('cover');
-        var body = d.get('body') || '';
-        var words = body.split(/\s+/).filter(function(w){return w}).length;
-        var readMin = Math.max(1, Math.round(words / 200));
-        var coverImg = cover ? h('img', {className: 'pv-cover', src: this.props.getAsset(cover).toString()}) : null;
-        return h('div', {className: 'pv'},
-          coverImg,
-          h('p', {className: 'pv-tag'}, tag),
-          h('h1', {className: 'pv-title'}, title),
-          h('p', {className: 'pv-meta'}, date + ' · ' + readMin + ' min de lecture · ' + words + ' mots'),
-          h('div', {className: 'pv-sep'}),
-          h('div', {className: 'pv-body'}, this.props.widgetFor('body')),
-          h('p', {className: 'pv-fin'}, '— Fin —'),
-          h('p', {className: 'pv-author'}, author)
-        );
-      }
-    });
-    CMS.registerPreviewTemplate('tous_les_articles', PostPreview);
+    /* Preview styles are registered for visual consistency in editor.
+       Note: Decap CMS file-based collections with nested lists don't support
+       registerPreviewTemplate with widgetFor — preview shows raw data only. */
 
     /* ═══ CMS THEME TOGGLE ═══ */
     (function(){

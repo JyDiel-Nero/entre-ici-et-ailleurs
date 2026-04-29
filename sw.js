@@ -47,7 +47,7 @@ self.addEventListener('fetch', function(event) {
   if (url.pathname.startsWith('/admin')) return;
 
   /* SPA: serve index.html for navigation routes */
-  var spaRoutes = ['/blog','/univers','/apropos','/contact','/audio','/oeuvres','/confidentialite'];
+  var spaRoutes = ['/heures','/secondes','/un-instant','/entretemps','/minutes','/saisons','/confidentialite','/blog','/univers','/apropos','/contact','/audio','/oeuvres'];
   var isSpaRoute = spaRoutes.indexOf(url.pathname.replace(/\/+$/,'')) !== -1 || url.pathname.startsWith('/article/') || url.pathname.startsWith('/custom-');
 
   event.respondWith(

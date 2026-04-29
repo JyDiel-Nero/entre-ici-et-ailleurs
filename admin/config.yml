@@ -12,7 +12,6 @@ locale: "fr"
 collections:
   - name: "articles"
     label: "✍ Articles & Poèmes"
-    sortable_fields: ["title", "date", "tag"]
     files:
       - file: "data/posts.json"
         name: "tous_les_articles"
@@ -32,7 +31,9 @@ collections:
               - { name: tag, widget: string, label: "Catégorie", hint: "Ex: MÉDITATION, POÉSIE, PRIÈRE, RÉFLEXION, RÉCIT" }
               - { name: excerpt, widget: text, label: "Extrait" }
               - { name: cover, widget: image, label: "Image couverture", required: false }
+              - { name: cover_alt, widget: string, label: "Alt couverture", required: false, hint: "Description de l'image pour l'accessibilité" }
               - { name: thumb, widget: image, label: "Miniature", required: false }
+              - { name: thumb_alt, widget: string, label: "Alt miniature", required: false, hint: "Description de la miniature" }
               - { name: body, widget: markdown, label: "Contenu" }
               - { name: instagram_link, widget: string, label: "Lien Instagram (article)", required: false }
               - { name: tiktok_link, widget: string, label: "Lien TikTok (article)", required: false }
@@ -56,6 +57,7 @@ collections:
               - { name: type, widget: select, label: "Type", options: [{ label: "📖 Recueil", value: "recueil" }, { label: "🎤 Album", value: "album" }, { label: "🎨 Peinture", value: "peinture" }] }
               - { name: description, widget: text, label: "Description", required: false }
               - { name: image, widget: image, label: "Image/couverture" }
+              - { name: image_alt, widget: string, label: "Alt image", required: false, hint: "Description pour l'accessibilité" }
               - { name: price, widget: string, label: "Prix", required: false }
               - { name: amazon, widget: string, label: "Lien Amazon", required: false }
               - { name: bookelis, widget: string, label: "Lien Bookelis", required: false }
@@ -107,6 +109,7 @@ collections:
             fields:
               - { name: title, widget: string, label: "Légende" }
               - { name: image, widget: image, label: "Image" }
+              - { name: image_alt, widget: string, label: "Alt image", required: false, hint: "Description pour l'accessibilité" }
               - { name: order, widget: number, label: "Ordre", default: 1 }
 
   - name: "sections_custom"
@@ -152,7 +155,8 @@ collections:
           - { name: contact_note, widget: string, label: "Contact — note sous le formulaire", required: false, default: "Aucun spam — uniquement des textes, des mots, de la poésie." }
           - { name: nl_success_title, widget: string, label: "Newsletter — titre de confirmation", required: false, default: "Bienvenue dans le Temps" }
           - { name: nl_success_text, widget: text, label: "Newsletter — texte de confirmation", required: false, default: "Merci pour votre confiance. Vous recevrez nos prochains instants entre ici et ailleurs, au détour d'un courrier." }
-          - { name: instagram, widget: string, label: "Instagram", required: false }
+          - { name: instagram, widget: string, label: "Instagram (URL)", required: false }
+          - { name: tiktok, widget: string, label: "TikTok (URL)", required: false }
           - { name: privacy_text, widget: text, label: "Texte Confidentialité", required: false }
 
   - name: "param_sections"

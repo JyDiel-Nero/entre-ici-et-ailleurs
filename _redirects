@@ -1,9 +1,16 @@
-/blog              /index.html  200
-/univers           /index.html  200
-/apropos           /index.html  200
-/contact           /index.html  200
-/audio             /index.html  200
-/oeuvres           /index.html  200
+/heures            /index.html  200
+/secondes          /index.html  200
+/un-instant        /index.html  200
+/entretemps        /index.html  200
+/minutes           /index.html  200
+/saisons           /index.html  200
 /confidentialite   /index.html  200
 /article/:slug     /index.html  200
 /custom-:id        /index.html  200
+# Old routes → new routes (301 permanent redirects)
+/blog              /heures      301
+/univers           /secondes    301
+/apropos           /un-instant  301
+/contact           /entretemps  301
+/audio             /minutes     301
+/oeuvres           /saisons     301
