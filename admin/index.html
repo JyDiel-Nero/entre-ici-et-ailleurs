@@ -3,47 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin — Entre ici et ailleurs</title>
+  <title>Admin — JyDiel In-Time</title>
   <style id="cms-dark-theme">
+    /* ═══ BASE ═══ */
     *, *::before, *::after { border-color: rgba(201,169,110,.1) !important; }
     html, body, #nc-root, #root, [id="nc-root"] > div, [id="nc-root"] > div > div {
       background-color: #0D0F12 !important; color: rgba(201,169,110,.7) !important;
-      font-family: -apple-system, 'Segoe UI', system-ui, sans-serif !important;
     }
     div, section, main, aside, nav, article, footer, header, form, fieldset, details, summary,
     ul, ol, li, dl, dt, dd, figure, figcaption, [class*="css-"] {
       background-color: transparent !important; color: inherit;
     }
+
+    /* ═══ HEADER ═══ */
     header, [class*="AppHeader"], #nc-root > div > div > header {
       background-color: #111620 !important; border-bottom: 1px solid rgba(201,169,110,.08) !important;
     }
     header *, [class*="AppHeader"] * { color: #C9A96E !important; background-color: transparent !important; }
+
+    /* ═══ SIDEBAR ═══ */
     aside, [class*="Sidebar"], nav[class*="css-"] { background-color: #111620 !important; }
     aside a, nav a, aside li, nav li, aside span, nav span { color: rgba(201,169,110,.5) !important; background-color: transparent !important; }
     aside a:hover, nav a:hover, aside a[class*="active"], aside a[aria-current="page"] { color: #E8C98A !important; background-color: rgba(201,169,110,.04) !important; }
+
+    /* ═══ MAIN ═══ */
     main, [class*="Main"], section { background-color: #0D0F12 !important; }
     h1, h2, h3, h4, h5, h6 { color: #C9A96E !important; background-color: transparent !important; }
-    h2 { text-transform: uppercase !important; letter-spacing: .06em !important; font-size: 14px !important; font-weight: 500 !important; }
+    h2 { text-transform: uppercase !important; letter-spacing: .06em !important; font-size: 14px !important; }
     label, legend, [class*="ControlLabel"], [class*="Label"], span[class*="css-"] {
       color: #A8884E !important; background-color: transparent !important;
-      text-transform: uppercase !important; letter-spacing: .06em !important; font-size: 11px !important; font-weight: 500 !important;
+      text-transform: uppercase !important; letter-spacing: .06em !important; font-size: 11px !important;
     }
     p, span, li, td, th, div, summary, a { color: rgba(201,169,110,.6); background-color: transparent !important; }
     small, [class*="hint"], [class*="Hint"] { color: rgba(201,169,110,.3) !important; }
+
+    /* ═══ INPUTS ═══ */
     input[type="text"], input[type="number"], input[type="url"], input[type="email"], input[type="password"],
     input[type="datetime-local"], input[type="date"], textarea, select {
       background-color: #080A0E !important; border: 1px solid rgba(201,169,110,.12) !important;
       color: #E8C98A !important; border-radius: 3px !important; padding: 10px 12px !important;
     }
     input:focus, textarea:focus, select:focus { border-color: #C9A96E !important; outline: none !important; box-shadow: 0 0 0 1px rgba(201,169,110,.12) !important; }
-    input[type="color"] { background-color: #080A0E !important; height: 38px !important; padding: 3px !important; cursor: pointer !important; }
     input[type="checkbox"] { accent-color: #C9A96E !important; }
     select { appearance: auto !important; }
+
+    /* ═══ BUTTONS ═══ */
     button { background-color: transparent !important; color: #C9A96E !important; border: 1px solid rgba(201,169,110,.12) !important; border-radius: 3px !important; }
     button:hover { border-color: rgba(201,169,110,.25) !important; background-color: rgba(201,169,110,.04) !important; }
     [class*="ublish"] button, [class*="ToolbarButton"] > button:first-child { background-color: rgba(201,169,110,.1) !important; border-color: rgba(201,169,110,.25) !important; color: #E8C98A !important; }
-    [class*="ublish"] span { background-color: rgba(46,139,87,.12) !important; color: #5cb85c !important; border: 1px solid rgba(46,139,87,.2) !important; border-radius: 3px !important; }
-    fieldset, details { background-color: transparent !important; border: 1px solid rgba(201,169,110,.06) !important; border-radius: 4px !important; margin-bottom: 4px !important; }
+    [class*="ublish"] span { background-color: rgba(46,139,87,.12) !important; color: #5cb85c !important; border: 1px solid rgba(46,139,87,.2) !important; }
+
+    /* ═══ LIST ITEMS / CARDS ═══ */
+    fieldset, details { background-color: transparent !important; border: 1px solid rgba(201,169,110,.06) !important; border-radius: 4px !important; }
     fieldset:hover, details:hover { border-color: rgba(201,169,110,.12) !important; }
     summary { color: rgba(201,169,110,.5) !important; cursor: pointer !important; }
     summary:hover { color: #C9A96E !important; }
@@ -51,33 +62,122 @@
     [class*="ObjectControl"], [class*="ListItemTopBar"], [class*="TopBar"],
     [class*="NestedObjectLabel"], [class*="StyledListItemTopBar"],
     [class*="css-"][draggable="true"], li[class*="css-"], li > div[class*="css-"],
-    [class*="ObjectWidget"], [class*="ObjectControl"], [class*="ListControl"],
+    [class*="ObjectWidget"], [class*="ListControl"],
     [class*="ExpandedListItem"], [class*="ListItem"] {
       background-color: transparent !important; background: transparent !important;
     }
+
+    /* ═══ EDITOR ═══ */
     [class*="PreviewPane"], [class*="previewPane"], [class*="EditorPreview"] { background-color: #0D0F12 !important; }
+    [contenteditable="true"], [data-slate-editor="true"] { background-color: #080A0E !important; color: rgba(201,169,110,.7) !important; caret-color: #E8C98A !important; }
+    [class*="toolbar"], [class*="Toolbar"] { background-color: #111620 !important; }
+    [class*="toolbar"] button, [class*="Toolbar"] button { color: rgba(201,169,110,.4) !important; border: none !important; }
+    [class*="toolbar"] button:hover { color: #E8C98A !important; }
+
+    /* ═══ LINKS ═══ */
     a { color: #C9A96E !important; } a:hover { color: #E8C98A !important; }
+
+    /* ═══ DROPDOWNS / MENUS ═══ */
     ul[role="listbox"], div[role="listbox"], [class*="MenuList"], [class*="menu"] {
       background-color: #151A22 !important; border: 1px solid rgba(201,169,110,.1) !important; box-shadow: 0 4px 12px rgba(0,0,0,.5) !important;
     }
     [class*="option"]:hover, li[role="option"]:hover { background-color: rgba(201,169,110,.06) !important; }
     [class*="singleValue"], [class*="placeholder"] { color: #E8C98A !important; }
-    [class*="indicatorSeparator"] { background-color: rgba(201,169,110,.1) !important; }
     [class*="control"] { background-color: #080A0E !important; border-color: rgba(201,169,110,.12) !important; }
-    [class*="toolbar"], [class*="Toolbar"] { background-color: #111620 !important; }
-    [class*="toolbar"] button, [class*="Toolbar"] button { color: rgba(201,169,110,.4) !important; border: none !important; }
-    [class*="toolbar"] button:hover { color: #E8C98A !important; }
-    [contenteditable="true"], [data-slate-editor="true"] { background-color: #080A0E !important; color: rgba(201,169,110,.7) !important; caret-color: #E8C98A !important; }
+
+    /* ═══ MEDIA LIBRARY — FULL OPACITY FIX ═══ */
+    [class*="MediaLibrary"], [class*="mediaLibrary"],
+    [class*="Modal"], [class*="modal"],
+    [role="dialog"], [aria-modal="true"],
+    div[class*="css-"][style*="position: fixed"],
+    div[class*="css-"][style*="z-index"] {
+      background-color: #0D0F12 !important;
+      opacity: 1 !important;
+    }
+    /* Media library overlay */
+    [class*="MediaLibraryModal"], [class*="mediaModal"],
+    [class*="DialogOverlay"], [class*="overlay"] {
+      background-color: rgba(0,0,0,.85) !important;
+    }
+    /* Media library content area */
+    [class*="MediaLibrary"] div, [class*="mediaLibrary"] div,
+    [role="dialog"] div, [aria-modal="true"] div {
+      background-color: transparent !important;
+      opacity: 1 !important;
+    }
+    /* Media library cards/thumbnails */
+    [class*="MediaLibrary"] [class*="Card"],
+    [class*="MediaLibrary"] [class*="card"],
+    [class*="mediaLibrary"] [class*="Card"],
+    [role="dialog"] [class*="Card"],
+    [role="dialog"] img {
+      opacity: 1 !important;
+      background-color: #151A22 !important;
+      border: 1px solid rgba(201,169,110,.08) !important;
+    }
+    /* Media library header/toolbar */
+    [class*="MediaLibrary"] header,
+    [class*="MediaLibrary"] [class*="Header"],
+    [role="dialog"] header {
+      background-color: #111620 !important;
+      opacity: 1 !important;
+    }
+    /* Media library buttons */
+    [class*="MediaLibrary"] button,
+    [role="dialog"] button {
+      opacity: 1 !important;
+    }
+    /* Media library search */
+    [class*="MediaLibrary"] input,
+    [role="dialog"] input[type="text"],
+    [role="dialog"] input[type="search"] {
+      background-color: #080A0E !important;
+      color: #E8C98A !important;
+      opacity: 1 !important;
+    }
+    /* Media library file names */
+    [class*="MediaLibrary"] span,
+    [class*="MediaLibrary"] p,
+    [role="dialog"] span,
+    [role="dialog"] p {
+      color: rgba(201,169,110,.6) !important;
+      opacity: 1 !important;
+    }
+    /* Upload drop zone */
+    [class*="dropzone"], [class*="DropZone"], [class*="Dropzone"],
+    [class*="FileUpload"], [class*="fileUpload"] {
+      background-color: #0A0D12 !important;
+      border: 2px dashed rgba(201,169,110,.15) !important;
+      opacity: 1 !important;
+    }
+    [class*="dropzone"]:hover, [class*="DropZone"]:hover {
+      border-color: rgba(201,169,110,.3) !important;
+    }
+    /* Image preview in modal */
+    [role="dialog"] img, [class*="MediaLibrary"] img {
+      opacity: 1 !important;
+      border-radius: 4px;
+    }
+
+    /* ═══ TOASTS/NOTIFICATIONS ═══ */
     [class*="oast"], [class*="otification"] { background-color: #151A22 !important; color: #E8C98A !important; }
+
+    /* ═══ LOGIN ═══ */
     [class*="ogin"] { background-color: #0D0F12 !important; }
     [class*="oginButton"] button { background-color: rgba(201,169,110,.08) !important; border: 1px solid rgba(201,169,110,.2) !important; color: #E8C98A !important; }
+
+    /* ═══ SCROLLBAR ═══ */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #0D0F12; }
     ::-webkit-scrollbar-thumb { background: rgba(201,169,110,.1); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,.2); }
+
+    /* ═══ SVG / IMAGES ═══ */
     svg { fill: currentColor !important; color: inherit !important; }
     svg path { fill: inherit !important; }
     img { border-radius: 4px; }
+
+    /* ═══ CMS THEME TOGGLE ═══ */
     #cms-theme-toggle {
       position: fixed; bottom: 16px; right: 16px; z-index: 99999;
       width: 36px; height: 36px; border-radius: 50%;
@@ -94,27 +194,7 @@
   <button id="cms-theme-toggle" title="Theme CMS jour/nuit">☽</button>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   <script>
-    /* ═══ 15. LIVE PREVIEW TEMPLATE ═══ */
-    CMS.registerPreviewStyle('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;1,400&display=swap');
-    CMS.registerPreviewStyle(
-      "body{background:#03050A;color:rgba(201,169,110,.6);font-family:'Merriweather',Georgia,serif;padding:0;margin:0}" +
-      ".pv{max-width:600px;margin:0 auto;padding:40px 24px}" +
-      ".pv-tag{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#A8884E;text-align:center}" +
-      ".pv-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#E8C98A;text-align:center;margin:12px 0;font-weight:400}" +
-      ".pv-meta{font-size:12px;color:#A8884E;text-align:center;margin-bottom:24px}" +
-      ".pv-sep{width:60px;height:1px;background:#C9A96E;margin:20px auto}" +
-      ".pv-body{font-size:16px;line-height:2;color:rgba(201,169,110,.6);white-space:pre-wrap}" +
-      ".pv-body p{margin-bottom:1em}" +
-      ".pv-fin{text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#A8884E;margin:32px 0;font-size:16px}" +
-      ".pv-author{text-align:center;font-size:12px;color:#A8884E;margin-top:8px}",
-      {raw: true}
-    );
-
-    /* Preview styles are registered for visual consistency in editor.
-       Note: Decap CMS file-based collections with nested lists don't support
-       registerPreviewTemplate with widgetFor — preview shows raw data only. */
-
-    /* ═══ CMS THEME TOGGLE ═══ */
+    /* ═══ THEME TOGGLE ═══ */
     (function(){
       var btn = document.getElementById('cms-theme-toggle');
       var sheet = document.getElementById('cms-dark-theme');
@@ -141,7 +221,7 @@
         apply(next);
       });
 
-      /* ═══ 16. WORD COUNTER ═══ */
+      /* ═══ WORD COUNTER ═══ */
       setInterval(function(){
         document.querySelectorAll('[data-slate-editor="true"], textarea').forEach(function(ed){
           if(ed._wcDone) return;
@@ -167,6 +247,23 @@
           ed._wcDone = true;
         });
       }, 2000);
+
+      /* ═══ MEDIA LIBRARY OPACITY ENFORCER ═══ */
+      var mediaObserver = new MutationObserver(function(mutations){
+        mutations.forEach(function(m){
+          m.addedNodes.forEach(function(node){
+            if(node.nodeType === 1){
+              /* Force opacity on any new dialog/modal */
+              if(node.getAttribute('role') === 'dialog' || node.getAttribute('aria-modal') === 'true' ||
+                 (node.className && (node.className.toString().indexOf('Modal') !== -1 || node.className.toString().indexOf('modal') !== -1))){
+                node.style.opacity = '1';
+                node.querySelectorAll('*').forEach(function(el){ el.style.opacity = '1'; });
+              }
+            }
+          });
+        });
+      });
+      mediaObserver.observe(document.body, { childList: true, subtree: true });
     })();
   </script>
 </body>
