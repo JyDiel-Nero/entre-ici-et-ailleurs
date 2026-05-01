@@ -11,7 +11,7 @@ locale: "fr"
 
 collections:
   - name: "articles"
-    label: "⏳ Heures — Articles & Poèmes"
+    label: "⏳ Publications"
     files:
       - file: "data/posts.json"
         name: "tous_les_articles"
