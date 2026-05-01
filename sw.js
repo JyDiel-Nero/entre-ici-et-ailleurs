@@ -1,28 +1,15 @@
 /* ════════════════════════════════════════════════════════════════
-   EIA Service Worker — Cache poems for offline reading
+   JyDiel In-Time — Service Worker v4
+   Network-first, SPA routing, auto-purge old caches
    ════════════════════════════════════════════════════════════════ */
-var CACHE_NAME = 'eia-v3';
-var STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/data/posts.json',
-  '/data/settings.json',
-  '/data/gallery.json',
-  '/data/audio.json',
-  '/manifest.json'
-];
+var CACHE_NAME = 'jit-v4';
 
-/* Install — cache static assets */
+/* Install — skip waiting immediately */
 self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
   self.skipWaiting();
 });
 
-/* Activate — clean old caches */
+/* Activate — delete ALL old caches */
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(names) {
@@ -35,38 +22,37 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
-/* Fetch — network first, fall back to cache */
+/* Fetch — network first, SPA routing */
 self.addEventListener('fetch', function(event) {
   var url = new URL(event.request.url);
 
-  /* Skip non-GET and API/function calls */
+  /* Skip non-GET, API, admin */
   if (event.request.method !== 'GET') return;
   if (url.pathname.startsWith('/api/')) return;
-  
-  if (url.pathname.startsWith('/functions/')) return;
   if (url.pathname.startsWith('/admin')) return;
 
-  /* SPA: serve index.html for navigation routes */
+  /* SPA routes → serve /index.html */
   var spaRoutes = ['/heures','/secondes','/un-instant','/entretemps','/minutes','/saisons','/confidentialite','/blog','/univers','/apropos','/contact','/audio','/oeuvres'];
   var isSpaRoute = spaRoutes.indexOf(url.pathname.replace(/\/+$/,'')) !== -1 || url.pathname.startsWith('/article/') || url.pathname.startsWith('/custom-');
 
+  var fetchReq = isSpaRoute ? new Request('/index.html') : event.request;
+
   event.respondWith(
-    fetch(isSpaRoute ? new Request('/index.html') : event.request).then(function(response) {
-      /* Cache successful responses */
+    fetch(fetchReq).then(function(response) {
       if (response.ok) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(event.request, clone);
+          cache.put(isSpaRoute ? '/index.html' : event.request, clone);
         });
       }
       return response;
     }).catch(function() {
-      /* Offline — try cache */
+      /* Offline — serve from cache */
+      if (isSpaRoute) {
+        return caches.match('/index.html');
+      }
       return caches.match(event.request).then(function(cached) {
-        return cached || new Response('Hors ligne — rechargez quand vous aurez une connexion.', {
-          status: 503,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
+        return cached || new Response('Hors ligne', {status: 503, headers: {'Content-Type':'text/plain;charset=utf-8'}});
       });
     })
   );
