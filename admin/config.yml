@@ -173,27 +173,35 @@ collections:
           - { name: subtitle_blog, widget: string, label: "Sous-titre : Heures", default: "Entre ici et ailleurs", required: false }
           - { name: route_blog, widget: string, label: "URL : Heures", default: "heures" }
           - { name: show_blog, widget: boolean, label: "✅ Afficher Heures (articles)", default: true }
+          - { name: cover_blog, widget: image, label: "🖼 Couverture Heures", required: false, media_folder: "/images", choose_url: true }
           - { name: default_sort, widget: select, label: "Tri par défaut (Heures)", default: "pub-newest", options: [{ label: "Publiés récemment", value: "pub-newest" }, { label: "Publiés anciennement", value: "pub-oldest" }, { label: "Écrits récemment", value: "written-newest" }, { label: "Écrits anciennement", value: "written-oldest" }, { label: "A → Z", value: "alpha" }, { label: "Z → A", value: "alpha-rev" }] }
           - { name: name_audio, widget: string, label: "Nom : Minutes", default: "Minutes" }
           - { name: subtitle_audio, widget: string, label: "Sous-titre : Minutes", default: "Écouter", required: false }
           - { name: route_audio, widget: string, label: "URL : Minutes", default: "minutes" }
           - { name: show_audio, widget: boolean, label: "✅ Afficher Minutes (audio)", default: true }
+          - { name: cover_audio, widget: image, label: "🖼 Couverture Minutes", required: false, media_folder: "/images", choose_url: true }
+          - { name: banner_audio_bg, widget: image, label: "Image bandeau Minutes (hero)", required: false, media_folder: "/images", choose_url: true }
           - { name: name_univers, widget: string, label: "Nom : Secondes", default: "Secondes" }
           - { name: subtitle_univers, widget: string, label: "Sous-titre : Secondes", default: "Voir", required: false }
           - { name: route_univers, widget: string, label: "URL : Secondes", default: "secondes" }
           - { name: show_univers, widget: boolean, label: "✅ Afficher Secondes (images)", default: true }
+          - { name: cover_univers, widget: image, label: "🖼 Couverture Secondes", required: false, media_folder: "/images", choose_url: true }
           - { name: name_oeuvres, widget: string, label: "Nom : Saisons", default: "Saisons" }
           - { name: subtitle_oeuvres, widget: string, label: "Sous-titre : Saisons", default: "Cœur Assaisonné", required: false }
           - { name: route_oeuvres, widget: string, label: "URL : Saisons", default: "saisons" }
           - { name: show_oeuvres, widget: boolean, label: "✅ Afficher Saisons (œuvres)", default: false }
+          - { name: cover_oeuvres, widget: image, label: "🖼 Couverture Saisons", required: false, media_folder: "/images", choose_url: true }
+          - { name: banner_oeuvres_bg, widget: image, label: "Image bandeau Saisons (hero)", required: false, media_folder: "/images", choose_url: true }
           - { name: name_apropos, widget: string, label: "Nom : Un instant", default: "Un instant" }
           - { name: subtitle_apropos, widget: string, label: "Sous-titre : Un instant", default: "Qui est JyD ?", required: false }
           - { name: route_apropos, widget: string, label: "URL : Un instant", default: "un-instant" }
           - { name: show_apropos, widget: boolean, label: "✅ Afficher Un instant (à propos)", default: true }
+          - { name: cover_apropos, widget: image, label: "🖼 Couverture Un instant", required: false, media_folder: "/images", choose_url: true }
           - { name: name_contact, widget: string, label: "Nom : Entretemps", default: "Entretemps" }
           - { name: subtitle_contact, widget: string, label: "Sous-titre : Entretemps", default: "Et ensuite ?", required: false }
           - { name: route_contact, widget: string, label: "URL : Entretemps", default: "entretemps" }
           - { name: show_contact, widget: boolean, label: "✅ Afficher Entretemps (contact)", default: true }
+          - { name: cover_contact, widget: image, label: "🖼 Couverture Entretemps", required: false, media_folder: "/images", choose_url: true }
           - { name: home_label_latest, widget: string, label: "Cadran — label dernier texte", default: "DERNIER TEXTE", required: false }
           - { name: home_label_recent, widget: string, label: "Cadran — label textes récents", default: "TEXTES RÉCENTS", required: false }
           - { name: home_label_gallery, widget: string, label: "Cadran — label galerie", default: "SECONDES", required: false }
