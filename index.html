@@ -1264,7 +1264,7 @@ async function loadData(){
       GALLERY = gRes.items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
     }
     var sRes = await fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null});
-    if(sRes && sRes.tagline) SETTINGS = sRes;
+    if(sRes) SETTINGS = sRes;
     var aRes = await fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null});
     if(aRes && aRes.tracks) AUDIO = aRes.tracks;
     /* New split config files */
