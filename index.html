@@ -672,7 +672,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 </script>
 <link rel="canonical" href="https://jydielintime.com">
 </head>
-<body>
+<body style="opacity:0;transition:opacity .3s">
 <a href="#main-content" style="position:absolute;top:-100px;left:0;background:var(--gold);color:var(--deep);padding:8px 16px;z-index:99999;font-size:13px;transition:top .2s" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Aller au contenu</a>
 
 <!-- ════════════════════════════════════════════════════════════════
@@ -1271,32 +1271,44 @@ async function loadData(){
   AUDIO = [];
   OEUVRES = [];
   CUSTOM_SECTIONS = [];
-  renderAll();
 
+  /* Fetch config files FIRST (tiny, ~1KB each) to avoid lag */
   try{
     var cb = '?v=' + Math.floor(Date.now()/300000);
-    var pRes = await fetch('data/posts.json' + cb).then(function(r){return r.ok?r.json():null});
+    var [sRes, scRes, tcRes, thRes] = await Promise.all([
+      fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/sections-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/theme-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null})
+    ]);
+    if(sRes) SETTINGS = sRes;
+    if(scRes) Object.assign(SECTIONS_CONFIG, scRes);
+    if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
+    if(thRes) THEME = thRes;
+  }catch(e){}
+
+  /* First render — with correct CMS config, correct routes, no lag */
+  renderAll();
+  document.body.style.opacity = '1';
+
+  /* Then fetch content data in background */
+  try{
+    var cb = '?v=' + Math.floor(Date.now()/300000);
+    var [pRes, gRes, aRes, oRes, csRes] = await Promise.all([
+      fetch('data/posts.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/gallery.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/oeuvres.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
+      fetch('data/custom-sections.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null})
+    ]);
     if(pRes && pRes.posts && pRes.posts.length){
       POSTS = sortPosts(pRes.posts.filter(function(p){return p.published!==false}));
     }
-    var gRes = await fetch('data/gallery.json' + cb).then(function(r){return r.ok?r.json():null});
     if(gRes && gRes.items && gRes.items.length){
       GALLERY = gRes.items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
     }
-    var sRes = await fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null});
-    if(sRes) SETTINGS = sRes;
-    var aRes = await fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null});
     if(aRes && aRes.tracks) AUDIO = aRes.tracks;
-    /* New split config files */
-    var scRes = await fetch('data/sections-config.json' + cb).then(function(r){return r.ok?r.json():null});
-    if(scRes) Object.assign(SECTIONS_CONFIG, scRes);
-    var tcRes = await fetch('data/theme-config.json' + cb).then(function(r){return r.ok?r.json():null});
-    if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
-    var thRes = await fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null});
-    if(thRes) THEME = thRes;
-    var oRes = await fetch('data/oeuvres.json' + cb).then(function(r){return r.ok?r.json():null});
     if(oRes && oRes.oeuvres) OEUVRES = oRes.oeuvres;
-    var csRes = await fetch('data/custom-sections.json' + cb).then(function(r){return r.ok?r.json():null});
     if(csRes && csRes.sections) CUSTOM_SECTIONS = csRes.sections;
     renderAll();
   }catch(e){}
