@@ -1294,36 +1294,28 @@ async function loadData(){
   OEUVRES = [];
   CUSTOM_SECTIONS = [];
 
-  /* Fetch config files FIRST (tiny, ~1KB each) to avoid lag */
+  /* Render IMMEDIATELY with embedded data — zero lag */
+  renderAll();
+  var ir = document.getElementById('instant-route'); if(ir) ir.remove();
+
+  /* Then fetch ALL data in background and update */
   try{
     var cb = '?v=' + Math.floor(Date.now()/300000);
-    var [sRes, scRes, tcRes, thRes] = await Promise.all([
+    var [sRes, scRes, tcRes, thRes, pRes, gRes, aRes, oRes, csRes] = await Promise.all([
       fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/sections-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/theme-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null})
-    ]);
-    if(sRes) SETTINGS = sRes;
-    if(scRes) Object.assign(SECTIONS_CONFIG, scRes);
-    if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
-    if(thRes) THEME = thRes;
-  }catch(e){}
-
-  /* First render — with correct CMS config, correct routes, no lag */
-  renderAll();
-  /* Remove instant-route CSS once JS takes over */
-  var ir = document.getElementById('instant-route'); if(ir) ir.remove();
-
-  /* Then fetch content data in background */
-  try{
-    var cb = '?v=' + Math.floor(Date.now()/300000);
-    var [pRes, gRes, aRes, oRes, csRes] = await Promise.all([
+      fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/posts.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/gallery.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/oeuvres.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
       fetch('data/custom-sections.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null})
     ]);
+    if(sRes) SETTINGS = sRes;
+    if(scRes) Object.assign(SECTIONS_CONFIG, scRes);
+    if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
+    if(thRes) THEME = thRes;
     if(pRes && pRes.posts && pRes.posts.length){
       POSTS = sortPosts(pRes.posts.filter(function(p){return p.published!==false}));
     }
