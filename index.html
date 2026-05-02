@@ -671,8 +671,30 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 {"@context":"https://schema.org","@type":"WebSite","name":"JyDiel In-Time","url":"https://jydielintime.com","description":"Poésie, prière et méditation par J.Y.D. — Entre ici et ailleurs.","author":{"@type":"Person","name":"NAM Johnny Yao Daniel-Marie"},"publisher":{"@type":"Organization","name":"JyDiel In-Time"}}
 </script>
 <link rel="canonical" href="https://jydielintime.com">
+<script>
+/* Route instantanée — s'exécute AVANT le rendu du body */
+(function(){
+  var p = location.pathname.replace(/\/+$/, '') || '/';
+  var map = {
+    '/heures':'v-blog','/minutes':'v-audio','/secondes':'v-univers',
+    '/saisons':'v-oeuvres','/un-instant':'v-apropos','/entretemps':'v-contact',
+    '/blog':'v-blog','/audio':'v-audio','/univers':'v-univers',
+    '/oeuvres':'v-oeuvres','/apropos':'v-apropos','/contact':'v-contact',
+    '/confidentialite':'v-confidentialite'
+  };
+  var viewId = map[p];
+  if(p.startsWith('/article/')) viewId = 'v-article';
+  /* Inject CSS to show only the right view immediately */
+  if(viewId){
+    var s = document.createElement('style');
+    s.id = 'instant-route';
+    s.textContent = '.view{display:none!important}#'+viewId+'{display:block!important}';
+    document.head.appendChild(s);
+  }
+})();
+</script>
 </head>
-<body style="opacity:0;transition:opacity .3s">
+<body>
 <a href="#main-content" style="position:absolute;top:-100px;left:0;background:var(--gold);color:var(--deep);padding:8px 16px;z-index:99999;font-size:13px;transition:top .2s" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Aller au contenu</a>
 
 <!-- ════════════════════════════════════════════════════════════════
@@ -1289,7 +1311,8 @@ async function loadData(){
 
   /* First render — with correct CMS config, correct routes, no lag */
   renderAll();
-  document.body.style.opacity = '1';
+  /* Remove instant-route CSS once JS takes over */
+  var ir = document.getElementById('instant-route'); if(ir) ir.remove();
 
   /* Then fetch content data in background */
   try{
