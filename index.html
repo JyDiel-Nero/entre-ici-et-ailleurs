@@ -3093,13 +3093,16 @@ document.addEventListener('DOMContentLoaded', function(){
     fetch(API_BASE+'/like-post', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({slug:'views:'+slug, action:'view'})}).catch(function(){});
   }
 
-  /* PWA Service Worker — force update on new version */
+  /* Purge all Service Workers and caches — Cloudflare CDN handles caching */
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations().then(function(regs){
       regs.forEach(function(reg){ reg.unregister(); });
-    }).then(function(){
-      navigator.serviceWorker.register('/sw.js').catch(function(){});
     });
+    if(window.caches){
+      caches.keys().then(function(names){
+        names.forEach(function(name){ caches.delete(name); });
+      });
+    }
   }
 
   initNavbar();
