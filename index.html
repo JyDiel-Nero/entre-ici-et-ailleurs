@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Entre ici et ailleurs — Poésie, prière & méditation</title>
+<title>JyDiel In-Time — Entre ici et ailleurs · Poésie, prière & méditation</title>
 <meta name="description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
 <meta name="theme-color" content="#03050A">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Entre ici et ailleurs — Poésie, prière & méditation">
+<meta property="og:title" content="JyDiel In-Time — Entre ici et ailleurs · Poésie, prière & méditation">
 <meta property="og:description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
-<meta property="og:image" content="https://entre-ici-et-ailleurs.pages.dev/images/clock.jpg">
-<meta property="og:url" content="https://entre-ici-et-ailleurs.pages.dev">
+<meta property="og:image" content="https://jydielintime.com/images/clock.jpg">
+<meta property="og:url" content="https://jydielintime.com">
 <meta property="og:site_name" content="Entre ici et ailleurs">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Entre ici et ailleurs">
-<meta name="twitter:description" content="Poésie, prière & méditation par J.Y.D.">
-<meta name="twitter:image" content="https://entre-ici-et-ailleurs.pages.dev/images/clock.jpg">
+<meta name="twitter:title" content="JyDiel In-Time — Entre ici et ailleurs">
+<meta name="twitter:description" content="Poésie, prière & méditation par J.Y.D. — Osons voir un morceau d'éternité">
+<meta name="twitter:image" content="https://jydielintime.com/images/clock.jpg">
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -767,8 +767,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 
   
   <!-- BANDEAU ŒUVRES (visible si section active) -->
-  <section class="s-deep" id="heroBannerOeuvres" style="display:none;padding:50px 0;cursor:pointer" onclick="showView('oeuvres')">
-    <div class="wrap tac rv">
+  <section class="s-deep" id="heroBannerOeuvres" style="display:none;padding:50px 0;cursor:pointer;position:relative;overflow:hidden" onclick="showView('oeuvres')">
+    <div id="heroBannerOeuvresBg" style="position:absolute;inset:0;opacity:.2;z-index:0"></div>
+    <div class="wrap tac rv" style="position:relative;z-index:1">
       <p class="t-label" style="letter-spacing:.2em">📚</p>
       <h3 style="font-family:var(--ff-t);font-size:clamp(22px,4vw,30px);color:var(--g2);margin:8px 0;font-weight:400;font-style:italic" id="heroBannerOeuvresTitle">Saisons</h3>
       <p style="font-size:13px;color:var(--txt);max-width:500px;margin:0 auto">Recueils, albums et tableaux — les fruits d'une création entre ici et ailleurs.</p>
@@ -777,8 +778,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   </section>
 
   <!-- BANDEAU AUDIO (visible si section active) -->
-  <section class="s-ink" id="heroBannerAudio" style="display:none;padding:50px 0;cursor:pointer" onclick="showView('audio')">
-    <div class="wrap tac rv">
+  <section class="s-ink" id="heroBannerAudio" style="display:none;padding:50px 0;cursor:pointer;position:relative;overflow:hidden" onclick="showView('audio')">
+    <div id="heroBannerAudioBg" style="position:absolute;inset:0;opacity:.2;z-index:0"></div>
+    <div class="wrap tac rv" style="position:relative;z-index:1">
       <p class="t-label" style="letter-spacing:.2em">🎵</p>
       <h3 style="font-family:var(--ff-t);font-size:clamp(22px,4vw,30px);color:var(--g2);margin:8px 0;font-weight:400;font-style:italic" id="heroBannerAudioTitle">Minutes</h3>
       <p style="font-size:13px;color:var(--txt);max-width:500px;margin:0 auto">Poèmes lus, enregistrements et créations sonores — des mots qui prennent vie.</p>
@@ -826,7 +828,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 2 — HEURES
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-blog">
-  <section class="s-deep" style="padding:0">
+  <section class="s-deep" style="padding:0;position:relative">
     <div style="width:100%;height:280px;overflow:hidden;position:relative;margin-top:60px">
       <img src="/images/content/23d6a2ddf8ff_700w.jpg" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.5" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'">
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--deep) 100%)"></div>
@@ -865,7 +867,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 3 — SECONDES
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-univers">
-  <section class="ph s-deep">
+  <section class="ph s-deep" style="position:relative;overflow:hidden">
+    <div id="coverUnivers" class="section-cover-bg"></div>
     <div class="wrap tac">
       <p class="t-label rv" id="sectionSubUnivers">VOIR</p>
       <h2 class="t-title xl rv d1" style="margin-top:12px">Secondes</h2>
@@ -883,7 +886,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 4 — UN INSTANT
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-apropos">
-  <section class="ph s-deep">
+  <section class="ph s-deep" style="position:relative;overflow:hidden">
+    <div id="coverApropos" class="section-cover-bg"></div>
     <div class="wrap tac">
       <p class="t-label rv" id="sectionSubApropos">UN INSTANT</p>
       <h2 class="t-title xl rv d1" style="margin-top:12px">Je suis Daniel,</h2>
@@ -923,7 +927,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 5b — MINUTES
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-audio">
-  <section class="ph s-deep">
+  <section class="ph s-deep" style="position:relative;overflow:hidden">
+    <div id="coverAudio" class="section-cover-bg"></div>
     <div class="wrap tac">
       <p class="t-label rv" id="sectionSubAudio">ÉCOUTER</p>
       <h2 class="t-title xl rv d1" style="margin-top:12px">Minutes</h2>
@@ -941,7 +946,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 5c — SAISONS
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-oeuvres">
-  <section class="ph s-deep">
+  <section class="ph s-deep" style="position:relative;overflow:hidden">
+    <div id="coverOeuvres" class="section-cover-bg"></div>
     <div class="wrap tac">
       <p class="t-label rv" id="sectionSubOeuvres">CŒUR ASSAISONNÉ</p>
       <h2 class="t-title xl rv d1" style="margin-top:12px" id="oeuvresTitle">Saisons</h2>
@@ -965,7 +971,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
      VUE 5 — ENTRETEMPS
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-contact">
-  <section class="ph s-deep">
+  <section class="ph s-deep" style="position:relative;overflow:hidden">
+    <div id="coverContact" class="section-cover-bg"></div>
     <div class="wrap tac">
       <p class="t-label rv" id="contactLabel">ENTRETEMPS</p>
       <h2 class="t-title xl rv d1" style="margin-top:12px" id="contactTitle">Et ensuite ?</h2>
@@ -1042,7 +1049,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       <div id="quickLinks" style="margin-top:40px;padding-top:30px;border-top:1px solid rgba(201,169,110,.06);text-align:center">
         <p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--g3);margin-bottom:16px">Et ensuite :</p>
         <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
-          <a href="https://coeur-assaisonne.pages.dev" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;font-family:var(--ff-t);font-style:italic;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">Cœur Assaisonné</a>
+          <a href="https://links.jydielintime.com" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;font-family:var(--ff-t);font-style:italic;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">Cœur Assaisonné</a>
           <a id="qlInstagram" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">Instagram</a>
           <a id="qlTiktok" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">TikTok</a>
         </div>
@@ -1314,9 +1321,9 @@ function showView(name, slug){
   var path = '/';
   var title = 'Entre ici et ailleurs';
   if(name==='accueil'){ path='/'; }
-  else if(name==='article' && slug){ path='/article/'+slug; title=slug+' — EIA'; }
-  else if(name.startsWith('custom-')){ path='/'+name; title=name.replace('custom-','').replace(/-/g,' ')+' — EIA'; }
-  else { path='/'+(routeMap[name]||name); title=(routeMap[name]||name).charAt(0).toUpperCase()+(routeMap[name]||name).slice(1)+' — EIA'; }
+  else if(name==='article' && slug){ path='/article/'+slug; title=slug+' — JyDiel In-Time'; }
+  else if(name.startsWith('custom-')){ path='/'+name; title=name.replace('custom-','').replace(/-/g,' ')+' — JyDiel In-Time'; }
+  else { path='/'+(routeMap[name]||name); title=(routeMap[name]||name).charAt(0).toUpperCase()+(routeMap[name]||name).slice(1)+' — JyDiel In-Time'; }
   if(window.history && window.history.pushState){
     try{ window.history.pushState({view:name,slug:slug||null}, title, path); }catch(e){}
   }
@@ -2447,6 +2454,39 @@ function applySectionVisibility(){
   if(bOTitle) bOTitle.textContent = names.oeuvres;
   var bATitle = document.getElementById('heroBannerAudioTitle');
   if(bATitle) bATitle.textContent = names.audio;
+  /* Banner images from CMS */
+  function applyBannerBg(id, url){
+    var el = document.getElementById(id);
+    if(el && url && url.trim()){
+      var u = url.trim();
+      if(!u.startsWith('/') && !u.startsWith('http') && !u.startsWith('data:')) u = '/'+u;
+      el.style.background = 'url('+u+') center/cover no-repeat';
+    }
+  }
+  applyBannerBg('heroBannerOeuvresBg', SC.banner_oeuvres_bg);
+  applyBannerBg('heroBannerAudioBg', SC.banner_audio_bg);
+
+  /* Section cover images from CMS */
+  var covers = {
+    coverBlog: SC.cover_blog,
+    coverUnivers: SC.cover_univers,
+    coverAudio: SC.cover_audio,
+    coverOeuvres: SC.cover_oeuvres,
+    coverApropos: SC.cover_apropos,
+    coverContact: SC.cover_contact
+  };
+  for(var cid in covers){
+    applyBannerBg(cid, covers[cid]);
+  }
+  /* Blog cover image from CMS */
+  if(SC.cover_blog && SC.cover_blog.trim()){
+    var blogCoverImg = document.querySelector('#v-blog img[alt=""]');
+    if(blogCoverImg){
+      var u = SC.cover_blog.trim();
+      if(!u.startsWith('/') && !u.startsWith('http')) u = '/'+u;
+      blogCoverImg.src = u;
+    }
+  }
   if(heroTitle && SETTINGS.hero_title) heroTitle.textContent = SETTINGS.hero_title;
   var heroSub = document.getElementById('heroSubtitle');
   if(heroSub && SETTINGS.hero_subtitle) heroSub.textContent = SETTINGS.hero_subtitle;
@@ -2456,12 +2496,14 @@ function applySectionVisibility(){
   /* Dynamic backgrounds */
   if(SETTINGS.hero_bg){
     var heroBgEl = document.querySelector('.hero-bg');
-    if(heroBgEl) heroBgEl.style.background = 'url('+SETTINGS.hero_bg+') center/cover no-repeat';
+    var hbg = SETTINGS.hero_bg; if(hbg && !hbg.startsWith('/') && !hbg.startsWith('http') && !hbg.startsWith('data:')) hbg = '/'+hbg;
+    if(heroBgEl) heroBgEl.style.background = 'url('+hbg+') center/cover no-repeat';
   }
   /* Manifeste background — CMS field, or fallback to hero */
   var manBgEl = document.getElementById('manifesteBg');
   if(manBgEl){
     var manImg = (SETTINGS.manifeste_bg && SETTINGS.manifeste_bg.trim()) ? SETTINGS.manifeste_bg.trim() : ((SETTINGS.hero_bg && SETTINGS.hero_bg.trim()) ? SETTINGS.hero_bg.trim() : '');
+    if(manImg && !manImg.startsWith('/') && !manImg.startsWith('http') && !manImg.startsWith('data:')) manImg = '/'+manImg;
     if(manImg){
       console.log('[JIT] Manifeste bg:', manImg);
       manBgEl.style.cssText = 'position:absolute;inset:0;z-index:0;opacity:.35;background:url('+manImg+') center/cover no-repeat';
