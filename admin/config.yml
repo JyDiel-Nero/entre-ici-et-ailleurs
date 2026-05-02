@@ -7,10 +7,6 @@ backend:
 
 media_folder: "images"
 public_folder: "/images"
-media_library:
-  name: "uploadcare"
-  config:
-    multiple: false
 locale: "fr"
 
 collections:
