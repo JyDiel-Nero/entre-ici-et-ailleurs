@@ -1,23 +1,16 @@
 {
-  "route_audio": "minutes",
-  "name_audio": "Minutes",
-  "show_blog": true,
-  "show_apropos": true,
-  "oeuvres_per_page": "12",
-  "show_oeuvres": false,
-  "route_contact": "entretemps",
-  "route_univers": "secondes",
-  "name_univers": "Secondes",
-  "name_contact": "Entretemps",
-  "blog_per_page": "6",
-  "show_rss": true,
-  "route_apropos": "un-instant",
-  "route_oeuvres": "saisons",
-  "show_audio": false,
-  "name_apropos": "Un instant",
-  "name_oeuvres": "Saisons",
   "name_blog": "Heures",
-  "route_blog": "heures",
+  "show_blog": true,
+  "name_oeuvres": "Saisons",
+  "show_oeuvres": false,
+  "name_univers": "Secondes",
+  "show_univers": true,
+  "name_audio": "Minutes",
+  "show_audio": true,
+  "name_apropos": "Un instant",
+  "show_apropos": true,
+  "name_contact": "Entretemps",
+  "show_contact": true,
   "blog_categories": [
     {
       "name": "MÉDITATION"
@@ -35,9 +28,15 @@
       "name": "RÉCIT"
     }
   ],
+  "blog_per_page": "6",
+  "oeuvres_per_page": "12",
   "audio_per_page": "12",
   "univers_shuffle": false,
-  "default_sort": "pub-newest",
-  "show_contact": true,
-  "show_univers": true
+  "route_blog": "heures",
+  "route_oeuvres": "saisons",
+  "route_univers": "secondes",
+  "route_audio": "minutes",
+  "route_apropos": "un-instant",
+  "route_contact": "entretemps",
+  "show_rss": true
 }
