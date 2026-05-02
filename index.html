@@ -1257,39 +1257,34 @@ var CUSTOM_SECTIONS = [];
    LOAD DATA (embedded first, then try fetch for updates)
    ════════════════════════════════════════════════════════════════ */
 async function loadData(){
-  SETTINGS = {};
-  POSTS = [];
-  GALLERY = [];
-  AUDIO = [];
-  OEUVRES = [];
-  CUSTOM_SECTIONS = [];
-
-  /* Fetch ALL data in one parallel batch */
+  /* Fetch ALL data in one parallel batch — absolute paths */
   try{
     var cb = '?v=' + Math.floor(Date.now()/300000);
-    var [sRes, scRes, tcRes, thRes, pRes, gRes, aRes, oRes, csRes] = await Promise.all([
-      fetch('data/settings.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/sections-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/theme-config.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/theme.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/posts.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/gallery.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/audio.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/oeuvres.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null}),
-      fetch('data/custom-sections.json' + cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null})
-    ]);
-    if(sRes) SETTINGS = sRes;
-    if(scRes) Object.assign(SECTIONS_CONFIG, scRes);
-    if(tcRes) Object.assign(SECTIONS_CONFIG, tcRes);
-    if(thRes) THEME = thRes;
-    if(pRes && pRes.posts) POSTS = sortPosts(pRes.posts.filter(function(p){return p.published!==false}));
-    if(gRes && gRes.items) GALLERY = gRes.items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
-    if(aRes && aRes.tracks) AUDIO = aRes.tracks;
-    if(oRes && oRes.oeuvres) OEUVRES = oRes.oeuvres;
-    if(csRes && csRes.sections) CUSTOM_SECTIONS = csRes.sections;
-  }catch(e){}
+    var r0 = fetch('/data/settings.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r1 = fetch('/data/sections-config.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r2 = fetch('/data/theme-config.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r3 = fetch('/data/theme.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r4 = fetch('/data/posts.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r5 = fetch('/data/gallery.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r6 = fetch('/data/audio.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r7 = fetch('/data/oeuvres.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var r8 = fetch('/data/custom-sections.json'+cb).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+    var all = await Promise.all([r0,r1,r2,r3,r4,r5,r6,r7,r8]);
 
-  /* Single render with ALL fresh data */
+    if(all[0]) SETTINGS = all[0];
+    if(all[1]) Object.assign(SECTIONS_CONFIG, all[1]);
+    if(all[2]) Object.assign(SECTIONS_CONFIG, all[2]);
+    if(all[3]) THEME = all[3];
+    if(all[4] && all[4].posts) POSTS = sortPosts(all[4].posts.filter(function(p){return p.published!==false}));
+    if(all[5] && all[5].items) GALLERY = all[5].items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
+    if(all[6] && all[6].tracks) AUDIO = all[6].tracks;
+    if(all[7] && all[7].oeuvres) OEUVRES = all[7].oeuvres;
+    if(all[8] && all[8].sections) CUSTOM_SECTIONS = all[8].sections;
+  }catch(e){
+    console.warn('[JIT] Data fetch error:', e);
+  }
+
+  /* Single render with fresh data */
   renderAll();
   var ir = document.getElementById('instant-route'); if(ir) ir.remove();
   document.body.style.opacity = '1';
