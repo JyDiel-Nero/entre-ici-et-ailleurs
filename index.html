@@ -410,7 +410,14 @@ img{image-rendering:auto}
 .audio-card:hover{border-color:rgba(201,169,110,.2)}
 audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
 audio{border-radius:4px;max-width:100%}
-.audio-card iframe{border-radius:4px}
+.audio-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.audio-card{background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);border-radius:4px;overflow:hidden;transition:border-color .3s}
+.audio-card:hover{border-color:rgba(201,169,110,.2)}
+.audio-card iframe{border-radius:0}
+.audio-card .ac-cover{width:100%;aspect-ratio:1/1;object-fit:cover;opacity:.85;display:block}
+.audio-card .ac-body{padding:16px}
+.audio-card .ac-yt{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden}
+.audio-card .ac-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 @media(max-width:768px){
   .audio-card{padding:16px!important}
   .audio-card iframe{min-height:180px}
@@ -637,6 +644,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   .nav-hamburger{display:flex}
   .blog-grid{grid-template-columns:1fr}
   .gallery-grid{grid-template-columns:1fr 1fr}
+  .audio-grid{grid-template-columns:repeat(3,1fr)}
   .uv:first-child{grid-row:auto}
   .uv:nth-child(4){grid-column:auto}
   .hero h1{font-size:clamp(30px,8vw,48px)}
@@ -646,6 +654,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 }
 @media(max-width:480px){
   .gallery-grid{grid-template-columns:1fr}
+  .audio-grid{grid-template-columns:repeat(2,1fr)}
   .nav{padding:14px 20px}
 }
 /* Mobile nav theme overrides */
@@ -937,7 +946,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   </section>
   <section class="s-night">
     <div class="wrap">
-      <div id="audioGrid"></div>
+      <div id="audioGrid" class="audio-grid"></div>
     </div>
   </section>
 </div>
@@ -2227,36 +2236,106 @@ function renderAudio(){
     grid.innerHTML = '<div style="text-align:center;padding:60px 20px;font-family:var(--ff-t);font-style:italic;color:var(--g3);font-size:16px">Les enregistrements arrivent bientôt…</div>';
     return;
   }
-  grid.innerHTML = tracks.map(function(a){
-    var mediaHtml = '';
-    /* Audio player */
-    if(a.file){
-      mediaHtml += '<audio controls preload="none" style="width:100%;height:40px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)"><source src="'+esc(a.file)+'" type="audio/mpeg">Votre navigateur ne supporte pas la lecture audio.</audio>';
+
+  /* Group by album */
+  var albums = {};
+  var noAlbum = [];
+  tracks.forEach(function(a){
+    var alb = (a.album || '').trim();
+    if(alb){
+      if(!albums[alb]) albums[alb] = {tracks:[], cover: a.album_cover || '', order: a.album_order || 99};
+      albums[alb].tracks.push(a);
+      if(a.album_cover && !albums[alb].cover) albums[alb].cover = a.album_cover;
+    } else {
+      noAlbum.push(a);
     }
-    /* YouTube embed */
+  });
+
+  /* Sort albums by most recent track (newest first) */
+  var albumNames = Object.keys(albums).sort(function(a,b){
+    var latestA = Math.max.apply(null, albums[a].tracks.map(function(t){ return t.publishDate ? new Date(t.publishDate).getTime() : (t.order || 0); }));
+    var latestB = Math.max.apply(null, albums[b].tracks.map(function(t){ return t.publishDate ? new Date(t.publishDate).getTime() : (t.order || 0); }));
+    return latestB - latestA;
+  });
+  /* Sort tracks within each album: newest first */
+  albumNames.forEach(function(name){
+    albums[name].tracks.sort(function(a,b){
+      var da = a.publishDate ? new Date(a.publishDate).getTime() : (a.order || 0);
+      var db = b.publishDate ? new Date(b.publishDate).getTime() : (b.order || 0);
+      return db - da;
+    });
+  });
+  /* Sort no-album tracks: newest first */
+  noAlbum.sort(function(a,b){
+    var da = a.publishDate ? new Date(a.publishDate).getTime() : (a.order || 0);
+    var db = b.publishDate ? new Date(b.publishDate).getTime() : (b.order || 0);
+    return db - da;
+  });
+
+  var html = '';
+
+  /* Render each album as a sub-section */
+  albumNames.forEach(function(name){
+    var alb = albums[name];
+    var coverUrl = alb.cover || '';
+    if(coverUrl && !coverUrl.startsWith('/') && !coverUrl.startsWith('http')) coverUrl = '/'+coverUrl;
+    html += '<div class="audio-album" style="margin-bottom:40px">';
+    html += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">';
+    if(coverUrl) html += '<img src="'+esc(coverUrl)+'" alt="'+esc(name)+'" style="width:48px;height:48px;border-radius:4px;object-fit:cover" loading="lazy" onerror="this.style.display=\'none\'">';
+    html += '<div><h3 style="font-family:var(--ff-t);font-size:20px;color:var(--g2);font-weight:400;font-style:italic">'+esc(name)+'</h3></div>';
+    html += '</div>';
+    html += '<div class="audio-grid">';
+    html += alb.tracks.map(function(a){ return renderAudioCard(a); }).join('');
+    html += '</div></div>';
+  });
+
+  /* Render tracks without album */
+  if(noAlbum.length){
+    if(albumNames.length) html += '<div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(201,169,110,.06)">';
+    html += '<div class="audio-grid">';
+    html += noAlbum.map(function(a){ return renderAudioCard(a); }).join('');
+    html += '</div>';
+    if(albumNames.length) html += '</div>';
+  }
+
+  grid.innerHTML = html;
+}
+
+function renderAudioCard(a){
+    var topHtml = '';
+    /* YouTube embed (compact, as card header) */
     if(a.youtube){
       var ytId = a.youtube.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
       if(ytId){
-        mediaHtml += '<div style="margin-top:10px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border:1px solid rgba(201,169,110,.1)"><iframe src="https://www.youtube.com/embed/'+ytId[1]+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy" decoding="async"></iframe></div>';
-      } else {
-        mediaHtml += '<a href="'+esc(a.youtube)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:11px;color:var(--gold);letter-spacing:.1em">▶ Écouter sur YouTube</a>';
+        topHtml = '<div class="ac-yt"><iframe src="https://www.youtube.com/embed/'+ytId[1]+'" allowfullscreen loading="lazy"></iframe></div>';
       }
     }
-    /* External links (Instagram, TikTok, etc.) */
+    /* Cover image if no YouTube */
+    if(!topHtml && a.cover){
+      var coverUrl = a.cover; if(coverUrl && !coverUrl.startsWith('/') && !coverUrl.startsWith('http')) coverUrl = '/'+coverUrl;
+      topHtml = '<img class="ac-cover" src="'+esc(coverUrl)+'" alt="'+esc(a.title)+'" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
+    }
+    /* Audio player */
+    var audioHtml = '';
+    if(a.file){
+      audioHtml = '<audio controls preload="none" style="width:100%;height:36px;margin-top:10px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)"><source src="'+esc(a.file)+'" type="audio/mpeg"></audio>';
+    }
+    /* External links */
     var links = '';
-    if(a.instagram) links += '<a href="'+esc(a.instagram)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3);margin-right:16px">Instagram</a>';
-    if(a.tiktok) links += '<a href="'+esc(a.tiktok)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3);margin-right:16px">TikTok</a>';
-    if(a.link) links += '<a href="'+esc(a.link)+'" target="_blank" rel="noopener" style="font-size:11px;color:var(--g3)">'+esc(a.link_label||'Lien')+'</a>';
+    if(a.youtube && !topHtml.indexOf('iframe')!==-1) links += '<a href="'+esc(a.youtube)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--gold);margin-right:10px">YouTube</a>';
+    if(a.instagram) links += '<a href="'+esc(a.instagram)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--g3);margin-right:10px">Instagram</a>';
+    if(a.tiktok) links += '<a href="'+esc(a.tiktok)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--g3);margin-right:10px">TikTok</a>';
+    if(a.link) links += '<a href="'+esc(a.link)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--g3)">'+esc(a.link_label||'Lien')+'</a>';
 
-    return '<div class="audio-card rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);padding:24px;margin-bottom:16px">'+
-      (a.cover ? '<img loading="lazy" decoding="async" src="'+esc(a.cover)+'" alt="'+esc(a.title)+'" style="width:100%;max-height:200px;object-fit:cover;margin-bottom:16px;opacity:.85" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' : '')+
-      '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</p>'+
-      (a.poet ? '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3)">'+esc(a.poet)+'</p>' : '')+
-      (a.description ? '<p style="font-family:var(--ff-b);font-size:13px;color:var(--txt);margin-top:8px;line-height:1.6">'+esc(a.description)+'</p>' : '')+
-      '<div style="margin-top:12px">'+mediaHtml+'</div>'+
-      (links ? '<div style="margin-top:12px">'+links+'</div>' : '')+
-    '</div>';
-  }).join('');
+    return '<div class="audio-card rv">'+
+      topHtml+
+      '<div class="ac-body">'+
+      '<h3 style="font-family:var(--ff-t);font-size:17px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</h3>'+
+      '<p style="font-family:var(--ff-b);font-size:10px;color:var(--g3);margin-bottom:8px">'+esc(a.poet||'J.Y.D.')+'</p>'+
+      (a.description ? '<p style="font-size:12px;color:var(--txt);margin-bottom:8px;line-height:1.5">'+esc(a.description).substring(0,120)+(a.description.length>120?'…':'')+'</p>' : '')+
+      audioHtml+
+      (links ? '<div style="margin-top:8px">'+links+'</div>' : '')+
+    '</div></div>';
 }
 
 /* ════════════════════════════════════════════════════════════════
