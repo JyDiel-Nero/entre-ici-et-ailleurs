@@ -169,8 +169,25 @@
         {label: '<b>G</b>', title: 'Gras (**texte**)', fn: function(){ wrapSelection(ta, '**', '**'); }},
         {label: '<i>I</i>', title: 'Italique (*texte*)', fn: function(){ wrapSelection(ta, '*', '*'); }},
         {label: '—', title: 'Séparateur (---)', fn: function(){ wrapSelection(ta, '\n---\n', ''); }},
-        {label: '🖼', title: 'Image ![description](chemin)', fn: function(){
-          wrapSelection(ta, '![description](', '/images/uploads/nom-image.jpg)');
+        {label: '🖼', title: 'Insérer une image', fn: function(){
+          /* Try to open Decap CMS media library */
+          var mediaBtn = document.querySelector('[class*="MediaLibrary"] button, button[class*="media"], [class*="toolbar"] button[title*="image"], [class*="toolbar"] button[title*="Image"]');
+          if(!mediaBtn){
+            /* Find any image widget's choose button nearby */
+            var allBtns = document.querySelectorAll('button');
+            for(var b=0; b<allBtns.length; b++){
+              var txt = allBtns[b].textContent.toLowerCase();
+              if(txt.indexOf('choose') !== -1 || txt.indexOf('choisir') !== -1 || txt.indexOf('media') !== -1){
+                mediaBtn = allBtns[b]; break;
+              }
+            }
+          }
+          if(mediaBtn){ mediaBtn.click(); }
+          else {
+            /* Fallback: insert image path template */
+            var path = prompt('Chemin de l\'image (ex: /images/uploads/photo.jpg) :');
+            if(path) wrapSelection(ta, '![', ']('+path+')');
+          }
         }},
         {label: '❝', title: 'Citation (> texte)', fn: function(){ wrapSelection(ta, '> ', ''); }},
       ];
