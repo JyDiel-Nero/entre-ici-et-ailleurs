@@ -2785,11 +2785,12 @@ function renderAll(){
     } else {
       showView('accueil');
     }
-    /* Replace initial history entry */
     if(window.history && window.history.replaceState){
       try{ window.history.replaceState({view:route.view, slug:route.slug||null}, document.title); }catch(e){}
     }
   }
+  /* Always re-init reveal for new/updated elements */
+  setTimeout(function(){initReveal()}, 60);
 }
 
 /* ════════════════════════════════════════════════════════════════
