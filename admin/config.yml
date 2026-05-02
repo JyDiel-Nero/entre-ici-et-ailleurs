@@ -5,8 +5,8 @@ backend:
   base_url: https://entre-ici-et-ailleurs.pages.dev
   auth_endpoint: /api/auth
 
-media_folder: "images"
-public_folder: "/images"
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
 locale: "fr"
 
 collections:

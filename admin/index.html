@@ -150,11 +150,13 @@
       var start = ta.selectionStart, end = ta.selectionEnd;
       var sel = ta.value.substring(start, end);
       var newText = ta.value.substring(0, start) + before + sel + after + ta.value.substring(end);
-      ta.value = newText;
+      /* Use native setter to trigger React state update */
+      var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+      nativeSetter.call(ta, newText);
+      ta.dispatchEvent(new Event('input', {bubbles: true}));
       ta.selectionStart = start + before.length;
       ta.selectionEnd = end + before.length;
       ta.focus();
-      ta.dispatchEvent(new Event('input', {bubbles: true}));
     }
 
     function addToolbar(ta){
@@ -167,9 +169,8 @@
         {label: '<b>G</b>', title: 'Gras (**texte**)', fn: function(){ wrapSelection(ta, '**', '**'); }},
         {label: '<i>I</i>', title: 'Italique (*texte*)', fn: function(){ wrapSelection(ta, '*', '*'); }},
         {label: '—', title: 'Séparateur (---)', fn: function(){ wrapSelection(ta, '\n---\n', ''); }},
-        {label: '🖼', title: 'Image ![alt](url)', fn: function(){
-          var url = prompt('URL de l\'image :');
-          if(url) wrapSelection(ta, '![', ']('+url+')');
+        {label: '🖼', title: 'Image ![description](chemin)', fn: function(){
+          wrapSelection(ta, '![description](', '/images/uploads/nom-image.jpg)');
         }},
         {label: '❝', title: 'Citation (> texte)', fn: function(){ wrapSelection(ta, '> ', ''); }},
       ];
