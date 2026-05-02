@@ -2731,6 +2731,7 @@ function loadGoogleFont(name){
 /* ════════════════════════════════════════════════════════════════
    RENDER ALL
    ════════════════════════════════════════════════════════════════ */
+var _firstRender = true;
 function renderAll(){
   /* Apply scheduled publishing filter */
   POSTS = filterScheduled(POSTS);
@@ -2746,18 +2747,21 @@ function renderAll(){
   applyTheme();
   if(typeof checkThemeToggleVisibility==='function') checkThemeToggleVisibility();
   
-  /* Parse URL to restore the correct view */
-  var route = parseUrl();
-  if(route.view==='article' && route.slug){
-    showView('article', route.slug);
-  } else if(route.view!=='accueil'){
-    showView(route.view);
-  } else {
-    showView('accueil');
-  }
-  /* Replace initial history entry */
-  if(window.history && window.history.replaceState){
-    window.history.replaceState({view:route.view, slug:route.slug||null}, document.title);
+  /* Parse URL to restore the correct view — only on first render */
+  if(_firstRender){
+    _firstRender = false;
+    var route = parseUrl();
+    if(route.view==='article' && route.slug){
+      showView('article', route.slug);
+    } else if(route.view!=='accueil'){
+      showView(route.view);
+    } else {
+      showView('accueil');
+    }
+    /* Replace initial history entry */
+    if(window.history && window.history.replaceState){
+      try{ window.history.replaceState({view:route.view, slug:route.slug||null}, document.title); }catch(e){}
+    }
   }
 }
 
