@@ -13,7 +13,7 @@
   "show_rss": false,
   "route_apropos": "un-instant",
   "route_oeuvres": "saisons",
-  "show_audio": true,
+  "show_audio": false,
   "name_apropos": "Un instant",
   "name_oeuvres": "Saisons",
   "name_blog": "Heures",
