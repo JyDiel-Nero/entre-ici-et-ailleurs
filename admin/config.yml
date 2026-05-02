@@ -81,10 +81,14 @@ collections:
             widget: list
             label: "Enregistrements"
             collapsed: true
-            summary: "{{fields.title}}"
+            summary: "{{fields.title}} — {{fields.album}}"
             add_to_top: true
             fields:
               - { name: title, widget: string, label: "Titre" }
+              - { name: publishDate, widget: datetime, label: "Date d'ajout", required: false, hint: "Pour le tri chronologique" }
+              - { name: album, widget: string, label: "Album / Groupe", required: false, hint: "Ex: Cœur Assaisonné — les pistes du même album seront regroupées" }
+              - { name: album_cover, widget: image, label: "Couverture album", required: false, media_folder: "/images", choose_url: true, hint: "Une seule fois par album" }
+              - { name: album_order, widget: number, label: "Ordre de l'album", required: false, default: 1, hint: "1 = premier affiché" }
               - { name: poet, widget: string, label: "Auteur", required: false, default: "J.Y.D." }
               - { name: description, widget: text, label: "Description", required: false }
               - { name: file, widget: file, label: "Fichier MP3", required: false }
