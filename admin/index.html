@@ -107,69 +107,6 @@
     .eia-fmt-bar button:hover { background: rgba(201,169,110,.12) !important; border-color: rgba(201,169,110,.2) !important; }
 
 
-    /* ═══ PREVIEW PANE ═══ */
-    [class*="PreviewPane"], [class*="previewPane"], [class*="Preview"],
-    [class*="preview"], [data-testid="preview-pane"],
-    [class*="EditorPreview"], [class*="editor-preview"] {
-      background-color: #0D0F12 !important; color: rgba(201,169,110,.7) !important;
-    }
-    [class*="PreviewPane"] *, [class*="previewPane"] *,
-    [class*="Preview"] p, [class*="Preview"] h1, [class*="Preview"] h2,
-    [class*="Preview"] h3, [class*="Preview"] h4, [class*="Preview"] h5,
-    [class*="Preview"] li, [class*="Preview"] span, [class*="Preview"] div,
-    [class*="Preview"] blockquote, [class*="Preview"] a,
-    [class*="preview"] p, [class*="preview"] h1, [class*="preview"] h2,
-    [class*="preview"] h3, [class*="preview"] li, [class*="preview"] span,
-    [class*="preview"] div, [class*="preview"] blockquote {
-      color: rgba(201,169,110,.7) !important; background-color: transparent !important;
-    }
-    [class*="Preview"] strong, [class*="preview"] strong,
-    [class*="Preview"] b, [class*="preview"] b {
-      color: #E8C98A !important;
-    }
-    [class*="Preview"] em, [class*="preview"] em,
-    [class*="Preview"] i, [class*="preview"] i {
-      color: rgba(201,169,110,.6) !important;
-    }
-    [class*="Preview"] a, [class*="preview"] a {
-      color: #C9A96E !important;
-    }
-    [class*="Preview"] blockquote, [class*="preview"] blockquote {
-      border-left: 3px solid rgba(201,169,110,.2) !important;
-      padding-left: 16px !important; color: rgba(201,169,110,.5) !important;
-    }
-    [class*="Preview"] hr, [class*="preview"] hr {
-      border-color: rgba(201,169,110,.1) !important;
-    }
-    [class*="Preview"] img, [class*="preview"] img {
-      opacity: .9 !important; border-radius: 4px;
-    }
-    /* Preview iframe override */
-    iframe[class*="preview"], iframe[class*="Preview"] {
-      background-color: #0D0F12 !important;
-    }
-    /* Split pane / editor layout */
-    [class*="SplitPane"], [class*="splitPane"], [class*="Pane"] {
-      background-color: transparent !important;
-    }
-    [class*="ControlPane"], [class*="controlPane"] {
-      background-color: #0D0F12 !important;
-    }
-    /* Editor entry listing — post cards */
-    [class*="ListCard"], [class*="EntryListing"],
-    [class*="entryListing"], [class*="Entries"] {
-      background-color: transparent !important;
-    }
-    [class*="ListCard"] h2, [class*="EntryCard"] h2,
-    [class*="ListCard"] span, [class*="EntryCard"] span {
-      color: rgba(201,169,110,.6) !important;
-    }
-    /* Collection entries list */
-    [class*="Entries"] a, [class*="entries"] a,
-    [class*="ListCard"] a { color: rgba(201,169,110,.5) !important; }
-    [class*="Entries"] a:hover, [class*="ListCard"] a:hover {
-      color: #E8C98A !important; background-color: rgba(201,169,110,.04) !important;
-    }
 
     /* ═══ TOGGLE BUTTON ═══ */
     #cms-theme-toggle {
@@ -336,20 +273,6 @@
         });
       });
 
-      /* Fix preview pane iframe dark mode */
-      document.querySelectorAll('iframe').forEach(function(frame){
-        try{
-          var fd = frame.contentDocument;
-          if(fd && fd.body && !fd.body._darkDone){
-            fd.body._darkDone = true;
-            fd.body.style.cssText = 'background:#0D0F12!important;color:rgba(201,169,110,.7)!important;padding:20px!important';
-            var s = fd.createElement('style');
-            s.textContent = '*{color:rgba(201,169,110,.7)!important;background:transparent!important}strong,b{color:#E8C98A!important}a{color:#C9A96E!important}blockquote{border-left:3px solid rgba(201,169,110,.2)!important;padding-left:16px!important}img{opacity:.9!important;border-radius:4px}';
-            fd.head.appendChild(s);
-          }
-        }catch(e){}
-      });
-
       /* Scan for new textareas and editors */
       document.querySelectorAll('textarea').forEach(function(ta){
         /* Only add toolbar to body/content textareas (rows > 3) */
@@ -360,6 +283,37 @@
 
       /* Number publications */
       numberPublications();
+
+      /* Preview pane dark mode */
+      var isDark = !document.getElementById('cms-dark-theme').disabled;
+      document.querySelectorAll('[class*="preview" i], [class*="Preview"]').forEach(function(el){
+        if(isDark){
+          el.style.setProperty('background-color', '#0D0F12', 'important');
+          el.style.setProperty('color', 'rgba(201,169,110,.7)', 'important');
+        } else {
+          el.style.removeProperty('background-color');
+          el.style.removeProperty('color');
+        }
+      });
+      /* Fix iframes (Decap renders preview in iframe) */
+      document.querySelectorAll('iframe').forEach(function(frame){
+        try{
+          var fd = frame.contentDocument || frame.contentWindow.document;
+          if(!fd || !fd.body) return;
+          if(isDark){
+            fd.body.style.cssText = 'background:#0D0F12;color:rgba(201,169,110,.7);padding:20px;font-family:Georgia,serif;line-height:1.8';
+            if(!fd.getElementById('jit-dark')){
+              var s = fd.createElement('style'); s.id = 'jit-dark';
+              s.textContent = 'body,p,div,span,li,h1,h2,h3,h4,h5,h6,td,th,dt,dd,label,a,blockquote,figcaption,summary{color:rgba(201,169,110,.7)!important}strong,b{color:#E8C98A!important}em,i{color:rgba(201,169,110,.6)!important}a{color:#C9A96E!important}blockquote{border-left:3px solid rgba(201,169,110,.2)!important;padding-left:16px!important}hr{border-color:rgba(201,169,110,.1)!important}img{opacity:.9;border-radius:4px}';
+              fd.head.appendChild(s);
+            }
+          } else {
+            fd.body.style.cssText = 'padding:20px;font-family:Georgia,serif;line-height:1.8';
+            var ds = fd.getElementById('jit-dark');
+            if(ds) ds.remove();
+          }
+        }catch(e){}
+      });
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
