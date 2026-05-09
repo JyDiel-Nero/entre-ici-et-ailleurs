@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JyDiel In-Time — Entre ici et ailleurs · Poésie, prière & méditation</title>
 <meta name="description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
-<meta name="theme-color" content="#03050A">
+<meta name="theme-color" content="#C9A96E">
+<link rel="apple-touch-icon" href="/images/icon-192.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JyDiel In-Time — Entre ici et ailleurs · Poésie, prière & méditation">
 <meta property="og:description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
 <meta property="og:image" content="https://jydielintime.com/images/clock.jpg">
 <meta property="og:url" content="https://jydielintime.com">
-<meta property="og:site_name" content="Entre ici et ailleurs">
+<meta property="og:site_name" content="JyDiel In-Time">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JyDiel In-Time — Entre ici et ailleurs">
@@ -21,7 +22,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
 
@@ -1916,6 +1916,7 @@ function renderArticle(slug){
   html += '<a href="https://wa.me/?text='+shareTitle+'%20'+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">WhatsApp</a>';
   html += '<a href="https://twitter.com/intent/tweet?text='+shareTitle+'&url='+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">X / Twitter</a>';
   html += '<button onclick="navigator.clipboard.writeText(\''+shareUrl+'\').then(function(){this.textContent=\'Copié ✓\';var b=this;setTimeout(function(){b.textContent=\'Copier le lien\'},2000)}.bind(this))" style="padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">Copier le lien</button>';
+  if(navigator.share) html += '<button onclick="navigator.share({title:\''+esc(post.title)+' \u2014 JyDiel In-Time\',url:\''+shareUrl+'\'}).catch(function(){})" style="padding:8px 16px;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.2)\'">&#x2197; Partager</button>';
   html += '</div></div>';
 
   html += '</div>'; /* end wrap-narrow */
@@ -2881,32 +2882,38 @@ function initNewsletter(){
     if(!name){ msg.textContent='Veuillez entrer votre prénom.'; msg.classList.add('err'); return; }
     if(!email || email.indexOf('@')===-1){ msg.textContent='Veuillez entrer un email valide.'; msg.classList.add('err'); return; }
     btn.disabled = true; btn.textContent = 'Inscription…';
-    /* Envoi AJAX vers MailerLite */
+    /* Envoi vers MailerLite — x-www-form-urlencoded */
     var url = 'https://assets.mailerlite.com/jsonp/2252397/forms/184129837763397108/subscribe';
-    var fd = new FormData();
-    fd.append('fields[name]', name);
-    fd.append('fields[email]', email);
-    fetch(url, {method:'POST', body:fd})
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if(data.success){
-          /* Afficher la confirmation */
+    var body = 'fields[name]=' + encodeURIComponent(name) + '&fields[email]=' + encodeURIComponent(email) + '&ml-submit=1&anticsrf=true';
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    })
+      .then(function(r){
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(function(text){
+        /* MailerLite renvoie JSON ou JSONP — extraire la réponse */
+        var clean = text.trim().replace(/^[^{]+/, '').replace(/[^}]+$/, '');
+        var data = {};
+        try { data = JSON.parse(clean); } catch(e) { data = {success: text.indexOf('"success":true') !== -1}; }
+        if(data.success || text.indexOf('"success":true') !== -1){
           document.getElementById('nlFormWrap').style.display = 'none';
           document.getElementById('nlSuccess').style.display = 'block';
-
-          try{
-            /* Newsletter submitted */
-          }catch(ex){}
         } else {
-          msg.textContent = 'Erreur — veuillez réessayer.'; msg.classList.add('err');
+          var errMsg = data.message || data.error || 'Erreur — veuillez réessayer.';
+          msg.textContent = errMsg; msg.classList.add('err');
+          btn.disabled = false; btn.textContent = "S'abonner";
         }
       })
-      .catch(function(){
-        /* Même en cas d'erreur réseau, MailerLite a peut-être reçu l'inscription */
-        document.getElementById('nlFormWrap').style.display = 'none';
-        document.getElementById('nlSuccess').style.display = 'block';
-      })
-      .finally(function(){ btn.disabled=false; btn.textContent="S'abonner"; });
+      .catch(function(err){
+        console.warn('[JIT] Newsletter error:', err);
+        msg.textContent = 'Erreur de connexion — veuillez réessayer.';
+        msg.classList.add('err');
+        btn.disabled = false; btn.textContent = "S'abonner";
+      });
   });
 }
 
