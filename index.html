@@ -666,6 +666,20 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   [data-theme="boree"] .nav-links{background:rgba(245,249,252,.98)}
   [data-theme="zephyr"] .nav-links{background:rgba(243,248,238,.98)}
 }
+
+/* ═══ WELCOME POPUP ═══ */
+#welcomeOverlay{position:fixed;inset:0;z-index:9999;background:rgba(3,5,10,.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s ease;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#welcomeOverlay.show{opacity:1;pointer-events:all}
+#welcomeBox{max-width:540px;width:90%;background:#060D18;border:1px solid rgba(201,169,110,.2);padding:52px 44px 44px;text-align:center;position:relative;transform:translateY(24px);opacity:0;transition:transform .6s ease, opacity .6s ease}
+#welcomeOverlay.show #welcomeBox{transform:translateY(0);opacity:1}
+#welcomeClose{position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(201,169,110,.35);font-size:20px;cursor:pointer;padding:4px 8px;transition:color .2s;line-height:1}
+#welcomeClose:hover{color:#C9A96E}
+.welcome-sep{width:40px;height:1px;background:#C9A96E;margin:20px auto 28px;opacity:.4}
+.welcome-title{font-family:var(--ff-t);font-style:italic;font-size:clamp(18px,3vw,22px);color:#E8C98A;font-weight:400;line-height:1.4;margin:0 0 12px}
+.welcome-text{font-family:var(--ff-t);font-style:italic;font-size:clamp(13px,2vw,15px);color:rgba(201,169,110,.6);line-height:1.9;margin:0 0 10px}
+.welcome-text em{color:rgba(232,201,138,.88);font-style:normal}
+.welcome-btn{display:inline-block;margin-top:28px;padding:12px 36px;border:1px solid rgba(201,169,110,.25);color:#C9A96E;background:none;cursor:pointer;font-family:var(--ff-b);font-size:11px;letter-spacing:.15em;text-transform:uppercase;transition:border-color .2s,background .2s}
+.welcome-btn:hover{border-color:#C9A96E;background:rgba(201,169,110,.04)}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"JyDiel In-Time","url":"https://jydielintime.com","description":"Poésie, prière et méditation par J.Y.D. — Entre ici et ailleurs.","author":{"@type":"Person","name":"NAM Johnny Yao Daniel-Marie"},"publisher":{"@type":"Organization","name":"JyDiel In-Time"}}
@@ -2216,6 +2230,7 @@ function commentHtml(c, admin, slug, isReply){
    RENDER — AUDIO
    ════════════════════════════════════════════════════════════════ */
 var AUDIO = [];
+var audioPage = 0;
 
 function renderAudio(){
   var grid = document.getElementById('audioGrid');
@@ -2287,6 +2302,13 @@ function renderAudio(){
     if(albumNames.length) html += '</div>';
   }
 
+  var aPerPage = parseInt(SECTIONS_CONFIG.audio_per_page) || 12;
+  var totalAudio = 0;
+  html.replace(/<div class="audio-card/g, function(){ totalAudio++; return ''; });
+  /* Count cards by rendering and re-parsing */
+  var tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  var allCards = tempDiv.querySelectorAll('.audio-card,.audio-album');
   grid.innerHTML = html;
 }
 
@@ -2577,7 +2599,6 @@ function applySectionVisibility(){
     var manImg = (SETTINGS.manifeste_bg && SETTINGS.manifeste_bg.trim()) ? SETTINGS.manifeste_bg.trim() : ((SETTINGS.hero_bg && SETTINGS.hero_bg.trim()) ? SETTINGS.hero_bg.trim() : '');
     if(manImg && !manImg.startsWith('/') && !manImg.startsWith('http') && !manImg.startsWith('data:')) manImg = '/'+manImg;
     if(manImg){
-      console.log('[JIT] Manifeste bg:', manImg);
       manBgEl.style.cssText = 'position:absolute;inset:0;z-index:0;opacity:.35;background:url('+manImg+') center/cover no-repeat';
     }
   }
@@ -3100,6 +3121,30 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+
+/* ═══ WELCOME POPUP — first visit only ═══ */
+function closeWelcome(){
+  var el = document.getElementById('welcomeOverlay');
+  if(el){ el.style.opacity='0'; el.style.pointerEvents='none'; setTimeout(function(){el.style.display='none'},600); }
+  try{ localStorage.setItem('jit-welcome','1'); }catch(e){}
+}
+/* Show on first visit — only on home page (/) */
+(function(){
+  try{
+    var path = location.pathname.replace(/\/+$/, '') || '/';
+    var isHome = path === '/' || path === '';
+    if(isHome && !localStorage.getItem('jit-welcome')){
+      var el = document.getElementById('welcomeOverlay');
+      if(el){ setTimeout(function(){ el.classList.add('show'); }, 1200); }
+    }
+  }catch(e){}
+  /* Close on overlay click */
+  var ov = document.getElementById('welcomeOverlay');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===ov) closeWelcome(); });
+  /* Close on Escape */
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeWelcome(); });
+})();
+
   initNavbar();
   initClock();
   initDust();
@@ -3110,5 +3155,19 @@ document.addEventListener('DOMContentLoaded', function(){
 
 })();
 </script>
+
+<!-- ═══ WELCOME POPUP ═══ -->
+<div id="welcomeOverlay" role="dialog" aria-modal="true" aria-label="Bienvenue sur JyDiel In-Time">
+  <div id="welcomeBox">
+    <button id="welcomeClose" aria-label="Fermer" onclick="closeWelcome()">×</button>
+    <p class="welcome-title">Bienvenue au Cadran</p>
+    <div class="welcome-sep"></div>
+    <p class="welcome-text">Ici, au Cadran, vous pouvez voir toutes les aiguilles du temps.</p>
+    <p class="welcome-text">Celle des <em>Heures</em> vous dirigera vers ce blog et ses réflexions, rédigées des heures durant.</p>
+    <p class="welcome-text">La deuxième aiguille vous montrera ce que vous pourriez écouter au fil de quelques <em>Minutes</em>.</p>
+    <p class="welcome-text">Et la plus petite vous montrera des <em>Secondes</em> — des instants qui figent le temps, comme une seconde suspendue dans la vie.</p>
+    <button class="welcome-btn" onclick="closeWelcome()">Entrer</button>
+  </div>
+</div>
 </body>
 </html>
