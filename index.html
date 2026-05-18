@@ -666,6 +666,129 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   [data-theme="boree"] .nav-links{background:rgba(245,249,252,.98)}
   [data-theme="zephyr"] .nav-links{background:rgba(243,248,238,.98)}
 }
+
+
+
+/* ═══ WELCOME POPUP ═══ */
+#welcomeOverlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,
+    rgba(3,5,10,.5) 0%,
+    rgba(3,5,10,.92) 100%);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity 1s ease,visibility 1s ease;
+  z-index:99999;
+}
+#welcomeOverlay.show{opacity:1;visibility:visible;pointer-events:auto}
+#welcomeOverlay.closing #welcomeBox{animation:cinematicExit .9s ease forwards}
+#welcomeBox{
+  width:min(92%,700px);
+  padding:52px 48px 44px;
+  border-radius:4px;
+  background:linear-gradient(160deg,
+    rgba(6,13,24,.97) 0%,
+    rgba(3,5,10,.98) 100%);
+  border:1px solid rgba(201,169,110,.15);
+  box-shadow:
+    0 0 100px rgba(0,0,0,.7),
+    0 0 40px rgba(201,169,110,.05),
+    inset 0 1px 0 rgba(201,169,110,.06);
+  position:relative;
+  transform:translateY(60px) scale(.92);
+  opacity:0;
+}
+#welcomeOverlay.show #welcomeBox{
+  animation:cinematicEntrance 1.6s cubic-bezier(.18,.89,.32,1.28) forwards;
+}
+@keyframes cinematicEntrance{
+  0%  {opacity:0;transform:translateY(80px) scale(.88) rotateX(8deg);filter:blur(12px)}
+  55% {opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1) rotateX(0)}
+}
+@keyframes cinematicExit{
+  to{opacity:0;transform:scale(1.06) translateY(-18px);filter:blur(8px)}
+}
+.welcome-sep{
+  width:48px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:18px auto 26px;
+}
+.welcome-title{
+  font-family:var(--ff-t);font-style:italic;
+  font-size:clamp(20px,3vw,28px);font-weight:400;
+  letter-spacing:.04em;text-align:center;
+  color:var(--g2);margin:0 0 6px;
+  opacity:0;transform:translateY(16px);
+  animation:wReveal 1.1s ease .4s forwards;
+}
+.welcome-text{
+  font-family:var(--ff-t);font-style:italic;
+  font-size:clamp(13.5px,1.8vw,15.5px);
+  color:var(--txt);line-height:1.95;
+  margin:0 0 4px;text-align:center;
+  opacity:0;transform:translateY(10px);
+  animation:wReveal .85s ease forwards;
+}
+.welcome-text em{color:var(--g2);font-style:normal}
+.welcome-text:nth-of-type(1){animation-delay:.65s}
+.welcome-text:nth-of-type(2){animation-delay:.85s}
+.welcome-text:nth-of-type(3){animation-delay:1.05s}
+.welcome-text:nth-of-type(4){animation-delay:1.25s}
+.welcome-text:nth-of-type(5){animation-delay:1.45s}
+.welcome-text:nth-of-type(6){animation-delay:1.65s}
+.welcome-text:nth-of-type(7){animation-delay:1.85s}
+@keyframes wReveal{to{opacity:1;transform:translateY(0)}}
+
+/* Pause all animations until .show fires */
+#welcomeOverlay .welcome-title,
+#welcomeOverlay .welcome-text {
+  animation-play-state: paused;
+}
+/* Resume when overlay becomes visible */
+#welcomeOverlay.show .welcome-title,
+#welcomeOverlay.show .welcome-text {
+  animation-play-state: running;
+}
+/* Also pause the box animation until .show */
+#welcomeOverlay #welcomeBox {
+  animation-play-state: paused;
+}
+#welcomeOverlay.show #welcomeBox {
+  animation-play-state: running;
+}
+
+.welcome-btn{
+  display:block;margin:30px auto 0;
+  padding:13px 40px;
+  border:1px solid rgba(201,169,110,.35);
+  border-radius:2px;
+  background:transparent;
+  color:var(--g2);
+  font-family:var(--ff-b);font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;
+  transition:background .25s,border-color .25s,color .25s,transform .25s;
+}
+.welcome-btn:hover{
+  background:rgba(201,169,110,.08);
+  border-color:var(--gold);
+  color:var(--g2);
+  transform:translateY(-2px);
+}
+#welcomeClose{
+  position:absolute;top:18px;right:22px;
+  background:none;border:none;
+  color:rgba(201,169,110,.3);
+  font-size:26px;cursor:pointer;
+  line-height:1;padding:4px;
+  transition:color .25s,transform .3s;
+}
+#welcomeClose:hover{
+  color:var(--gold);
+  transform:rotate(90deg) scale(1.1);
+}
+
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"JyDiel In-Time","url":"https://jydielintime.com","description":"Poésie, prière et méditation par J.Y.D. — Entre ici et ailleurs.","author":{"@type":"Person","name":"NAM Johnny Yao Daniel-Marie"},"publisher":{"@type":"Organization","name":"JyDiel In-Time"}}
@@ -2216,6 +2339,7 @@ function commentHtml(c, admin, slug, isReply){
    RENDER — AUDIO
    ════════════════════════════════════════════════════════════════ */
 var AUDIO = [];
+var audioPage = 0;
 
 function renderAudio(){
   var grid = document.getElementById('audioGrid');
@@ -2287,6 +2411,13 @@ function renderAudio(){
     if(albumNames.length) html += '</div>';
   }
 
+  var aPerPage = parseInt(SECTIONS_CONFIG.audio_per_page) || 12;
+  var totalAudio = 0;
+  html.replace(/<div class="audio-card/g, function(){ totalAudio++; return ''; });
+  /* Count cards by rendering and re-parsing */
+  var tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  var allCards = tempDiv.querySelectorAll('.audio-card,.audio-album');
   grid.innerHTML = html;
 }
 
@@ -2577,7 +2708,6 @@ function applySectionVisibility(){
     var manImg = (SETTINGS.manifeste_bg && SETTINGS.manifeste_bg.trim()) ? SETTINGS.manifeste_bg.trim() : ((SETTINGS.hero_bg && SETTINGS.hero_bg.trim()) ? SETTINGS.hero_bg.trim() : '');
     if(manImg && !manImg.startsWith('/') && !manImg.startsWith('http') && !manImg.startsWith('data:')) manImg = '/'+manImg;
     if(manImg){
-      console.log('[JIT] Manifeste bg:', manImg);
       manBgEl.style.cssText = 'position:absolute;inset:0;z-index:0;opacity:.35;background:url('+manImg+') center/cover no-repeat';
     }
   }
@@ -3100,6 +3230,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+
   initNavbar();
   initClock();
   initDust();
@@ -3109,6 +3240,57 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 })();
+
+/* ═══ WELCOME POPUP — GLOBAL SCOPE (needed for onclick) ═══ */
+function closeWelcome(){
+  var el = document.getElementById('welcomeOverlay');
+  if(!el) return;
+  el.classList.add('closing');
+  el.style.pointerEvents = 'none';
+  setTimeout(function(){
+    el.style.opacity = '0';
+    setTimeout(function(){ el.style.display = 'none'; }, 800);
+  }, 100);
+  try{ localStorage.setItem('jit-welcome','1'); }catch(e){}
+}
+/* Show on first visit — home page only — wait for DOM */
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var path = location.pathname.replace(/\/+$/, '') || '/';
+    if((path === '/' || path === '') && !localStorage.getItem('jit-welcome')){
+      var el = document.getElementById('welcomeOverlay');
+      if(el){
+        el.style.display = 'flex';
+        setTimeout(function(){ el.classList.add('show'); }, 800);
+      }
+    }
+  }catch(e){ console.warn('Welcome popup error:', e); }
+});
+/* Close on overlay backdrop click */
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'welcomeOverlay') closeWelcome();
+});
+/* Close on Escape */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeWelcome();
+});
 </script>
+
+<!-- ═══ WELCOME POPUP ═══ -->
+<div id="welcomeOverlay" role="dialog" aria-modal="true" aria-label="Bienvenue sur JyDiel In-Time">
+  <div id="welcomeBox">
+    <button id="welcomeClose" aria-label="Fermer" onclick="closeWelcome()">&#215;</button>
+    <p class="welcome-title">Bienvenue cher voyageur du temps</p>
+    <div class="welcome-sep"></div>
+    <p class="welcome-text">Ici, au Cadran, vous pouvez voir toutes les aiguilles du temps.</p>
+    <p class="welcome-text">Celle des <em>Heures</em> vous dirigera vers ce blog et ses réflexions, rédigées des heures durant.</p>
+    <p class="welcome-text">La deuxième aiguille vous montrera ce que vous pourriez écouter au fil de quelques <em>Minutes</em>.</p>
+    <p class="welcome-text">Et la plus petite vous montrera des <em>Secondes</em> &#8212; des instants qui figent le temps, comme une seconde suspendue dans la vie.</p>
+    <p class="welcome-text">Et s&#8217;il est des <em>Saisons</em>, vous découvrirez bien assez tôt, bien à propos, ce qu&#8217;elles recèlent.</p>
+    <p class="welcome-text">En un <em>Instant</em>, je vous en dirai plus sur moi&#8230; <em>Et ensuite&#160;?</em></p>
+    <p class="welcome-text">Entrez donc et vous le saurez&#8230;</p>
+    <button class="welcome-btn" onclick="closeWelcome()">Entrer</button>
+  </div>
+</div>
 </body>
 </html>
