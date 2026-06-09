@@ -2,7 +2,7 @@ backend:
   name: github
   repo: JyDiel-Nero/entre-ici-et-ailleurs
   branch: main
-  base_url: https://entre-ici-et-ailleurs.pages.dev
+  base_url: https://jydielintime.com
   auth_endpoint: /api/auth
 
 media_folder: "images/uploads"
