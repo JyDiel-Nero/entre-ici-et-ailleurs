@@ -812,13 +812,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 (function(){
   var p = location.pathname.replace(/\/+$/, '') || '/';
   var map = {
+    '/':'v-accueil','':'v-accueil',
     '/heures':'v-blog','/minutes':'v-audio','/secondes':'v-univers',
     '/saisons':'v-oeuvres','/un-instant':'v-apropos','/entretemps':'v-contact',
     '/blog':'v-blog','/audio':'v-audio','/univers':'v-univers',
     '/oeuvres':'v-oeuvres','/apropos':'v-apropos','/contact':'v-contact',
     '/confidentialite':'v-confidentialite'
   };
-  var viewId = map[p];
+  var viewId = map[p] || (p === '/' || p === '' ? 'v-accueil' : map[p]);
   if(p.startsWith('/article/')) viewId = 'v-article';
   /* Inject CSS to show only the right view immediately */
   if(viewId){
@@ -1364,6 +1365,13 @@ function mdToHtml(md){
 }
 
 /* Sanitize text for display (prevent XSS) */
+function imgPath(url){
+  if(!url) return '';
+  url = String(url).trim();
+  if(url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+  if(!url.startsWith('/')) url = '/' + url;
+  return url;
+}
 function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2670,8 +2678,22 @@ function applySectionVisibility(){
   if(bOTitle) bOTitle.textContent = names.oeuvres;
   var bATitle = document.getElementById('heroBannerAudioTitle');
   if(bATitle) bATitle.textContent = names.audio;
-  /* Banner images from CMS */
-  function applyBannerBg(id, url){
+  /* Banner images from CMS applied via applyAllBanners() after showView */
+function applyAllBanners(){
+  if(SETTINGS.hero_bg) applyBannerBg('heroBannerHome', SETTINGS.hero_bg);
+  if(SETTINGS.cover_blog) applyBannerBg('heroBannerBlog', SETTINGS.cover_blog);
+  if(SETTINGS.cover_audio) applyBannerBg('heroBannerAudio', SETTINGS.cover_audio);
+  if(SETTINGS.cover_univers) applyBannerBg('heroBannerUnivers', SETTINGS.cover_univers);
+  if(SETTINGS.cover_oeuvres) applyBannerBg('heroBannerOeuvres', SETTINGS.cover_oeuvres);
+  if(SETTINGS.cover_apropos) applyBannerBg('heroBannerApropos', SETTINGS.cover_apropos);
+  if(SETTINGS.cover_contact) applyBannerBg('heroBannerContact', SETTINGS.cover_contact);
+  var manBgEl = document.getElementById('manifesteBg');
+  if(manBgEl){
+    var manImg = imgPath(SETTINGS.manifeste_bg || SETTINGS.hero_bg || '');
+    if(manImg) manBgEl.style.background = 'url('+manImg+') center/cover no-repeat';
+  }
+}
+function applyBannerBg(id, url){
     var el = document.getElementById(id);
     if(el && url && url.trim()){
       var u = url.trim();
@@ -2890,7 +2912,11 @@ function renderAll(){
   if(window.history && window.history.replaceState){
     try{ window.history.replaceState({view:route.view, slug:route.slug||null}, document.title); }catch(e){}
   }
-  setTimeout(function(){initReveal()}, 60);
+  /* Re-apply bg images AFTER views are visible (browser loads bg on visible elements) */
+  setTimeout(function(){
+    applyAllBanners();
+    initReveal();
+  }, 60);
 }
 
 /* ════════════════════════════════════════════════════════════════
