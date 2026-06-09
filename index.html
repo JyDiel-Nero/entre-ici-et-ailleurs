@@ -7,6 +7,7 @@
 <meta name="description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
 <meta name="theme-color" content="#C9A96E">
 <link rel="apple-touch-icon" href="/images/icon-192.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JyDiel In-Time — Entre ici et ailleurs · Poésie, prière & méditation">
 <meta property="og:description" content="Blog de poésie, prière et méditation par J.Y.D. — Un brin d'éternité dans le temps.">
@@ -59,7 +60,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   body.cursor-ready #welcomeOverlay button,
   body.cursor-ready #welcomeOverlay .welcome-btn,
   body.cursor-ready #welcomeOverlay #welcomeClose {cursor:pointer}
-  #cur-dot,#cur-ring{position:fixed;pointer-events:none;z-index:999999;border-radius:50%;opacity:0;transition:opacity .3s}
+  #cur-dot,#cur-ring{position:fixed;pointer-events:none;z-index:100001;border-radius:50%;opacity:0;transition:opacity .3s}
   #cur-dot{width:6px;height:6px;background:var(--gold);transform:translate(-50%,-50%)}
   #cur-ring{width:30px;height:30px;border:1.5px solid rgba(201,169,110,.35);transform:translate(-50%,-50%);transition:opacity .3s,width .25s var(--ease),height .25s var(--ease)}
   body.cursor-ready #cur-dot,body.cursor-ready #cur-ring{opacity:1}
@@ -802,6 +803,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"JyDiel In-Time","url":"https://jydielintime.com","description":"Poésie, prière et méditation par J.Y.D. — Entre ici et ailleurs.","author":{"@type":"Person","name":"NAM Johnny Yao Daniel-Marie"},"publisher":{"@type":"Organization","name":"JyDiel In-Time"}}
 </script>
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="alternate" hreflang="fr" href="https://jydielintime.com/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <link rel="canonical" href="https://jydielintime.com">
 <script>
 /* Route instantanée — s'exécute AVANT le rendu du body */
