@@ -31,9 +31,9 @@ collections:
               - { name: author, widget: string, label: "Auteur", required: false, default: "J.Y.D." }
               - { name: tag, widget: select, label: "Catégorie", options: ["MÉDITATION", "POÉSIE", "PRIÈRE", "RÉFLEXION", "RÉCIT"], default: "POÉSIE" }
               - { name: excerpt, widget: text, label: "Extrait (2-3 lignes)", hint: "Résumé affiché sur la carte du blog" }
-              - { name: cover, widget: image, label: "Image couverture", required: false }
+              - { name: cover, widget: image, label: "Image couverture", required: false, choose_url: true }
               - { name: cover_alt, widget: string, label: "Alt couverture", required: false }
-              - { name: thumb, widget: image, label: "Miniature", required: false }
+              - { name: thumb, widget: image, label: "Miniature", required: false, choose_url: true }
               - { name: thumb_alt, widget: string, label: "Alt miniature", required: false }
               - { name: body, widget: text, label: "Contenu du poème", hint: "Retour à la ligne = nouveau vers. Ligne vide = nouvelle strophe. Utilisez **gras**, *italique*, ![alt](url) pour les images, --- pour un séparateur." }
               - { name: instagram_link, widget: string, label: "Lien Instagram", required: false }
@@ -58,7 +58,7 @@ collections:
               - { name: title, widget: string, label: "Titre" }
               - { name: type, widget: select, label: "Type", options: [{ label: "📖 Recueil", value: "recueil" }, { label: "🎤 Album", value: "album" }, { label: "🎨 Peinture", value: "peinture" }] }
               - { name: description, widget: text, label: "Description", required: false }
-              - { name: image, widget: image, label: "Image/couverture" }
+              - { name: image, widget: image, label: "Image/couverture", choose_url: true }
               - { name: image_alt, widget: string, label: "Alt image", required: false }
               - { name: price, widget: string, label: "Prix", required: false }
               - { name: amazon, widget: string, label: "Lien Amazon", required: false }
@@ -87,17 +87,17 @@ collections:
               - { name: title, widget: string, label: "Titre" }
               - { name: publishDate, widget: datetime, label: "Date d'ajout", required: false, hint: "Pour le tri chronologique" }
               - { name: album, widget: string, label: "Album / Groupe", required: false, hint: "Ex: Cœur Assaisonné — les pistes du même album seront regroupées" }
-              - { name: album_cover, widget: image, label: "Couverture album", required: false, hint: "Une seule fois par album" }
+              - { name: album_cover, widget: image, label: "Couverture album", required: false, hint: "Une seule fois par album", choose_url: true }
               - { name: album_order, widget: number, label: "Ordre de l'album", required: false, default: 1, hint: "1 = premier affiché" }
               - { name: poet, widget: string, label: "Auteur", required: false, default: "J.Y.D." }
               - { name: description, widget: text, label: "Description", required: false }
-              - { name: file, widget: file, label: "Fichier MP3", required: false }
+              - { name: file, widget: file, label: "Fichier MP3", required: false, choose_url: true }
               - { name: youtube, widget: string, label: "Lien YouTube", required: false }
               - { name: instagram, widget: string, label: "Lien Instagram", required: false }
               - { name: tiktok, widget: string, label: "Lien TikTok", required: false }
               - { name: link, widget: string, label: "Autre lien", required: false }
               - { name: link_label, widget: string, label: "Texte du lien", required: false, default: "Écouter" }
-              - { name: cover, widget: image, label: "Couverture", required: false }
+              - { name: cover, widget: image, label: "Couverture", required: false, choose_url: true }
               - { name: order, widget: number, label: "Ordre", default: 1 }
               - { name: published, widget: boolean, label: "Publié", default: true }
 
@@ -116,7 +116,7 @@ collections:
             add_to_top: true
             fields:
               - { name: title, widget: string, label: "Légende" }
-              - { name: image, widget: image, label: "Image" }
+              - { name: image, widget: image, label: "Image", choose_url: true }
               - { name: image_alt, widget: string, label: "Alt image", required: false }
               - { name: order, widget: number, label: "Ordre", default: 1 }
 
@@ -132,6 +132,7 @@ collections:
             label: "Sections personnalisées"
             collapsed: true
             summary: "{{fields.name}} ({{fields.type}})"
+            add_to_top: true
             fields:
               - { name: id, widget: string, label: "Identifiant (minuscules, tirets)" }
               - { name: name, widget: string, label: "Nom affiché" }
@@ -147,9 +148,9 @@ collections:
         name: "site"
         label: "Textes et images du site"
         fields:
-          - { name: hero_bg, widget: image, label: "Image de fond Cadran (horloge)", required: false }
-          - { name: manifeste_bg, widget: image, label: "Image de fond Manifeste (grande roue)", required: false }
-          - { name: site_bg, widget: image, label: "Image de fond globale", required: false }
+          - { name: hero_bg, widget: image, label: "Image de fond Cadran (horloge)", required: false, choose_url: true }
+          - { name: manifeste_bg, widget: image, label: "Image de fond Manifeste (grande roue)", required: false, choose_url: true }
+          - { name: site_bg, widget: image, label: "Image de fond globale", required: false, choose_url: true }
           - { name: hero_title, widget: string, label: "Titre Cadran", default: "JyDiel In-Time" }
           - { name: hero_subtitle, widget: string, label: "Sous-titre Cadran", required: false }
           - { name: tagline, widget: string, label: "Tagline", required: false }
@@ -177,35 +178,35 @@ collections:
           - { name: subtitle_blog, widget: string, label: "Sous-titre : Heures", default: "Entre ici et ailleurs", required: false }
           - { name: route_blog, widget: string, label: "URL : Heures", default: "heures" }
           - { name: show_blog, widget: boolean, label: "✅ Afficher Heures (articles)", default: true }
-          - { name: cover_blog, widget: image, label: "🖼 Couverture Heures", required: false }
+          - { name: cover_blog, widget: image, label: "🖼 Couverture Heures", required: false, choose_url: true }
           - { name: default_sort, widget: select, label: "Tri par défaut (Heures)", default: "pub-newest", options: [{ label: "Publiés récemment", value: "pub-newest" }, { label: "Publiés anciennement", value: "pub-oldest" }, { label: "Écrits récemment", value: "written-newest" }, { label: "Écrits anciennement", value: "written-oldest" }, { label: "A → Z", value: "alpha" }, { label: "Z → A", value: "alpha-rev" }] }
           - { name: name_audio, widget: string, label: "Nom : Minutes", default: "Minutes" }
           - { name: subtitle_audio, widget: string, label: "Sous-titre : Minutes", default: "Écouter", required: false }
           - { name: route_audio, widget: string, label: "URL : Minutes", default: "minutes" }
           - { name: show_audio, widget: boolean, label: "✅ Afficher Minutes (audio)", default: true }
-          - { name: cover_audio, widget: image, label: "🖼 Couverture Minutes", required: false }
-          - { name: banner_audio_bg, widget: image, label: "Image bandeau Minutes (hero)", required: false }
+          - { name: cover_audio, widget: image, label: "🖼 Couverture Minutes", required: false, choose_url: true }
+          - { name: banner_audio_bg, widget: image, label: "Image bandeau Minutes (hero)", required: false, choose_url: true }
           - { name: name_univers, widget: string, label: "Nom : Secondes", default: "Secondes" }
           - { name: subtitle_univers, widget: string, label: "Sous-titre : Secondes", default: "Voir", required: false }
           - { name: route_univers, widget: string, label: "URL : Secondes", default: "secondes" }
           - { name: show_univers, widget: boolean, label: "✅ Afficher Secondes (images)", default: true }
-          - { name: cover_univers, widget: image, label: "🖼 Couverture Secondes", required: false }
+          - { name: cover_univers, widget: image, label: "🖼 Couverture Secondes", required: false, choose_url: true }
           - { name: name_oeuvres, widget: string, label: "Nom : Saisons", default: "Saisons" }
           - { name: subtitle_oeuvres, widget: string, label: "Sous-titre : Saisons", default: "Cœur Assaisonné", required: false }
           - { name: route_oeuvres, widget: string, label: "URL : Saisons", default: "saisons" }
           - { name: show_oeuvres, widget: boolean, label: "✅ Afficher Saisons (œuvres)", default: false }
-          - { name: cover_oeuvres, widget: image, label: "🖼 Couverture Saisons", required: false }
-          - { name: banner_oeuvres_bg, widget: image, label: "Image bandeau Saisons (hero)", required: false }
+          - { name: cover_oeuvres, widget: image, label: "🖼 Couverture Saisons", required: false, choose_url: true }
+          - { name: banner_oeuvres_bg, widget: image, label: "Image bandeau Saisons (hero)", required: false, choose_url: true }
           - { name: name_apropos, widget: string, label: "Nom : Un instant", default: "Un instant" }
           - { name: subtitle_apropos, widget: string, label: "Sous-titre : Un instant", default: "Qui est JyD ?", required: false }
           - { name: route_apropos, widget: string, label: "URL : Un instant", default: "un-instant" }
           - { name: show_apropos, widget: boolean, label: "✅ Afficher Un instant (à propos)", default: true }
-          - { name: cover_apropos, widget: image, label: "🖼 Couverture Un instant", required: false }
+          - { name: cover_apropos, widget: image, label: "🖼 Couverture Un instant", required: false, choose_url: true }
           - { name: name_contact, widget: string, label: "Nom : Entretemps", default: "Entretemps" }
           - { name: subtitle_contact, widget: string, label: "Sous-titre : Entretemps", default: "Et ensuite ?", required: false }
           - { name: route_contact, widget: string, label: "URL : Entretemps", default: "entretemps" }
           - { name: show_contact, widget: boolean, label: "✅ Afficher Entretemps (contact)", default: true }
-          - { name: cover_contact, widget: image, label: "🖼 Couverture Entretemps", required: false }
+          - { name: cover_contact, widget: image, label: "🖼 Couverture Entretemps", required: false, choose_url: true }
           - { name: home_label_latest, widget: string, label: "Cadran — label dernier texte", default: "DERNIER TEXTE", required: false }
           - { name: home_label_recent, widget: string, label: "Cadran — label textes récents", default: "TEXTES RÉCENTS", required: false }
           - { name: home_label_gallery, widget: string, label: "Cadran — label galerie", default: "SECONDES", required: false }
