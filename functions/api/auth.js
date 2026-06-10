@@ -72,7 +72,11 @@ export async function onRequest(context) {
     return errorPage(`Token exchange failed: ${e.message}`);
   }
 
-  /* ── Step 3: Return token to Decap CMS via postMessage ── */
+  /* ── Step 3: Return token to Decap CMS via postMessage ──
+     Decap n'écoute le message de succès QU'APRÈS le handshake :
+     1. le popup envoie « authorizing:github » à la fenêtre parente
+     2. Decap répond (même message) — c'est le signal qu'il écoute
+     3. le popup envoie alors « authorization:github:success:{...} »   */
   const html = `<!DOCTYPE html>
 <html>
 <head><title>Authentification…</title></head>
@@ -83,20 +87,23 @@ export async function onRequest(context) {
 <script>
 (function(){
   var token = ${JSON.stringify(token)};
-  var msg   = JSON.stringify({
-    token: token,
-    provider: 'github'
-  });
-  /* Decap CMS listens for this message */
-  function send(){
-    if(window.opener){
-      window.opener.postMessage('authorization:github:success:' + msg, '*');
-      setTimeout(function(){ window.close(); }, 500);
-    } else {
-      document.body.innerHTML = '<p style="font-family:sans-serif;color:#888;text-align:center;margin-top:40px">Connecté. Vous pouvez fermer cette fenêtre.</p>';
-    }
+  var msg   = JSON.stringify({ token: token, provider: 'github' });
+
+  if(!window.opener){
+    document.body.innerHTML = '<p style="font-family:sans-serif;color:#888;text-align:center;margin-top:40px">Connecté. Vous pouvez fermer cette fenêtre et retourner sur /admin.</p>';
+    return;
   }
-  send();
+
+  function receiveMessage(e){
+    /* Réponse du CMS au handshake → on peut envoyer le succès */
+    window.removeEventListener('message', receiveMessage);
+    e.source.postMessage('authorization:github:success:' + msg, e.origin);
+    setTimeout(function(){ window.close(); }, 500);
+  }
+  window.addEventListener('message', receiveMessage, false);
+
+  /* Étape 1 du handshake */
+  window.opener.postMessage('authorizing:github', '*');
 })();
 </script>
 </body>
