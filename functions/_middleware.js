@@ -1,3 +1,20 @@
+/**
+ * functions/_middleware.js — routage SPA + SEO dynamique (Cloudflare Pages)
+ *
+ * ⚠️ IMPORTANT LORS D'UNE MISE À JOUR :
+ * REMPLACER TOUT LE CONTENU du fichier (Ctrl+A → Suppr → Coller).
+ * Ne JAMAIS coller ce code à la suite de l'ancien : la fonction
+ * « onRequest » ne doit être exportée qu'UNE SEULE fois dans ce
+ * fichier, sinon le build Cloudflare échoue avec l'erreur
+ * « Multiple exports with the same name "onRequest" ».
+ */
+/* Un texte est visible si non dépublié et si sa date de publication
+   (quand elle existe et est lisible) est passée — même règle que le site */
+const isLive=p=>{
+  if(!p||p.published===false)return false;
+  if(p.publishDate){const t=Date.parse(p.publishDate);if(!Number.isNaN(t)&&t>Date.now())return false;}
+  return true;
+};
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const path = url.pathname;
@@ -13,7 +30,7 @@ export async function onRequest(context) {
   if(path==='/sitemap.xml'){
     try{
       const d=await readAsset('/data/posts.json').then(r=>r.json());
-      const posts=(d.posts||[]).filter(p=>p.published!==false);
+      const posts=(d.posts||[]).filter(isLive);
       const b='https://jydielintime.com',now=new Date().toISOString().split('T')[0];
       let x='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
       x+=`<url><loc>${b}/</loc><changefreq>daily</changefreq><priority>1.0</priority><lastmod>${now}</lastmod></url>\n`;
@@ -32,7 +49,7 @@ export async function onRequest(context) {
   if(path==='/feed.xml'){
     try{
       const d=await readAsset('/data/posts.json').then(r=>r.json());
-      const posts=(d.posts||[]).filter(p=>p.published!==false).slice(0,20);
+      const posts=(d.posts||[]).filter(isLive).slice(0,20);
       const b='https://jydielintime.com';
       const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       let r='<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n';
@@ -71,7 +88,7 @@ export async function onRequest(context) {
     const slug=path.replace('/article/','');
     try{
       const pd=await readAsset('/data/posts.json').then(r=>r.json());
-      const p=(pd.posts||[]).find(x=>x.slug===slug);
+      const p=(pd.posts||[]).find(x=>x.slug===slug&&isLive(x));
       if(p){
         const t=(p.title||'JyDiel In-Time').replace(/"/g,'&quot;');
         const desc=(p.excerpt||'Poésie, prière et méditation').replace(/"/g,'&quot;').substring(0,200);

@@ -28,7 +28,7 @@
 
 <style>
 /* ════════════════════════════════════════════════════════════════
-   RESET & VARIABLES_
+   RESET & VARIABLES
    ════════════════════════════════════════════════════════════════ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -1261,7 +1261,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       Ce site n'utilise pas de cookies de traçage ni de publicité. Seul un stockage local (localStorage) est utilisé pour mémoriser vos « j'aime » sur les articles et votre préférence de thème.</p>
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Newsletter</strong><br>
       Vous pouvez vous désabonner à tout moment via le lien de désabonnement présent dans chaque email. Votre adresse sera alors supprimée de la liste de diffusion.</p>
-      <p style="color:var(--g3);font-style:italic">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · jydielintime.com · Tous droits réservés.</p>
+      <p style="color:var(--g3);font-style:italic">© 2013–2026 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · jydielintime.com · Tous droits réservés.</p>
     </div>
   </section>
 </div>
@@ -1281,7 +1281,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
     <a href="/entretemps" data-page="contact" id="ft-contact">Entretemps</a>
   </div>
   <p id="footerRss" style="text-align:center;margin-bottom:8px"><a href="/feed.xml" title="Flux RSS" style="color:var(--g3);font-size:12px;text-decoration:none;letter-spacing:.1em">⊞ RSS</a></p>
-  <p class="footer-copy">© 2013–2025 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · <a href="https://jydielintime.com" style="color:inherit">jydielintime.com</a> · Tous droits réservés.</p>
+  <p class="footer-copy">© 2013–2026 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · <a href="https://jydielintime.com" style="color:inherit">jydielintime.com</a> · Tous droits réservés.</p>
   <p style="margin-top:12px"><a href="/confidentialite" data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
 </footer>
 
@@ -2694,11 +2694,11 @@ function filterScheduled(posts){
     if(p.published===false) return false;
     if(p.publishDate){
       var pd = new Date(p.publishDate);
-      if(!isNaN(pd)){
-        /* Publication à 4h25m26s le jour prévu */
-        pd.setHours(4, 25, 26, 0);
-        if(pd > now) return false;
-      }
+      /* La date ET l'heure choisies dans le CMS font foi : le texte
+         apparaît dès que l'instant exact est passé. (L'ancienne règle
+         forçait 4h25m26s heure locale du visiteur, ce qui masquait
+         les textes publiés plus tôt dans la journée.) */
+      if(!isNaN(pd) && pd > now) return false;
     }
     return true;
   });
