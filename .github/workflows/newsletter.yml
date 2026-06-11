@@ -1,0 +1,77 @@
+# ════════════════════════════════════════════════════════════════
+# Newsletter automatique — JyDiel In-Time
+#
+# À chaque nouveau texte publié dans data/posts.json, crée et envoie
+# une campagne MailerLite aux abonnés.
+#
+# Déclencheurs :
+#   - push sur main modifiant data/posts.json (publication via le CMS)
+#   - tous les jours à 08h05 UTC (rattrape les textes programmés
+#     dont la date de publication vient d'arriver)
+#   - manuellement (onglet Actions → Newsletter → Run workflow),
+#     avec option « dry run » pour tester sans envoyer
+#
+# Secrets requis (Settings → Secrets and variables → Actions) :
+#   MAILERLITE_API_TOKEN  — jeton API MailerLite
+#   MAILERLITE_GROUP_ID   — (optionnel) ID du groupe d'abonnés ;
+#                           sans lui, envoi à tous les abonnés actifs
+#
+# Mémoire des envois : .github/newsletter-state.json (commité par le
+# workflow avec [CI Skip] pour ne pas déclencher de build Cloudflare).
+# Au premier passage, ce fichier est initialisé avec tous les textes
+# existants SANS rien envoyer — l'archive ne sera jamais spammée.
+# ════════════════════════════════════════════════════════════════
+name: Newsletter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/posts.json'
+  schedule:
+    - cron: '5 8 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (afficher sans envoyer)'
+        type: boolean
+        default: false
+
+# Jamais deux envois en parallèle
+concurrency:
+  group: newsletter
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    # Ne pas tourner sur le commit d'état du workflow lui-même
+    if: ${{ !contains(github.event.head_commit.message, '[CI Skip]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Envoyer la newsletter pour les nouveaux textes
+        env:
+          MAILERLITE_API_TOKEN: ${{ secrets.MAILERLITE_API_TOKEN }}
+          MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: node .github/scripts/send-newsletter.mjs
+
+      - name: Sauvegarder la mémoire des envois
+        run: |
+          if git diff --quiet .github/newsletter-state.json 2>/dev/null && git ls-files --error-unmatch .github/newsletter-state.json >/dev/null 2>&1; then
+            echo "Aucun changement d'état."
+          else
+            git config user.name "newsletter-bot"
+            git config user.email "actions@github.com"
+            git add .github/newsletter-state.json
+            git commit -m "[CI Skip] Newsletter : mise à jour de l'état des envois" || echo "Rien à committer."
+            git push
+          fi
