@@ -1,0 +1,41 @@
+# ════════════════════════════════════════════════════════════════
+# Sauvegarde hebdomadaire — JyDiel In-Time
+#
+# Chaque dimanche à 06h00 UTC (et à la demande via Run workflow),
+# archive data/ + images/ + les fichiers de code essentiels dans un
+# artefact GitHub conservé 90 jours.
+#
+# Pour restaurer : onglet Actions → Sauvegarde → ouvrir une exécution
+# → télécharger l'artefact « sauvegarde-AAAA-MM-JJ ».
+# ════════════════════════════════════════════════════════════════
+name: Sauvegarde
+
+on:
+  schedule:
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archiver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Préparer l'archive
+        run: |
+          STAMP=$(date +%Y-%m-%d)
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+          mkdir -p /tmp/sauvegarde
+          cp -r data /tmp/sauvegarde/
+          cp -r images /tmp/sauvegarde/
+          cp index.html admin/config.yml admin/index.html functions/_middleware.js /tmp/sauvegarde/ 2>/dev/null || true
+          du -sh /tmp/sauvegarde
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sauvegarde-${{ env.STAMP }}
+          path: /tmp/sauvegarde
+          retention-days: 90
