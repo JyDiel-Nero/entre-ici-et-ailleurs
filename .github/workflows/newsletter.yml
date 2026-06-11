@@ -51,11 +51,11 @@ jobs:
     # Ne pas tourner sur le commit d'état du workflow lui-même
     if: ${{ !contains(github.event.head_commit.message, '[CI Skip]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Envoyer la newsletter pour les nouveaux textes
         env:

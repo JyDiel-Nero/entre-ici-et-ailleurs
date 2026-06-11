@@ -22,7 +22,7 @@ jobs:
   archiver:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Préparer l'archive
         run: |
@@ -34,7 +34,7 @@ jobs:
           cp index.html admin/config.yml admin/index.html functions/_middleware.js /tmp/sauvegarde/ 2>/dev/null || true
           du -sh /tmp/sauvegarde
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: sauvegarde-${{ env.STAMP }}
           path: /tmp/sauvegarde
