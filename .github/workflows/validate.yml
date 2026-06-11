@@ -1,0 +1,79 @@
+# ════════════════════════════════════════════════════════════════
+# Garde-fou — JyDiel In-Time
+#
+# À chaque commit, vérifie AVANT que Cloudflare ne déploie :
+#   1. que tous les fichiers data/*.json et manifest.json sont valides
+#   2. que chaque fonction Cloudflare n'exporte onRequest qu'UNE fois
+#      (le double-collage a déjà cassé un déploiement)
+#   3. que la syntaxe JS des fonctions et des scripts de index.html
+#      est correcte
+#   4. qu'aucune référence active à l'ancien domaine pages.dev ne
+#      réapparaît dans le code servi
+#
+# En cas d'échec : croix rouge ✗ sur le commit dans GitHub + email.
+# Le site continue de fonctionner avec la version précédente le temps
+# de corriger.
+# ════════════════════════════════════════════════════════════════
+name: Garde-fou
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  valider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 1. Validité des JSON (data + manifest)
+        run: |
+          set -e
+          for f in data/*.json manifest.json; do
+            python3 -c "import json; json.load(open('$f'))" && echo "OK  $f"
+          done
+
+      - name: 2. Un seul export onRequest par fonction
+        run: |
+          set -e
+          for f in functions/_middleware.js functions/api/*.js; do
+            [ -f "$f" ] || continue
+            n=$(grep -cE '^export (async )?function onRequest\(' "$f" || true)
+            if [ "$n" -gt 1 ]; then
+              echo "✗ $f contient $n exports onRequest() (collage en double ?)"; exit 1
+            fi
+            echo "OK  $f ($n export)"
+          done
+          # Conflit de route : un fichier api/x.js ET un dossier api/x/ ne doivent pas coexister
+          for f in functions/api/*.js; do
+            d="${f%.js}"
+            if [ -d "$d" ]; then
+              echo "✗ Conflit de route : $f et le dossier $d/ existent tous les deux"; exit 1
+            fi
+          done
+
+      - name: 3. Syntaxe JS (fonctions + scripts de index.html)
+        run: |
+          set -e
+          mkdir -p /tmp/check
+          for f in functions/_middleware.js functions/api/*.js .github/scripts/*.mjs; do
+            [ -f "$f" ] || continue
+            cp "$f" "/tmp/check/$(basename "$f" .js).mjs"
+            node --check "/tmp/check/$(basename "$f" .js).mjs" && echo "OK  $f"
+          done
+          node .github/scripts/check-index-scripts.mjs
+
+      - name: 4. Aucune référence active à pages.dev
+        run: |
+          set -e
+          hits=$(grep -rn 'entre-ici-et-ailleurs\.pages\.dev' index.html functions/ admin/ _redirects 2>/dev/null | grep -v '^\s*\*\|//' || true)
+          if [ -n "$hits" ]; then
+            echo "✗ Référence(s) à l'ancien domaine pages.dev :"; echo "$hits"; exit 1
+          fi
+          echo "OK  domaine propre"
