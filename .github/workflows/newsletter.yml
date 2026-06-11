@@ -73,5 +73,11 @@ jobs:
             git config user.email "actions@github.com"
             git add .github/newsletter-state.json
             git commit -m "[CI Skip] Newsletter : mise à jour de l'état des envois" || echo "Rien à committer."
-            git push
+            # main peut avoir avancé pendant l'exécution (ou re-run d'un
+            # vieux commit) : on se rebase et on réessaie jusqu'à 3 fois
+            for i in 1 2 3; do
+              git push && break
+              echo "Push refusé (tentative $i) — rebase sur origin/main…"
+              git pull --rebase origin main
+            done
           fi
