@@ -1016,7 +1016,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       </div>
       <div id="searchResults" style="display:none;margin-bottom:30px"></div>
       <div class="blog-filters rv" id="blogFilters"></div>
-      <div style="text-align:right;margin:-10px 0 16px;opacity:.6">
+      <div style="text-align:right;margin:-10px 0 16px;opacity:.6;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <button type="button" id="openRecueilBtn" style="background:transparent;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 12px;cursor:pointer;outline:none;letter-spacing:.04em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.5)'" onmouseout="this.style.borderColor='rgba(201,169,110,.2)'">📖 Composer un recueil PDF</button>
         <select id="blogSort" style="background:transparent;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 10px;cursor:pointer;outline:none">
           <option value="pub-newest">Publiés récemment</option>
           <option value="pub-oldest">Publiés anciennement</option>
@@ -2081,6 +2082,7 @@ function renderArticle(slug){
   html += '<a href="https://twitter.com/intent/tweet?text='+shareTitle+'&url='+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">X / Twitter</a>';
   html += '<button type="button" id="shareCopyBtn" style="padding:8px 16px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.15)\'">Copier le lien</button>';
   if(navigator.share) html += '<button type="button" id="shareNativeBtn" style="padding:8px 16px;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.2)\'">&#x2197; Partager</button>';
+  html += '<button type="button" id="exportBtn" style="padding:8px 16px;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-size:11px;background:transparent;cursor:pointer;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.4)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.2)\'">&#x2193; Exporter (PDF / image)</button>';
   html += '</div></div>';
 
   html += '</div>'; /* end wrap-narrow */
@@ -2153,6 +2155,10 @@ function renderArticle(slug){
   var natBtn = document.getElementById('shareNativeBtn');
   if(natBtn) natBtn.addEventListener('click', function(){
     navigator.share({title: post.title + ' — JyDiel In-Time', url: shareUrl}).catch(function(){});
+  });
+  var expBtn = document.getElementById('exportBtn');
+  if(expBtn) expBtn.addEventListener('click', function(){
+    if(window.openExportPanel) openExportPanel(post);
   });
 
   /* Init likes & comments */
@@ -2703,6 +2709,13 @@ function filterScheduled(posts){
     return true;
   });
 }
+
+/* Helpers exposés en global pour le module d'export (hors IIFE) */
+window.__eia = window.__eia || {};
+window.__eia.esc = esc;
+window.__eia.mdToHtml = mdToHtml;
+window.__eia.filterScheduled = filterScheduled;
+window.__eia.getPosts = function(){ return POSTS; };
 
 /* ════════════════════════════════════════════════════════════════
    BANNIÈRES — fonctions de scope IIFE (appelées par renderAll
@@ -3400,6 +3413,551 @@ document.addEventListener('click', function(e){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeWelcome();
 });
+
+/* ═══ MODULE EXPORT (PDF · image · livret) ═══ */
+/* Alias vers les helpers internes exposés par l'IIFE */
+function esc(s){ return (window.__eia && window.__eia.esc) ? window.__eia.esc(s) : String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function mdToHtml(m){ return (window.__eia && window.__eia.mdToHtml) ? window.__eia.mdToHtml(m) : (m||''); }
+function filterScheduled(a){ return (window.__eia && window.__eia.filterScheduled) ? window.__eia.filterScheduled(a) : a; }
+
+/* ════════════════════════════════════════════════════════════════
+   MODULE EXPORT — PDF · Image carte · Mini-livret
+   Tout côté navigateur, librairies chargées à la demande.
+   ════════════════════════════════════════════════════════════════ */
+
+/* CDN des deux librairies (chargées seulement au premier clic) */
+var EXPORT_LIBS = {
+  jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+};
+var _libLoaded = {};
+
+function loadScript(url){
+  return new Promise(function(resolve, reject){
+    if(_libLoaded[url]) { resolve(); return; }
+    var s = document.createElement('script');
+    s.src = url;
+    s.onload = function(){ _libLoaded[url] = true; resolve(); };
+    s.onerror = function(){ reject(new Error('Échec du chargement : '+url)); };
+    document.head.appendChild(s);
+  });
+}
+
+/* Petit toast de progression réutilisable */
+function exportToast(msg){
+  var t = document.getElementById('exportToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'exportToast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(3,5,10,.95);border:1px solid rgba(201,169,110,.35);color:#C9A96E;font-family:Georgia,serif;font-size:13px;letter-spacing:.04em;padding:12px 22px;z-index:100002;border-radius:2px;transition:opacity .3s;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+    document.body.appendChild(t);
+  }
+  if(msg === null){
+    t.style.opacity = '0';
+    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 350);
+    return;
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+}
+
+/* Convertit une image (URL même cross-origin via le proxy même-origine
+   du site) en dataURL pour pouvoir la dessiner dans un canvas exporté.
+   Renvoie null si l'image ne peut pas être chargée proprement. */
+function imageToCanvasSafe(url){
+  return new Promise(function(resolve){
+    if(!url){ resolve(null); return; }
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){ resolve(img); };
+    img.onerror = function(){
+      /* Réessai sans crossOrigin (image même-origine) */
+      var img2 = new Image();
+      img2.onload = function(){ resolve(img2); };
+      img2.onerror = function(){ resolve(null); };
+      img2.src = url;
+    };
+    img.src = url;
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   1. EXPORT PDF D'UN ARTICLE (impression / archivage A4)
+   Utilise une fenêtre d'impression stylée → l'utilisateur
+   « Enregistre en PDF ». Fidèle, texte sélectionnable, multipage.
+   ───────────────────────────────────────────────────────────── */
+function exportArticlePDF(post){
+  var bodyHtml = mdToHtml(post.body || '');
+  var coverUrl = post.cover ? imgPath(post.cover) : '';
+  var dateStr = post.date ? esc(post.date) : '';
+  var tagStr = post.tag ? esc(post.tag) : '';
+
+  var win = window.open('', '_blank');
+  if(!win){ exportToast('Autorisez les fenêtres pop-up pour exporter en PDF.'); setTimeout(function(){exportToast(null);}, 2600); return; }
+
+  var doc = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">'
+    + '<title>' + esc(post.title) + ' — JyDiel In-Time</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '@page{size:A4;margin:22mm 20mm}'
+    + 'html,body{margin:0;padding:0}'
+    + 'body{font-family:"Merriweather",Georgia,serif;color:#1a1a1a;line-height:1.85;font-size:12pt}'
+    + '.doc{max-width:170mm;margin:0 auto}'
+    + '.hd{text-align:center;border-bottom:1px solid #C9A96E;padding-bottom:14px;margin-bottom:8px}'
+    + '.brand{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.22em;font-size:11pt;color:#9a7b3e;text-transform:uppercase;margin:0}'
+    + '.sub{font-size:8pt;letter-spacing:.1em;color:#999;margin:3px 0 0}'
+    + '.tag{font-family:"Cormorant Garamond",serif;letter-spacing:.2em;font-size:9pt;color:#9a7b3e;text-transform:uppercase;text-align:center;margin:22px 0 4px}'
+    + 'h1{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:26pt;line-height:1.2;text-align:center;margin:0 0 4px;color:#111}'
+    + '.date{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:11pt;color:#888;text-align:center;margin:0 0 26px}'
+    + '.cover{display:block;width:100%;max-height:90mm;object-fit:cover;margin:0 0 26px;border:1px solid #e6dcc8}'
+    + '.body p{margin:0 0 1.2em;text-align:left}'
+    + '.body figure{margin:1.4em 0;text-align:center}'
+    + '.body figure img{max-width:100%;max-height:80mm;border:1px solid #e6dcc8}'
+    + '.body figcaption{font-style:italic;font-size:9pt;color:#999;margin-top:6px}'
+    + '.body blockquote{border-left:2px solid #C9A96E;margin:1.2em 0;padding-left:16px;font-style:italic;color:#555}'
+    + '.sep-long{width:60px;height:1px;background:#C9A96E;margin:1.6em auto}'
+    + '.end{text-align:center;font-family:"Cormorant Garamond",serif;font-style:italic;color:#999;margin:32px 0 0;font-size:13pt}'
+    + '.ft{text-align:center;border-top:1px solid #e6dcc8;margin-top:26px;padding-top:12px;font-family:"Cormorant Garamond",serif;font-size:9pt;color:#aaa}'
+    + '.ft a{color:#9a7b3e;text-decoration:none}'
+    + '@media print{a{color:inherit;text-decoration:none}}'
+    + '</style></head><body><div class="doc">'
+    + '<div class="hd"><p class="brand">JyDiel In-Time</p><p class="sub">Entre ici et ailleurs</p></div>'
+    + (tagStr ? '<p class="tag">' + tagStr + '</p>' : '')
+    + '<h1>' + esc(post.title) + '</h1>'
+    + (dateStr ? '<p class="date">' + dateStr + '</p>' : '')
+    + (coverUrl ? '<img class="cover" src="' + esc(coverUrl) + '" alt="">' : '')
+    + '<div class="body">' + bodyHtml + '</div>'
+    + '<p class="end">— Fin —</p>'
+    + '<div class="ft">© 2013–2026 NAM Johnny Yao Daniel-Marie — <a href="https://jydielintime.com/article/' + esc(post.slug) + '">jydielintime.com</a></div>'
+    + '</div>'
+    + '<script>window.onload=function(){setTimeout(function(){window.focus();window.print();},600);};<\/script>'
+    + '</body></html>';
+
+  win.document.open();
+  win.document.write(doc);
+  win.document.close();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. CARTE IMAGE (partage social) — 3 formats au choix
+   Rendu maîtrisé sur <canvas>. Fond = couverture si dispo, sinon
+   fond nuit uni. Texte = poème entier si court, sinon extrait.
+   ───────────────────────────────────────────────────────────── */
+var CARD_FORMATS = {
+  square:   { w:1080, h:1080, label:'Carré (1080×1080)' },
+  portrait: { w:1080, h:1350, label:'Portrait (1080×1350)' },
+  story:    { w:1080, h:1920, label:'Story (1080×1920)' }
+};
+
+/* Extrait le texte brut du poème (sans markdown ni images) */
+function poemPlainText(body){
+  if(!body) return '';
+  return body
+    .replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g,'')      /* images */
+    .replace(/^---$/gm,'')                      /* séparateurs */
+    .replace(/^>\s?/gm,'')                       /* citations */
+    .replace(/\*\*\*(.+?)\*\*\*/g,'$1')
+    .replace(/\*\*(.+?)\*\*/g,'$1')
+    .replace(/\*(.+?)\*/g,'$1')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+
+/* Décide quel texte montrer : poème entier si « court », sinon extrait */
+function cardText(post){
+  var poem = poemPlainText(post.body || '');
+  var lines = poem.split('\n').filter(function(l){ return l.trim() !== ''; });
+  /* « court » = au plus 12 vers et 420 caractères */
+  if(poem && lines.length <= 12 && poem.length <= 420){
+    return { text: poem, full: true };
+  }
+  var ex = (post.excerpt || '').trim();
+  if(!ex){
+    /* pas d'extrait → 4 premiers vers du poème */
+    ex = lines.slice(0,4).join('\n');
+  }
+  return { text: ex, full: false };
+}
+
+/* Dessine le texte multi-ligne centré avec retour à la ligne auto */
+function wrapAndDraw(ctx, text, cx, startY, maxW, lineH, font){
+  ctx.font = font;
+  var paragraphs = text.split('\n');
+  var y = startY;
+  for(var p=0; p<paragraphs.length; p++){
+    var words = paragraphs[p].split(' ');
+    var line = '';
+    for(var n=0; n<words.length; n++){
+      var test = line ? line + ' ' + words[n] : words[n];
+      if(ctx.measureText(test).width > maxW && line){
+        ctx.fillText(line, cx, y);
+        line = words[n];
+        y += lineH;
+      } else {
+        line = test;
+      }
+    }
+    if(line){ ctx.fillText(line, cx, y); y += lineH; }
+    if(paragraphs[p].trim() === '') y += lineH * 0.4; /* respiration entre strophes */
+  }
+  return y;
+}
+
+function generateCard(post, formatKey){
+  var fmt = CARD_FORMATS[formatKey] || CARD_FORMATS.square;
+  var W = fmt.w, H = fmt.h;
+  var coverUrl = post.cover ? imgPath(post.cover) : '';
+
+  exportToast('Composition de la carte…');
+
+  return imageToCanvasSafe(coverUrl).then(function(coverImg){
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    /* ── Fond ── */
+    ctx.fillStyle = '#03050A';
+    ctx.fillRect(0, 0, W, H);
+
+    if(coverImg){
+      /* Couverture en cover + voile sombre pour lisibilité */
+      var ir = coverImg.width / coverImg.height;
+      var cr = W / H, dw, dh, dx, dy;
+      if(ir > cr){ dh = H; dw = H * ir; dx = (W - dw) / 2; dy = 0; }
+      else { dw = W; dh = W / ir; dx = 0; dy = (H - dh) / 2; }
+      ctx.drawImage(coverImg, dx, dy, dw, dh);
+      var grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, 'rgba(3,5,10,.78)');
+      grad.addColorStop(0.5, 'rgba(3,5,10,.62)');
+      grad.addColorStop(1, 'rgba(3,5,10,.86)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      /* Fond uni + halo doré discret */
+      var rg = ctx.createRadialGradient(W/2, H*0.38, 60, W/2, H*0.38, W*0.75);
+      rg.addColorStop(0, 'rgba(201,169,110,.10)');
+      rg.addColorStop(1, 'rgba(3,5,10,0)');
+      ctx.fillStyle = rg;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    /* ── Cadre doré fin ── */
+    var pad = Math.round(W * 0.075);
+    ctx.strokeStyle = 'rgba(201,169,110,.45)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pad, pad, W - pad*2, H - pad*2);
+
+    var cx = W / 2;
+
+    /* ── En-tête : marque ── */
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#C9A96E';
+    ctx.font = 'italic 30px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('JYDIEL IN-TIME', cx, pad + 64);
+    ctx.fillStyle = 'rgba(201,169,110,.6)';
+    ctx.font = '20px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('· Entre ici et ailleurs ·', cx, pad + 96);
+
+    /* ── Tag ── */
+    var topY = H * 0.2;
+    if(post.tag){
+      ctx.fillStyle = 'rgba(201,169,110,.8)';
+      ctx.font = '22px "Cormorant Garamond", Georgia, serif';
+      ctx.fillText(post.tag.toUpperCase().split('').join('\u200a'), cx, topY);
+      topY += 40;
+    }
+
+    /* ── Titre ── */
+    ctx.fillStyle = '#E8E4DC';
+    var titleSize = W > 1080 ? 64 : 60;
+    var ty = wrapAndDraw(ctx, post.title || '', cx, topY + titleSize, W - pad*2 - 60, titleSize*1.15,
+      '600 ' + titleSize + 'px "Cormorant Garamond", Georgia, serif');
+
+    /* ── Filet ── */
+    ty += 24;
+    ctx.strokeStyle = 'rgba(201,169,110,.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx - 45, ty); ctx.lineTo(cx + 45, ty); ctx.stroke();
+    ty += 60;
+
+    /* ── Corps (poème ou extrait) ── */
+    var ct = cardText(post);
+    ctx.fillStyle = 'rgba(232,228,220,.92)';
+    var bodySize = ct.full ? (W > 1080 ? 36 : 33) : (W > 1080 ? 40 : 37);
+    var maxBodyW = W - pad*2 - 40;
+    /* Ajuste si trop long pour la hauteur dispo */
+    var avail = (H - pad - 120) - ty;
+    var approxLines = 0;
+    ct.text.split('\n').forEach(function(l){
+      approxLines += Math.max(1, Math.ceil(ctx.measureText(l).width / maxBodyW));
+    });
+    var lineH = bodySize * 1.5;
+    while(approxLines * lineH > avail && bodySize > 20){
+      bodySize -= 2; lineH = bodySize * 1.5;
+      approxLines = 0;
+      ctx.font = (ct.full ? '' : 'italic ') + bodySize + 'px "Cormorant Garamond", Georgia, serif';
+      ct.text.split('\n').forEach(function(l){
+        approxLines += Math.max(1, Math.ceil(ctx.measureText(l).width / maxBodyW));
+      });
+    }
+    var bodyFont = (ct.full ? '' : 'italic ') + bodySize + 'px "Cormorant Garamond", Georgia, serif';
+    var endY = wrapAndDraw(ctx, ct.text, cx, ty + bodySize, maxBodyW, lineH, bodyFont);
+
+    /* ── Signature ── */
+    ctx.fillStyle = 'rgba(201,169,110,.8)';
+    ctx.font = 'italic 26px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('— J.Y.D.', cx, H - pad - 50);
+    ctx.fillStyle = 'rgba(201,169,110,.5)';
+    ctx.font = '18px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('jydielintime.com/article/' + post.slug, cx, H - pad - 18);
+
+    return canvas;
+  });
+}
+
+/* Génère puis télécharge la carte */
+function exportCardImage(post, formatKey, type){
+  /* S'assure que les polices sont prêtes pour un rendu net */
+  var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  return fontsReady.then(function(){
+    return generateCard(post, formatKey);
+  }).then(function(canvas){
+    var mime = type === 'png' ? 'image/png' : 'image/jpeg';
+    var ext = type === 'png' ? 'png' : 'jpg';
+    var data = canvas.toDataURL(mime, 0.92);
+    var a = document.createElement('a');
+    a.href = data;
+    a.download = 'jydiel-' + post.slug + '-' + formatKey + '.' + ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    exportToast('Image enregistrée ✓');
+    setTimeout(function(){ exportToast(null); }, 2000);
+  }).catch(function(){
+    exportToast('Erreur lors de la création de l\u2019image.');
+    setTimeout(function(){ exportToast(null); }, 2600);
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PANNEAU D'EXPORT (ouvre les choix : PDF / formats d'image)
+   ───────────────────────────────────────────────────────────── */
+function openExportPanel(post){
+  var existing = document.getElementById('exportPanel');
+  if(existing) existing.parentNode.removeChild(existing);
+
+  var ov = document.createElement('div');
+  ov.id = 'exportPanel';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.86);z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+
+  var fmtBtns = Object.keys(CARD_FORMATS).map(function(k){
+    return '<button type="button" class="exp-fmt" data-fmt="'+k+'" style="display:block;width:100%;margin:6px 0;padding:11px;background:transparent;border:1px solid rgba(201,169,110,.25);color:#C9A96E;font-family:Georgia,serif;font-size:13px;cursor:pointer;letter-spacing:.04em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.6)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.25)\'">'+CARD_FORMATS[k].label+'</button>';
+  }).join('');
+
+  ov.innerHTML =
+    '<div style="background:#06080F;border:1px solid rgba(201,169,110,.3);max-width:380px;width:100%;padding:30px 26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)">'
+    + '<button type="button" id="expClose" aria-label="Fermer" style="position:absolute;top:12px;right:14px;background:transparent;border:none;color:rgba(201,169,110,.6);font-size:22px;cursor:pointer;line-height:1">×</button>'
+    + '<p style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:22px;color:#C9A96E;text-align:center;margin:0 0 4px">Exporter ce texte</p>'
+    + '<p style="font-size:11px;color:#8a8f98;text-align:center;margin:0 0 22px;font-family:Georgia,serif">'+esc(post.title)+'</p>'
+    + '<p style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6b7078;margin:0 0 8px;font-family:Georgia,serif">Document</p>'
+    + '<button type="button" id="expPdf" style="display:block;width:100%;margin:0 0 18px;padding:13px;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.35);color:#C9A96E;font-family:Georgia,serif;font-size:13px;cursor:pointer;letter-spacing:.04em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.7)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.35)\'">📄 PDF (A4, impression)</button>'
+    + '<p style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6b7078;margin:0 0 8px;font-family:Georgia,serif">Image de partage</p>'
+    + fmtBtns
+    + '<div id="expTypeRow" style="display:none;margin-top:10px;text-align:center">'
+    +   '<span style="font-size:11px;color:#8a8f98;font-family:Georgia,serif;margin-right:8px">Format :</span>'
+    +   '<button type="button" class="exp-type" data-type="jpg" style="padding:6px 14px;margin:0 3px;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.4);color:#C9A96E;font-size:12px;cursor:pointer;font-family:Georgia,serif">JPG</button>'
+    +   '<button type="button" class="exp-type" data-type="png" style="padding:6px 14px;margin:0 3px;background:transparent;border:1px solid rgba(201,169,110,.25);color:#C9A96E;font-size:12px;cursor:pointer;font-family:Georgia,serif">PNG</button>'
+    + '</div>'
+    + '</div>';
+
+  document.body.appendChild(ov);
+
+  var chosenFmt = null;
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.addEventListener('click', function(e){ if(e.target === ov) close(); });
+  document.getElementById('expClose').addEventListener('click', close);
+
+  document.getElementById('expPdf').addEventListener('click', function(){
+    close();
+    exportArticlePDF(post);
+  });
+
+  var typeRow = document.getElementById('expTypeRow');
+  Array.prototype.forEach.call(ov.querySelectorAll('.exp-fmt'), function(btn){
+    btn.addEventListener('click', function(){
+      chosenFmt = btn.getAttribute('data-fmt');
+      Array.prototype.forEach.call(ov.querySelectorAll('.exp-fmt'), function(b){ b.style.borderColor = 'rgba(201,169,110,.25)'; });
+      btn.style.borderColor = 'rgba(201,169,110,.8)';
+      typeRow.style.display = 'block';
+    });
+  });
+  Array.prototype.forEach.call(ov.querySelectorAll('.exp-type'), function(btn){
+    btn.addEventListener('click', function(){
+      if(!chosenFmt) return;
+      var type = btn.getAttribute('data-type');
+      close();
+      exportCardImage(post, chosenFmt, type);
+    });
+  });
+}
+
+/* Exposé en global pour les onclick inline et l'appel depuis renderArticle */
+window.openExportPanel = openExportPanel;
+
+/* ─────────────────────────────────────────────────────────────
+   3. MINI-LIVRET PDF (recueil multi-poèmes)
+   Page de titre + sommaire + un poème par section. Texte
+   sélectionnable, multipage, même charte que l'export article.
+   ───────────────────────────────────────────────────────────── */
+function exportBooklet(posts, opts){
+  opts = opts || {};
+  var title = opts.title || 'Recueil';
+  var subtitle = opts.subtitle || 'Un choix de textes';
+
+  if(!posts || !posts.length){ exportToast('Sélectionnez au moins un texte.'); setTimeout(function(){exportToast(null);}, 2400); return; }
+
+  var win = window.open('', '_blank');
+  if(!win){ exportToast('Autorisez les fenêtres pop-up pour exporter.'); setTimeout(function(){exportToast(null);}, 2600); return; }
+
+  var toc = posts.map(function(p, i){
+    return '<li><span class="toc-n">'+(i+1)+'.</span> <span class="toc-t">'+esc(p.title)+'</span>'
+      + (p.tag ? ' <span class="toc-tag">'+esc(p.tag)+'</span>' : '') + '</li>';
+  }).join('');
+
+  var sections = posts.map(function(p){
+    var bodyHtml = mdToHtml(p.body || '');
+    var coverUrl = p.cover ? imgPath(p.cover) : '';
+    return '<section class="poem">'
+      + (p.tag ? '<p class="tag">'+esc(p.tag)+'</p>' : '')
+      + '<h2>'+esc(p.title)+'</h2>'
+      + (p.date ? '<p class="date">'+esc(p.date)+'</p>' : '')
+      + (coverUrl ? '<img class="cover" src="'+esc(coverUrl)+'" alt="">' : '')
+      + '<div class="body">'+bodyHtml+'</div>'
+      + '</section>';
+  }).join('');
+
+  var doc = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">'
+    + '<title>'+esc(title)+' — JyDiel In-Time</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '@page{size:A4;margin:22mm 20mm}'
+    + 'html,body{margin:0;padding:0}'
+    + 'body{font-family:"Merriweather",Georgia,serif;color:#1a1a1a;line-height:1.85;font-size:12pt}'
+    + '.cover-page{height:248mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;page-break-after:always}'
+    + '.cover-page .brand{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.25em;font-size:13pt;color:#9a7b3e;text-transform:uppercase}'
+    + '.cover-page h1{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:40pt;margin:30px 0 8px;color:#111}'
+    + '.cover-page .st{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:16pt;color:#888}'
+    + '.cover-page .line{width:70px;height:1px;background:#C9A96E;margin:28px 0}'
+    + '.cover-page .meta{font-family:"Cormorant Garamond",serif;font-size:11pt;color:#aaa;margin-top:auto;padding-bottom:6mm}'
+    + '.toc{page-break-after:always}'
+    + '.toc h3{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:22pt;color:#111;border-bottom:1px solid #C9A96E;padding-bottom:8px}'
+    + '.toc ul{list-style:none;padding:0}'
+    + '.toc li{padding:9px 0;border-bottom:1px dotted #ddd;font-family:"Cormorant Garamond",serif;font-size:14pt}'
+    + '.toc-n{color:#9a7b3e;margin-right:8px}'
+    + '.toc-tag{font-size:9pt;color:#aaa;letter-spacing:.1em;text-transform:uppercase;float:right}'
+    + '.poem{page-break-before:always}'
+    + '.poem .tag{font-family:"Cormorant Garamond",serif;letter-spacing:.2em;font-size:9pt;color:#9a7b3e;text-transform:uppercase;text-align:center;margin:0 0 4px}'
+    + '.poem h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:24pt;text-align:center;margin:0 0 4px;color:#111}'
+    + '.poem .date{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:11pt;color:#888;text-align:center;margin:0 0 22px}'
+    + '.poem .cover{display:block;width:100%;max-height:80mm;object-fit:cover;margin:0 0 22px;border:1px solid #e6dcc8}'
+    + '.body p{margin:0 0 1.1em}'
+    + '.body figure{margin:1.2em 0;text-align:center}.body figure img{max-width:100%;max-height:70mm;border:1px solid #e6dcc8}'
+    + '.body figcaption{font-style:italic;font-size:9pt;color:#999;margin-top:5px}'
+    + '.body blockquote{border-left:2px solid #C9A96E;margin:1.1em 0;padding-left:14px;font-style:italic;color:#555}'
+    + '.sep-long{width:55px;height:1px;background:#C9A96E;margin:1.4em auto}'
+    + '@media print{a{color:inherit;text-decoration:none}}'
+    + '</style></head><body>'
+    + '<div class="cover-page"><p class="brand">JyDiel In-Time · Entre ici et ailleurs</p>'
+    +   '<h1>'+esc(title)+'</h1><div class="line"></div><p class="st">'+esc(subtitle)+'</p>'
+    +   '<p class="meta">'+posts.length+' texte'+(posts.length>1?'s':'')+' · jydielintime.com</p></div>'
+    + '<div class="toc"><h3>Sommaire</h3><ul>'+toc+'</ul></div>'
+    + sections
+    + '<script>window.onload=function(){setTimeout(function(){window.focus();window.print();},700);};<\/script>'
+    + '</body></html>';
+
+  win.document.open(); win.document.write(doc); win.document.close();
+}
+window.exportBooklet = exportBooklet;
+
+/* ─────────────────────────────────────────────────────────────
+   PANNEAU RECUEIL — sélection multi-poèmes → mini-livret PDF
+   ───────────────────────────────────────────────────────────── */
+function openRecueilPanel(){
+  var existing = document.getElementById('recueilPanel');
+  if(existing) existing.parentNode.removeChild(existing);
+
+  var allPosts = (window.__eia && window.__eia.getPosts) ? window.__eia.getPosts() : [];
+  var pool = allPosts.filter(function(p){ return p.published !== false; });
+  pool = filterScheduled(pool);
+
+  var ov = document.createElement('div');
+  ov.id = 'recueilPanel';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.88);z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+
+  var rows = pool.map(function(p){
+    return '<label style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid rgba(201,169,110,.08);cursor:pointer;font-family:Georgia,serif">'
+      + '<input type="checkbox" class="rec-cb" value="'+esc(p.slug)+'" style="accent-color:#C9A96E;width:16px;height:16px;flex:none">'
+      + '<span style="flex:1;color:#E8E4DC;font-size:14px">'+esc(p.title)+'</span>'
+      + (p.tag ? '<span style="font-size:9px;color:#8a8f98;letter-spacing:.1em;text-transform:uppercase">'+esc(p.tag)+'</span>' : '')
+      + '</label>';
+  }).join('');
+
+  ov.innerHTML =
+    '<div style="background:#06080F;border:1px solid rgba(201,169,110,.3);max-width:480px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6)">'
+    + '<div style="padding:24px 24px 14px;border-bottom:1px solid rgba(201,169,110,.15);position:relative">'
+    +   '<button type="button" id="recClose" aria-label="Fermer" style="position:absolute;top:14px;right:16px;background:transparent;border:none;color:rgba(201,169,110,.6);font-size:22px;cursor:pointer;line-height:1">×</button>'
+    +   '<p style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:23px;color:#C9A96E;margin:0 0 4px">Composer un recueil</p>'
+    +   '<p style="font-size:11px;color:#8a8f98;margin:0;font-family:Georgia,serif">Cochez les textes à réunir dans un PDF relié.</p>'
+    +   '<div style="margin-top:14px"><input type="text" id="recTitle" placeholder="Titre du recueil (ex. Saison d\'hiver)" maxlength="60" style="width:100%;padding:9px 12px;background:rgba(6,13,24,.8);border:1px solid rgba(201,169,110,.2);color:#E8E4DC;font-family:Georgia,serif;font-size:13px;outline:none;box-sizing:border-box"></div>'
+    + '</div>'
+    + '<div style="padding:6px 18px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#8a8f98;font-family:Georgia,serif;border-bottom:1px solid rgba(201,169,110,.08)">'
+    +   '<button type="button" id="recAll" style="background:transparent;border:none;color:#C9A96E;cursor:pointer;font-size:11px;font-family:Georgia,serif">Tout cocher</button>'
+    +   '<span id="recCount">0 sélectionné</span>'
+    +   '<button type="button" id="recNone" style="background:transparent;border:none;color:#C9A96E;cursor:pointer;font-size:11px;font-family:Georgia,serif">Tout décocher</button>'
+    + '</div>'
+    + '<div style="flex:1;overflow-y:auto;padding:4px 18px">'+rows+'</div>'
+    + '<div style="padding:16px 24px;border-top:1px solid rgba(201,169,110,.15)">'
+    +   '<button type="button" id="recGenerate" style="width:100%;padding:13px;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.4);color:#C9A96E;font-family:Georgia,serif;font-size:13px;cursor:pointer;letter-spacing:.05em">Générer le PDF du recueil</button>'
+    + '</div></div>';
+
+  document.body.appendChild(ov);
+
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.addEventListener('click', function(e){ if(e.target === ov) close(); });
+  document.getElementById('recClose').addEventListener('click', close);
+
+  var cbs = Array.prototype.slice.call(ov.querySelectorAll('.rec-cb'));
+  var countEl = document.getElementById('recCount');
+  function updateCount(){
+    var n = cbs.filter(function(c){ return c.checked; }).length;
+    countEl.textContent = n + ' sélectionné' + (n > 1 ? 's' : '');
+  }
+  cbs.forEach(function(c){ c.addEventListener('change', updateCount); });
+  document.getElementById('recAll').addEventListener('click', function(){ cbs.forEach(function(c){ c.checked = true; }); updateCount(); });
+  document.getElementById('recNone').addEventListener('click', function(){ cbs.forEach(function(c){ c.checked = false; }); updateCount(); });
+
+  document.getElementById('recGenerate').addEventListener('click', function(){
+    var chosen = cbs.filter(function(c){ return c.checked; }).map(function(c){ return c.value; });
+    if(!chosen.length){ exportToast('Cochez au moins un texte.'); setTimeout(function(){exportToast(null);}, 2200); return; }
+    var selected = [];
+    chosen.forEach(function(slug){
+      for(var i=0;i<pool.length;i++){ if(pool[i].slug === slug){ selected.push(pool[i]); break; } }
+    });
+    var title = (document.getElementById('recTitle').value || 'Recueil').trim();
+    close();
+    exportBooklet(selected, { title: title, subtitle: 'Un choix de textes' });
+  });
+}
+window.openRecueilPanel = openRecueilPanel;
+
+/* Bouton « Composer un recueil » (vue blog) — délégation globale */
+document.addEventListener('click', function(e){
+  var t = e.target;
+  if(t && (t.id === 'openRecueilBtn' || (t.closest && t.closest('#openRecueilBtn')))){
+    if(window.openRecueilPanel) openRecueilPanel();
+  }
+});
+
 </script>
 
 <!-- ═══ WELCOME POPUP ═══ -->
