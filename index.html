@@ -1088,12 +1088,15 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
           </div>
         </div>
       </div>
+      <div id="aproposInstall" class="rv" style="display:none;max-width:600px;margin:60px auto 0;padding:32px 28px;border:1px solid rgba(201,169,110,.18);text-align:center;background:rgba(201,169,110,.03)">
+        <p style="font-family:var(--ff-t);font-size:24px;color:var(--g2);margin:0 0 8px">Emportez ce lieu avec vous</p>
+        <p style="font-family:var(--ff-b);font-size:13px;color:var(--g3);line-height:1.7;margin:0 0 20px">Installez JyDiel In-Time sur votre écran d'accueil, comme une application — pour revenir ici d'un seul geste, où que vous soyez, même hors ligne.</p>
+        <button type="button" id="aproposInstallBtn" style="background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.4);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:11px 26px;cursor:pointer;letter-spacing:.08em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.7)'" onmouseout="this.style.borderColor='rgba(201,169,110,.4)'">❖ Installer l'application</button>
+        <p id="aproposInstallHint" style="font-family:var(--ff-b);font-size:12px;color:var(--g3);line-height:1.7;margin:18px 0 0;display:none"></p>
+      </div>
     </div>
   </section>
 </div>
-
-<!-- ════════════════════════════════════════════════════════════════
-     VUE 5b — MINUTES
      ════════════════════════════════════════════════════════════════ -->
 <div class="view" id="v-audio">
   <section class="ph s-deep" style="position:relative;overflow:hidden">
@@ -1281,6 +1284,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
     <a href="/un-instant" data-page="apropos" id="ft-apropos">Un instant</a>
     <a href="/entretemps" data-page="contact" id="ft-contact">Entretemps</a>
   </div>
+  <p id="footerInstall" style="text-align:center;margin-bottom:10px;display:none"><a href="#" id="footerInstallLink" style="color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.1em;border-bottom:1px solid rgba(201,169,110,.3);padding-bottom:2px">❖ Garder JyDiel In-Time à portée de main</a></p>
   <p id="footerRss" style="text-align:center;margin-bottom:8px"><a href="/feed.xml" title="Flux RSS" style="color:var(--g3);font-size:12px;text-decoration:none;letter-spacing:.1em">⊞ RSS</a></p>
   <p class="footer-copy">© 2013–2026 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · <a href="https://jydielintime.com" style="color:inherit">jydielintime.com</a> · Tous droits réservés.</p>
   <p style="margin-top:12px"><a href="/confidentialite" data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
@@ -2036,6 +2040,7 @@ function renderArticle(slug){
   html += '<p class="t-label">'+esc(post.tag||'')+'</p>';
   html += '<h1 class="t-title xl" style="margin:12px 0">'+esc(post.title)+'</h1>';
   html += '<p style="font-family:var(--ff-b);font-size:12px;color:var(--g3)">'+esc(post.date||'')+' · '+readTime(post.body)+' min de lecture</p>';
+  html += '<div style="margin-top:14px"><button type="button" id="exportBtnTop" style="background:transparent;border:1px solid rgba(201,169,110,.25);color:var(--gold);font-family:var(--ff-b);font-size:11px;padding:7px 16px;cursor:pointer;letter-spacing:.08em;transition:border-color .2s" onmouseover="this.style.borderColor=\'rgba(201,169,110,.6)\'" onmouseout="this.style.borderColor=\'rgba(201,169,110,.25)\'">&#x2193; Emporter ce texte — PDF ou image</button></div>';
   html += '<div class="sep-long"></div>';
   html += '</div>';
 
@@ -2158,6 +2163,10 @@ function renderArticle(slug){
   });
   var expBtn = document.getElementById('exportBtn');
   if(expBtn) expBtn.addEventListener('click', function(){
+    if(window.openExportPanel) openExportPanel(post);
+  });
+  var expBtnTop = document.getElementById('exportBtnTop');
+  if(expBtnTop) expBtnTop.addEventListener('click', function(){
     if(window.openExportPanel) openExportPanel(post);
   });
 
@@ -3948,6 +3957,138 @@ function openRecueilPanel(){
     exportBooklet(selected, { title: title, subtitle: 'Un choix de textes' });
   });
 }
+/* ════════════════════════════════════════════════════════════════
+   MODULE INSTALLATION (PWA) — bandeau · pied de page · carte « Un instant »
+   ════════════════════════════════════════════════════════════════ */
+(function(){
+  var deferredPrompt = null;     /* événement Android capté */
+  var bannerEl, bannerBtn, bannerClose, bannerText;
+
+  function isStandalone(){
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+        || window.navigator.standalone === true;
+  }
+  function isIOS(){
+    return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.MSStream;
+  }
+  function isSafari(){
+    var ua = window.navigator.userAgent;
+    return /safari/i.test(ua) && !/chrome|crios|fxios|edgios/i.test(ua);
+  }
+
+  /* Texte d'aide iOS (geste manuel, pas de prompt possible) */
+  var IOS_HINT = 'Sur iPhone ou iPad : touchez l\u2019icône Partager, puis « Sur l\u2019écran d\u2019accueil ».';
+
+  /* Affiche/masque les points d'entrée « toujours visibles » selon
+     que l'installation est possible et que l'app n'est pas déjà posée */
+  function refreshEntryPoints(){
+    var installable = !!deferredPrompt || isIOS();
+    var show = installable && !isStandalone();
+
+    var footer = document.getElementById('footerInstall');
+    if(footer) footer.style.display = show ? 'block' : 'none';
+
+    var card = document.getElementById('aproposInstall');
+    if(card) card.style.display = show ? 'block' : 'none';
+  }
+
+  /* Lance l'installation : prompt natif (Android) ou aide (iOS) */
+  function triggerInstall(hintTargetId){
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){
+        deferredPrompt = null;
+        hideBanner();
+        refreshEntryPoints();
+      });
+      return;
+    }
+    if(isIOS()){
+      /* Pas de prompt sur iOS : on montre le geste */
+      if(hintTargetId){
+        var hint = document.getElementById(hintTargetId);
+        if(hint){ hint.textContent = IOS_HINT; hint.style.display = 'block'; }
+      } else {
+        installToast(IOS_HINT);
+      }
+    }
+  }
+
+  /* Petit toast réutilisable pour l'aide iOS depuis le bandeau */
+  function installToast(msg){
+    var t = document.getElementById('installToast');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'installToast';
+      t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);max-width:340px;width:calc(100% - 40px);background:rgba(3,5,10,.97);border:1px solid rgba(201,169,110,.35);color:#C9A96E;font-family:Georgia,serif;font-size:13px;line-height:1.5;padding:14px 18px;z-index:100002;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 6000);
+  }
+
+  /* ── Bandeau bas (une seule fois) ── */
+  function showBanner(){
+    if(!bannerEl) return;
+    if(isStandalone()) return;
+    if(localStorage.getItem('jit-install-dismissed')) return;
+    /* Rien à proposer ? (ni prompt Android, ni iOS) → on s'abstient */
+    if(!deferredPrompt && !isIOS()) return;
+
+    if(isIOS()){
+      bannerText.textContent = IOS_HINT;
+      bannerBtn.style.display = 'none';   /* pas de bouton actif sur iOS */
+    }
+    /* léger délai pour ne pas heurter l'arrivée sur la page */
+    setTimeout(function(){
+      bannerEl.style.transform = 'translateX(-50%) translateY(0)';
+    }, 1600);
+  }
+  function hideBanner(){
+    if(!bannerEl) return;
+    bannerEl.style.transform = 'translateX(-50%) translateY(140%)';
+  }
+  function dismissBanner(){
+    hideBanner();
+    try{ localStorage.setItem('jit-install-dismissed','1'); }catch(e){}
+  }
+
+  /* ── Câblage ── */
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    refreshEntryPoints();
+    showBanner();
+  });
+
+  window.addEventListener('appinstalled', function(){
+    deferredPrompt = null;
+    dismissBanner();
+    refreshEntryPoints();
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    bannerEl = document.getElementById('installBanner');
+    bannerBtn = document.getElementById('installBannerBtn');
+    bannerClose = document.getElementById('installBannerClose');
+    bannerText = document.getElementById('installBannerText');
+
+    if(bannerBtn) bannerBtn.addEventListener('click', function(){ triggerInstall(null); });
+    if(bannerClose) bannerClose.addEventListener('click', dismissBanner);
+
+    var footerLink = document.getElementById('footerInstallLink');
+    if(footerLink) footerLink.addEventListener('click', function(e){ e.preventDefault(); triggerInstall(null); });
+
+    var cardBtn = document.getElementById('aproposInstallBtn');
+    if(cardBtn) cardBtn.addEventListener('click', function(){ triggerInstall('aproposInstallHint'); });
+
+    refreshEntryPoints();
+
+    /* iOS n'émet jamais beforeinstallprompt : on tente le bandeau direct */
+    if(isIOS() && isSafari()) showBanner();
+  });
+})();
+
 window.openRecueilPanel = openRecueilPanel;
 
 /* Bouton « Composer un recueil » (vue blog) — délégation globale */
@@ -3975,6 +4116,16 @@ document.addEventListener('click', function(e){
     <p class="welcome-text">Entrez donc et vous le saurez&#8230;</p>
     <button class="welcome-btn" onclick="closeWelcome()">Entrer</button>
   </div>
+</div>
+
+<!-- Bandeau d'installation (PWA) — affiché une fois, en bas -->
+<div id="installBanner" style="position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(140%);max-width:440px;width:calc(100% - 32px);background:rgba(6,8,15,.97);border:1px solid rgba(201,169,110,.3);box-shadow:0 16px 50px rgba(0,0,0,.55);padding:18px 20px;z-index:99998;transition:transform .55s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;gap:16px">
+  <div style="flex:1">
+    <p style="font-family:var(--ff-t);font-size:17px;color:var(--g2);margin:0 0 3px">Emportez ces mots avec vous</p>
+    <p id="installBannerText" style="font-family:var(--ff-b);font-size:12px;color:var(--g3);line-height:1.5;margin:0">Ajoutez JyDiel In-Time à votre écran d'accueil, comme une application.</p>
+  </div>
+  <button type="button" id="installBannerBtn" style="flex:none;background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.4);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:9px 16px;cursor:pointer;letter-spacing:.06em;white-space:nowrap">Installer</button>
+  <button type="button" id="installBannerClose" aria-label="Fermer" style="flex:none;background:transparent;border:none;color:rgba(201,169,110,.5);font-size:20px;cursor:pointer;line-height:1;padding:0 2px">&#215;</button>
 </div>
 </body>
 </html>
