@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>L'Horloger — Atelier du temps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#03050A; --panel:#06080F; --panel2:#0a0e18;
+  --gold:#C9A96E; --gold-soft:rgba(201,169,110,.6); --gold-line:rgba(201,169,110,.15);
+  --gold-line2:rgba(201,169,110,.28);
+  --txt:#E8E4DC; --txt2:#bdb8ae; --txt3:#8a8f98; --txt4:#6b7078;
+  --ok:#97C459; --ok-bg:rgba(151,196,89,.12);
+  --warn:#EF9F27; --warn-bg:rgba(239,159,39,.12);
+  --err:#E24B4A; --err-bg:rgba(226,75,74,.12);
+  --ff-t:'Cormorant Garamond',Georgia,serif;
+  --ff-b:'Merriweather',Georgia,serif;
+}
+[data-theme="light"]{
+  --deep:#FBF8F2; --panel:#FFFFFF; --panel2:#F5F0E6;
+  --gold:#9a7b3e; --gold-soft:rgba(154,123,62,.7); --gold-line:rgba(154,123,62,.18);
+  --gold-line2:rgba(154,123,62,.32);
+  --txt:#2a2418; --txt2:#4a4232; --txt3:#7a705c; --txt4:#9a9484;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--deep);color:var(--txt);font-family:var(--ff-b);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+button{font-family:var(--ff-b);cursor:pointer}
+input,select,textarea{font-family:var(--ff-b)}
+
+/* ── Login ── */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--deep)}
+.login-box{max-width:420px;width:100%;text-align:center;padding:44px 34px;border:1px solid var(--gold-line2);background:var(--panel)}
+.clock-mark{font-size:40px;color:var(--gold);margin-bottom:6px}
+.login-title{font-family:var(--ff-t);font-size:34px;font-style:italic;color:var(--gold);letter-spacing:.08em;margin:0}
+.login-sub{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--txt4);margin:6px 0 30px}
+.login-text{font-family:var(--ff-t);font-size:17px;font-style:italic;color:var(--txt2);line-height:1.7;margin-bottom:30px}
+.btn{background:rgba(201,169,110,.1);border:1px solid var(--gold-line2);color:var(--gold);font-size:13px;padding:12px 26px;letter-spacing:.06em;transition:border-color .2s,background .2s}
+.btn:hover{border-color:var(--gold-soft);background:rgba(201,169,110,.16)}
+.btn.solid{background:rgba(201,169,110,.14)}
+.btn.ghost{background:transparent;border-color:var(--gold-line)}
+.btn:disabled{opacity:.5;cursor:default}
+.login-err{color:var(--err);font-size:13px;margin-top:18px;min-height:18px}
+
+/* ── App shell ── */
+#app{display:none;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.side{width:210px;flex:none;background:var(--panel);border-right:1px solid var(--gold-line);display:flex;flex-direction:column}
+.side-head{text-align:center;padding:22px 16px 18px;border-bottom:1px solid var(--gold-line)}
+.side-logo{font-size:26px;color:var(--gold)}
+.side-name{font-family:var(--ff-t);font-size:20px;font-style:italic;color:var(--gold);letter-spacing:.1em;margin-top:4px}
+.side-tag{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--txt4);margin-top:3px}
+.nav{padding:12px 0;flex:1}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 18px;color:var(--txt3);font-size:14px;border-left:2px solid transparent;transition:all .15s}
+.nav a:hover{color:var(--gold);background:rgba(201,169,110,.04)}
+.nav a.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,169,110,.06)}
+.nav .ico{font-size:17px;width:18px;text-align:center}
+.side-foot{padding:14px 18px;border-top:1px solid var(--gold-line);font-size:11px;color:var(--txt4)}
+.side-foot .who{color:var(--txt3);margin:4px 0}
+.theme-toggle{display:flex;align-items:center;gap:6px;margin-top:10px;background:transparent;border:1px solid var(--gold-line);color:var(--gold);font-size:11px;padding:6px 10px;width:100%;justify-content:center}
+
+.main{flex:1;min-width:0;padding:26px 32px;max-width:1100px}
+.view{display:none}
+.view.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.vhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.vtitle{font-family:var(--ff-t);font-size:28px;color:var(--txt)}
+.vactions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--panel);border:1px solid var(--gold-line2);color:var(--gold);font-family:var(--ff-t);font-size:15px;padding:13px 24px;z-index:1000;transition:transform .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 12px 40px rgba(0,0,0,.4);max-width:90%}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--err);color:var(--err)}
+#toast.ok{border-color:var(--ok);color:var(--ok)}
+
+/* ── Forms ── */
+.fl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt4);margin:16px 0 6px}
+.fl .hint{text-transform:none;letter-spacing:0;color:var(--txt4);font-size:11px}
+.fi{width:100%;background:var(--panel2);border:1px solid var(--gold-line2);color:var(--txt);font-size:14px;padding:9px 12px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--gold-soft)}
+textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
+.frow{display:flex;gap:12px;flex-wrap:wrap}
+.frow>div{flex:1;min-width:140px}
+
+/* ── Editor ── */
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.edit-grid{grid-template-columns:1fr}.side{width:64px}.side-name,.side-tag,.nav a span,.side-foot .lbl{display:none}}
+.preview{border:1px solid var(--gold-line);background:var(--panel2);padding:26px 24px;min-height:360px;position:relative}
+.pv-tag{text-align:center;font-family:var(--ff-t);letter-spacing:.2em;font-size:10px;color:var(--gold);text-transform:uppercase}
+.pv-title{text-align:center;font-family:var(--ff-t);font-size:27px;color:var(--txt);margin:6px 0 4px}
+.pv-date{text-align:center;font-family:var(--ff-t);font-style:italic;font-size:12px;color:var(--txt3);margin-bottom:4px}
+.pv-sep{width:40px;height:1px;background:var(--gold);margin:16px auto 22px}
+.pv-body{font-family:var(--ff-t);font-size:17px;line-height:1.95;color:var(--txt2);text-align:center}
+.pv-body p{margin:0 0 1.3em}
+.pv-cover{width:100%;max-height:180px;object-fit:cover;margin-bottom:18px;border:1px solid var(--gold-line)}
+.pv-watermark{position:absolute;top:10px;right:12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt4)}
+
+/* ── List / rows ── */
+.row{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--gold-line);font-size:14px;transition:background .15s}
+.row.head{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt4);border-bottom-color:var(--gold-line2)}
+.row.clickable{cursor:pointer}
+.row.clickable:hover{background:rgba(201,169,110,.05)}
+.tag{font-size:10px;letter-spacing:.08em;padding:2px 9px;white-space:nowrap}
+.tag.pub{color:var(--ok);background:var(--ok-bg)}
+.tag.prog{color:var(--warn);background:var(--warn-bg)}
+.tag.draft{color:var(--txt3);background:rgba(138,143,152,.12)}
+
+/* ── Stats ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+@media(max-width:640px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{background:rgba(201,169,110,.05);border:1px solid var(--gold-line);padding:16px 14px;text-align:center}
+.stat .sv{font-family:var(--ff-t);font-size:30px;color:var(--gold);line-height:1}
+.stat .sl{font-size:11px;color:var(--txt3);margin-top:6px}
+.panel{background:var(--panel2);border:1px solid var(--gold-line);padding:18px;margin-bottom:16px}
+.ph{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt4);margin-bottom:14px}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:13px;color:var(--txt2)}
+.bar span{flex:0 0 90px}.bar b{color:var(--gold);font-weight:normal}
+.track{flex:1;height:5px;background:rgba(201,169,110,.1);overflow:hidden}
+.trackfill{height:100%;background:var(--gold);opacity:.7}
+
+/* ── Timeline ── */
+.tl{position:relative;padding-left:28px}
+.tl-line{position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--gold-line2)}
+.tl-item{position:relative;margin-bottom:22px}
+.tl-item::before{content:'';position:absolute;left:-25px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--deep);border:2px solid var(--gold)}
+.tl-when{font-size:11px;color:var(--gold);letter-spacing:.06em;margin-bottom:4px}
+.tl-what b{font-family:var(--ff-t);font-size:18px;color:var(--txt);font-weight:normal}
+
+/* ── Media ── */
+.media-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:640px){.media-grid{grid-template-columns:repeat(2,1fr)}}
+.thumb{aspect-ratio:1;background:var(--panel2);border:1px solid var(--gold-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--txt4);font-size:10px;text-align:center;padding:8px;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.thumb .cap{position:absolute;bottom:0;left:0;right:0;background:rgba(3,5,10,.8);color:var(--txt3);padding:4px;font-size:9px;word-break:break-all}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--gold-line2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:50px 20px;color:var(--txt3);font-family:var(--ff-t);font-style:italic;font-size:18px}
+.center-load{display:flex;align-items:center;justify-content:center;min-height:300px;color:var(--txt3);gap:10px;font-family:var(--ff-t);font-style:italic}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-box">
+    <div class="clock-mark">&#9719;</div>
+    <p class="login-title">L'Horloger</p>
+    <p class="login-sub">Atelier du temps</p>
+    <p class="login-text">Ici se règlent les aiguilles.<br>Identifiez-vous pour entrer dans l'atelier.</p>
+    <button class="btn solid" id="loginBtn">S'identifier avec GitHub</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <aside class="side">
+      <div class="side-head">
+        <div class="side-logo">&#9719;</div>
+        <div class="side-name">L'Horloger</div>
+        <div class="side-tag">Atelier du temps</div>
+      </div>
+      <nav class="nav" id="nav">
+        <a data-view="edit" class="active"><span class="ico">&#9998;</span><span>Écrire</span></a>
+        <a data-view="list"><span class="ico">&#9776;</span><span>Tous les textes</span></a>
+        <a data-view="plan"><span class="ico">&#9200;</span><span>Planning</span></a>
+        <a data-view="dash"><span class="ico">&#9632;</span><span>Cadran</span></a>
+        <a data-view="media"><span class="ico">&#9635;</span><span>Médiathèque</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="lbl" style="font-size:9px;letter-spacing:.1em;color:var(--txt4)">CONNECTÉ</div>
+        <div class="who" id="whoami">…</div>
+        <button class="theme-toggle" id="themeToggle"><span id="themeIcon">&#9788;</span> <span class="lbl">Thème</span></button>
+      </div>
+    </aside>
+
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   L'HORLOGER — moteur
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+var TOKEN_KEY = 'horloger-token';
+var THEME_KEY = 'horloger-theme';
+var TAGS = ['POÉSIE','MÉDITATION','PRIÈRE','RÉFLEXION','RÉCIT'];
+
+var state = {
+  token: null,
+  login: null,
+  posts: [],
+  sha: null,       /* sha courant de posts.json (pour écriture sûre) */
+  editing: null,   /* slug en cours d'édition, ou null pour un nouveau */
+  dirty: false
+};
+
+/* ── Utilitaires ── */
+function $(sel, root){ return (root||document).querySelector(sel); }
+function el(tag, attrs, html){
+  var e = document.createElement(tag);
+  if(attrs) for(var k in attrs){ if(k==='class') e.className=attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if(html!=null) e.innerHTML = html;
+  return e;
+}
+function esc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+
+function toast(msg, kind, ms){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = kind ? kind : '';
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, ms||2600);
+}
+
+/* ── Appel à /api/cms ── */
+function api(body){
+  return fetch('/api/cms', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + state.token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){ var e = new Error(data.error || ('HTTP '+r.status)); e.status = r.status; throw e; }
+      return data;
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AUTHENTIFICATION — réutilise le popup /api/auth (handshake Decap)
+   ══════════════════════════════════════════════════════════════ */
+function startLogin(){
+  var errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  var btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Connexion…';
+
+  var popup = window.open('/api/auth', 'horloger-auth', 'width=680,height=760');
+  if(!popup){ errEl.textContent = 'Autorisez les fenêtres pop-up puis réessayez.'; resetLoginBtn(); return; }
+
+  function onMsg(e){
+    var d = e.data;
+    if(typeof d !== 'string') return;
+    /* handshake : le popup annonce 'authorizing:github' → on répond */
+    if(d === 'authorizing:github'){
+      popup.postMessage('authorizing:github', e.origin || '*');
+      return;
+    }
+    /* succès : 'authorization:github:success:{json}' */
+    if(d.indexOf('authorization:github:success:') === 0){
+      window.removeEventListener('message', onMsg);
+      var jsonStr = d.substring('authorization:github:success:'.length);
+      var token = null;
+      try { token = JSON.parse(jsonStr).token; } catch(err){}
+      if(token){ afterToken(token); }
+      else { errEl.textContent = 'Jeton non reçu. Réessayez.'; resetLoginBtn(); }
+    }
+  }
+  window.addEventListener('message', onMsg);
+}
+
+function resetLoginBtn(){
+  var btn = document.getElementById('loginBtn');
+  btn.disabled = false;
+  btn.textContent = "S'identifier avec GitHub";
+}
+
+function afterToken(token){
+  state.token = token;
+  /* Vérifier l'identité côté serveur avant d'ouvrir l'atelier */
+  api({action:'whoami'}).then(function(res){
+    state.login = res.login;
+    try{ localStorage.setItem(TOKEN_KEY, token); }catch(e){}
+    openApp();
+  }).catch(function(err){
+    document.getElementById('loginErr').textContent = err.status===403
+      ? 'Ce compte n\u2019est pas autorisé à publier.'
+      : ('Connexion refusée : ' + err.message);
+    state.token = null;
+    resetLoginBtn();
+  });
+}
+
+/* Reconnexion silencieuse si un jeton est déjà mémorisé */
+function trySilentLogin(){
+  var saved = null;
+  try{ saved = localStorage.getItem(TOKEN_KEY); }catch(e){}
+  if(!saved) return;
+  state.token = saved;
+  api({action:'whoami'}).then(function(res){
+    state.login = res.login;
+    openApp();
+  }).catch(function(){
+    /* jeton périmé → on reste sur l'écran de login */
+    state.token = null;
+    try{ localStorage.removeItem(TOKEN_KEY); }catch(e){}
+  });
+}
+
+function logout(){
+  state.token = null; state.login = null;
+  try{ localStorage.removeItem(TOKEN_KEY); }catch(e){}
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  resetLoginBtn();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHARGEMENT DES DONNÉES
+   ══════════════════════════════════════════════════════════════ */
+function loadPosts(){
+  return api({action:'read', file:'data/posts.json'}).then(function(res){
+    var doc = JSON.parse(res.content || '{"posts":[]}');
+    state.posts = doc.posts || [];
+    state.sha = res.sha;
+    return state.posts;
+  });
+}
+
+/* ── Aides sur les dates de programmation ── */
+function isLive(p){
+  if(p.published === false) return false;
+  if(p.publishDate){
+    var t = Date.parse(p.publishDate);
+    if(!isNaN(t) && t > Date.now()) return false;
+  }
+  return true;
+}
+function postStatus(p){
+  if(p.published === false) return {cls:'draft', label:'Brouillon'};
+  if(p.publishDate){
+    var t = Date.parse(p.publishDate);
+    if(!isNaN(t) && t > Date.now()) return {cls:'prog', label:'Programmé'};
+  }
+  return {cls:'pub', label:'Publié'};
+}
+function fmtWhen(iso){
+  var d = new Date(iso);
+  if(isNaN(d)) return iso || '';
+  var mois = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+  var h = ('0'+d.getHours()).slice(-2), m = ('0'+d.getMinutes()).slice(-2);
+  return d.getDate()+' '+mois[d.getMonth()]+' '+d.getFullYear()+' · '+h+'h'+m;
+}
+function relTime(iso){
+  var t = Date.parse(iso); if(isNaN(t)) return '';
+  var diff = t - Date.now();
+  var days = Math.round(diff/86400000);
+  if(days > 1) return 'dans '+days+' jours';
+  if(days === 1) return 'demain';
+  if(days === 0){ var h = Math.round(diff/3600000); return h>0 ? ('dans '+h+' h') : 'aujourd\u2019hui'; }
+  return 'passé';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDU DES STROPHES (aperçu — identique à l'esprit du site)
+   ══════════════════════════════════════════════════════════════ */
+function stanzasToHtml(body){
+  if(!body) return '<span style="color:var(--txt4)">L\u2019aperçu apparaîtra ici au fil de votre écriture…</span>';
+  return body.replace(/\r\n/g,'\n').split(/\n\n+/).map(function(stanza){
+    var lines = stanza.split('\n').map(function(l){
+      var h = esc(l)
+        .replace(/\*\*(.+?)\*\*/g,'<b style="color:var(--gold);font-weight:normal">$1</b>')
+        .replace(/(^|[^*])\*(?!\*)(.+?)\*(?!\*)/g,'$1<em>$2</em>');
+      return h;
+    }).join('<br>');
+    if(/^>\s?/.test(stanza)) return '<blockquote style="border-left:2px solid var(--gold);padding-left:14px;font-style:italic;margin:1.2em 0">'+lines.replace(/&gt;\s?/,'')+'</blockquote>';
+    if(/^---$/.test(stanza.trim())) return '<div class="pv-sep"></div>';
+    return '<p>'+lines+'</p>';
+  }).join('');
+}
+
+/* Slugify pour proposer un slug à partir du titre */
+function slugify(s){
+  return (s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VUE : ÉCRIRE / ÉDITER (priorité n°1 — aperçu strophes en direct)
+   ══════════════════════════════════════════════════════════════ */
+function viewEdit(post){
+  post = post || {};
+  var isEdit = !!post.slug;
+  state.editing = isEdit ? post.slug : null;
+
+  var main = document.getElementById('main');
+  var tagOptions = TAGS.map(function(t){
+    return '<option'+(post.tag===t?' selected':'')+'>'+t+'</option>';
+  }).join('');
+
+  main.innerHTML =
+   '<div class="vhead">'
+   + '<div class="vtitle">'+(isEdit?'Éditer un texte':'Écrire un texte')+'</div>'
+   + '<div class="vactions">'
+   +   '<button class="btn ghost" id="btnCancel">Annuler</button>'
+   +   '<button class="btn solid" id="btnSave">'+(isEdit?'Enregistrer les modifications':'Publier')+'</button>'
+   + '</div></div>'
+   + '<div class="edit-grid">'
+   + '<div>'
+   +   '<label class="fl">Titre</label>'
+   +   '<input class="fi" id="fTitle" value="'+escAttr(post.title||'')+'">'
+   +   '<div class="frow">'
+   +     '<div><label class="fl">Slug <span class="hint">(URL — non modifiable en édition)</span></label>'
+   +       '<input class="fi" id="fSlug" value="'+escAttr(post.slug||'')+'"'+(isEdit?' readonly style="opacity:.6"':'')+'></div>'
+   +     '<div><label class="fl">Catégorie</label><select class="fi" id="fTag">'+tagOptions+'</select></div>'
+   +   '</div>'
+   +   '<div class="frow">'
+   +     '<div><label class="fl">Date d\u2019écriture</label><input class="fi" id="fDate" value="'+escAttr(post.date||'')+'" placeholder="01/06/2018"></div>'
+   +     '<div><label class="fl">Auteur</label><input class="fi" id="fAuthor" value="'+escAttr(post.author||'J.Y.D.')+'"></div>'
+   +   '</div>'
+   +   '<label class="fl">Extrait <span class="hint">(carte du blog)</span></label>'
+   +   '<textarea class="fi" id="fExcerpt" rows="2">'+esc(post.excerpt||'')+'</textarea>'
+   +   '<label class="fl">Image de couverture <span class="hint">(chemin ou URL, optionnel)</span></label>'
+   +   '<input class="fi" id="fCover" value="'+escAttr(post.cover||'')+'" placeholder="/images/uploads/photo.jpg">'
+   +   '<label class="fl">Le poème <span class="hint">— ligne vide = nouvelle strophe · **gras** · *italique*</span></label>'
+   +   '<textarea class="fi" id="fBody" rows="12">'+esc(post.body||'')+'</textarea>'
+   +   '<div class="frow" style="margin-top:16px;align-items:center">'
+   +     '<div><label class="fl">Programmer la parution <span class="hint">(vide = immédiat)</span></label>'
+   +       '<input class="fi" id="fSchedule" type="datetime-local" value="'+isoToLocalInput(post.publishDate)+'"></div>'
+   +     '<div style="flex:0 0 auto;padding-top:22px"><label style="font-size:13px;color:var(--txt2);cursor:pointer"><input type="checkbox" id="fPublished" '+(post.published===false?'':'checked')+' style="accent-color:var(--gold);vertical-align:-2px"> Publié</label></div>'
+   +   '</div>'
+   + '</div>'
+   + '<div>'
+   +   '<label class="fl">&#9635; Aperçu — tel qu\u2019il paraîtra</label>'
+   +   '<div class="preview">'
+   +     '<div class="pv-watermark" id="pvStatus"></div>'
+   +     '<img class="pv-cover" id="pvCover" style="display:none">'
+   +     '<div class="pv-tag" id="pvTag"></div>'
+   +     '<div class="pv-title" id="pvTitle"></div>'
+   +     '<div class="pv-date" id="pvDate"></div>'
+   +     '<div class="pv-sep"></div>'
+   +     '<div class="pv-body" id="pvBody"></div>'
+   +   '</div>'
+   + '</div>'
+   + '</div>';
+
+  var fTitle=$('#fTitle'), fSlug=$('#fSlug'), fTag=$('#fTag'), fDate=$('#fDate'),
+      fExcerpt=$('#fExcerpt'), fCover=$('#fCover'), fBody=$('#fBody'), fSchedule=$('#fSchedule');
+
+  function renderPreview(){
+    $('#pvTag').textContent = fTag.value;
+    $('#pvTitle').textContent = fTitle.value || 'Sans titre';
+    $('#pvDate').textContent = fDate.value || '';
+    $('#pvBody').innerHTML = stanzasToHtml(fBody.value);
+    var cov = fCover.value.trim();
+    var cv = $('#pvCover');
+    if(cov){ cv.src = imgPath(cov); cv.style.display='block'; } else { cv.style.display='none'; }
+    /* statut prévisionnel */
+    var st;
+    if(!$('#fPublished').checked) st={cls:'draft',label:'Brouillon'};
+    else if(fSchedule.value && new Date(fSchedule.value).getTime() > Date.now()) st={cls:'prog',label:'Programmé'};
+    else st={cls:'pub',label:'Publié'};
+    $('#pvStatus').textContent = st.label;
+  }
+  function imgPath(u){
+    if(!u) return '';
+    if(/^https?:\/\//.test(u) || u.charAt(0)==='/') return u;
+    return '/'+u;
+  }
+  function isoToLocalInput(iso){
+    if(!iso) return '';
+    var d = new Date(iso); if(isNaN(d)) return '';
+    var p = function(n){return ('0'+n).slice(-2);};
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+  }
+  window._isoToLocalInput = isoToLocalInput;
+
+  ['input','change'].forEach(function(ev){
+    [fTitle,fTag,fDate,fCover,fBody,fSchedule,$('#fPublished')].forEach(function(x){ x.addEventListener(ev, function(){ state.dirty=true; renderPreview(); }); });
+  });
+  /* auto-slug pour un nouveau texte */
+  if(!isEdit){
+    fTitle.addEventListener('input', function(){ if(!fSlug._touched) fSlug.value = slugify(fTitle.value); });
+    fSlug.addEventListener('input', function(){ fSlug._touched = true; });
+  }
+  renderPreview();
+
+  $('#btnCancel').addEventListener('click', function(){
+    if(state.dirty && !confirm('Abandonner les modifications non enregistrées ?')) return;
+    state.dirty=false; go('list');
+  });
+  $('#btnSave').addEventListener('click', function(){ savePost(isEdit); });
+}
+
+/* hoist pour isoToLocalInput utilisé dans le template avant sa définition */
+function isoToLocalInput(iso){
+  if(!iso) return '';
+  var d = new Date(iso); if(isNaN(d)) return '';
+  var p = function(n){return ('0'+n).slice(-2);};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+
+function localInputToIso(v){
+  if(!v) return '';
+  var d = new Date(v);
+  if(isNaN(d)) return '';
+  /* format avec offset local, comme les données existantes */
+  var p=function(n){return ('0'+n).slice(-2);};
+  var off = -d.getTimezoneOffset();
+  var sign = off>=0?'+':'-'; off=Math.abs(off);
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':00.000'+sign+p(Math.floor(off/60))+':'+p(off%60);
+}
+
+function savePost(isEdit){
+  var slug = $('#fSlug').value.trim();
+  var title = $('#fTitle').value.trim();
+  if(!title){ toast('Le titre est requis.', 'err'); return; }
+  if(!slug){ toast('Le slug est requis.', 'err'); return; }
+  if(!isEdit){
+    /* refuser un slug déjà pris */
+    for(var i=0;i<state.posts.length;i++){ if(state.posts[i].slug===slug){ toast('Ce slug existe déjà.', 'err'); return; } }
+  }
+
+  var post = {
+    slug: slug,
+    title: title,
+    tag: $('#fTag').value,
+    date: $('#fDate').value.trim(),
+    author: $('#fAuthor').value.trim() || 'J.Y.D.',
+    excerpt: $('#fExcerpt').value,
+    body: $('#fBody').value,
+    published: $('#fPublished').checked
+  };
+  var cover = $('#fCover').value.trim();
+  if(cover) post.cover = cover;
+  var sched = $('#fSchedule').value;
+  if(sched){ post.publishDate = localInputToIso(sched); }
+
+  var btn = $('#btnSave');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enregistrement…';
+
+  api({action:'upsertPost', post: post}).then(function(res){
+    state.dirty = false;
+    toast(res.added ? 'Texte publié ✓' : 'Modifications enregistrées ✓', 'ok', 3000);
+    return loadPosts();
+  }).then(function(){
+    go('list');
+  }).catch(function(err){
+    btn.disabled = false; btn.textContent = isEdit?'Enregistrer les modifications':'Publier';
+    if(err.status === 409){ toast('Conflit : rechargez, un changement externe a eu lieu.', 'err', 4000); }
+    else toast('Échec : ' + err.message, 'err', 4000);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VUE : TOUS LES TEXTES (liste rééditable)
+   ══════════════════════════════════════════════════════════════ */
+function viewList(){
+  var main = document.getElementById('main');
+  var rows = state.posts.map(function(p){
+    var st = postStatus(p);
+    return '<div class="row clickable" data-slug="'+escAttr(p.slug)+'">'
+      + '<span style="flex:2;color:var(--txt)">'+esc(p.title||'(sans titre)')+'</span>'
+      + '<span style="flex:1;color:var(--txt3);font-size:12px">'+esc(p.tag||'')+'</span>'
+      + '<span style="flex:1;color:var(--txt3);font-size:12px">'+esc(p.date||'')+'</span>'
+      + '<span style="flex:0 0 96px"><em class="tag '+st.cls+'">'+st.label+'</em></span>'
+      + '</div>';
+  }).join('');
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Tous les textes</div>'
+   + '<div class="vactions"><button class="btn solid" id="btnNew">&#9998; Nouveau texte</button></div></div>'
+   + '<div class="row head"><span style="flex:2">Titre</span><span style="flex:1">Catégorie</span><span style="flex:1">Date</span><span style="flex:0 0 96px">État</span></div>'
+   + (state.posts.length ? rows : '<div class="empty">Aucun texte pour l\u2019instant.</div>');
+
+  $('#btnNew').addEventListener('click', function(){ go('edit'); });
+  Array.prototype.forEach.call(main.querySelectorAll('.row.clickable'), function(r){
+    r.addEventListener('click', function(){
+      var slug = r.getAttribute('data-slug');
+      var post = null;
+      for(var i=0;i<state.posts.length;i++){ if(state.posts[i].slug===slug){ post=state.posts[i]; break; } }
+      if(post){ setActive('edit'); viewEdit(post); }
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VUE : PLANNING (textes programmés, priorité n°2)
+   ══════════════════════════════════════════════════════════════ */
+function viewPlan(){
+  var main = document.getElementById('main');
+  var scheduled = state.posts.filter(function(p){
+    if(p.published === false || !p.publishDate) return false;
+    var t = Date.parse(p.publishDate);
+    return !isNaN(t) && t > Date.now();
+  }).sort(function(a,b){ return Date.parse(a.publishDate) - Date.parse(b.publishDate); });
+
+  var items = scheduled.map(function(p){
+    return '<div class="tl-item"><div class="tl-when">'+fmtWhen(p.publishDate)+'</div>'
+      + '<div class="tl-what"><b>'+esc(p.title)+'</b> <em class="tag prog">Programmé</em>'
+      + '<div style="font-size:12px;color:var(--txt3);margin-top:3px">'+esc(p.tag||'')+' — '+relTime(p.publishDate)+'</div></div></div>';
+  }).join('');
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Planning des parutions</div></div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:20px">Les textes programmés paraissent automatiquement à l\u2019instant choisi.</div>'
+   + (scheduled.length
+      ? '<div class="tl"><div class="tl-line"></div>'+items+'</div>'
+      : '<div class="empty">Aucun texte programmé.<br>Les textes à venir apparaîtront ici.</div>');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VUE : CADRAN (tableau de bord, priorité n°3)
+   ══════════════════════════════════════════════════════════════ */
+function viewDash(){
+  var main = document.getElementById('main');
+  var total = state.posts.length;
+  var live = state.posts.filter(isLive).length;
+  var prog = state.posts.filter(function(p){ return postStatus(p).cls==='prog'; }).length;
+  var draft = state.posts.filter(function(p){ return p.published===false; }).length;
+
+  /* comptage par catégorie */
+  var byTag = {};
+  state.posts.forEach(function(p){ var t=p.tag||'—'; byTag[t]=(byTag[t]||0)+1; });
+  var maxTag = Math.max.apply(null, Object.keys(byTag).map(function(k){return byTag[k];}).concat([1]));
+  var bars = Object.keys(byTag).sort(function(a,b){return byTag[b]-byTag[a];}).map(function(t){
+    var pct = Math.round(byTag[t]/maxTag*100);
+    return '<div class="bar"><span>'+esc(t)+'</span><div class="track"><div class="trackfill" style="width:'+pct+'%"></div></div><b>'+byTag[t]+'</b></div>';
+  }).join('');
+
+  /* prochain programmé */
+  var next = state.posts.filter(function(p){ return postStatus(p).cls==='prog'; })
+    .sort(function(a,b){ return Date.parse(a.publishDate)-Date.parse(b.publishDate); })[0];
+  var nextHtml = next
+    ? '<div style="font-family:var(--ff-t);font-size:22px;color:var(--gold);margin:8px 0 2px">'+esc(next.title)+'</div>'
+      + '<div style="font-size:11px;color:var(--txt3);letter-spacing:.08em">'+esc(next.tag||'')+' · '+fmtWhen(next.publishDate)+'</div>'
+      + (next.excerpt?'<div style="font-style:italic;color:var(--txt2);font-size:13px;margin-top:12px;line-height:1.6">« '+esc(next.excerpt.split('\n')[0])+' »</div>':'')
+      + '<div style="margin-top:14px"><button class="btn ghost" onclick="document.querySelector(\'[data-view=plan]\').click()">Voir le planning &#8594;</button></div>'
+    : '<div style="color:var(--txt3);font-style:italic;font-family:var(--ff-t);font-size:16px;padding:10px 0">Aucun texte programmé.</div>';
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Le Cadran</div><div style="font-size:12px;color:var(--txt3)">'+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
+   + '<div class="stat-grid">'
+   +   '<div class="stat"><div class="sv">'+live+'</div><div class="sl">Textes publiés</div></div>'
+   +   '<div class="stat"><div class="sv">'+prog+'</div><div class="sl">Programmés</div></div>'
+   +   '<div class="stat"><div class="sv">'+draft+'</div><div class="sl">Brouillons</div></div>'
+   +   '<div class="stat"><div class="sv">'+total+'</div><div class="sl">Total</div></div>'
+   + '</div>'
+   + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="dash-cols">'
+   +   '<div class="panel"><div class="ph">Par catégorie</div>'+bars+'</div>'
+   +   '<div class="panel"><div class="ph">Prochain texte programmé</div>'+nextHtml+'</div>'
+   + '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VUE : MÉDIATHÈQUE (priorité n°4 — lecture pour l'instant)
+   ══════════════════════════════════════════════════════════════ */
+function viewMedia(){
+  var main = document.getElementById('main');
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Médiathèque</div></div>'
+   + '<div class="empty">La médiathèque complète (téléversement, galerie) arrivera à l\u2019étape suivante.<br>'
+   + 'Pour l\u2019instant, insérez vos images par leur chemin dans l\u2019éditeur '
+   + '(ex. <code style="color:var(--gold)">/images/uploads/photo.jpg</code>).</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ROUTAGE + THÈME + DÉMARRAGE
+   ══════════════════════════════════════════════════════════════ */
+var VIEWS = { edit: function(){viewEdit();}, list: viewList, plan: viewPlan, dash: viewDash, media: viewMedia };
+
+function setActive(name){
+  Array.prototype.forEach.call(document.querySelectorAll('#nav a'), function(a){
+    a.classList.toggle('active', a.getAttribute('data-view')===name);
+  });
+}
+function go(name){
+  if(state.dirty && !confirm('Abandonner les modifications non enregistrées ?')) return;
+  state.dirty = false;
+  setActive(name);
+  (VIEWS[name] || viewList)();
+}
+
+function applyTheme(t){
+  if(t==='light') document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+  var icon = document.getElementById('themeIcon');
+  if(icon) icon.innerHTML = t==='light' ? '&#9789;' : '&#9788;';
+  try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+}
+function initTheme(){
+  var t = 'dark';
+  try{ t = localStorage.getItem(THEME_KEY) || 'dark'; }catch(e){}
+  applyTheme(t);
+}
+
+function openApp(){
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('whoami').textContent = '\u25C9 ' + state.login;
+  var main = document.getElementById('main');
+  main.innerHTML = '<div class="center-load"><span class="spinner"></span> Ouverture de l\u2019atelier…</div>';
+  loadPosts().then(function(){
+    go('edit');
+  }).catch(function(err){
+    main.innerHTML = '<div class="empty">Impossible de charger les textes.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>';
+  });
+}
+
+/* ── Câblage global ── */
+document.getElementById('loginBtn').addEventListener('click', startLogin);
+document.getElementById('themeToggle').addEventListener('click', function(){
+  var cur = document.documentElement.getAttribute('data-theme')==='light' ? 'light' : 'dark';
+  applyTheme(cur==='light' ? 'dark' : 'light');
+});
+Array.prototype.forEach.call(document.querySelectorAll('#nav a'), function(a){
+  a.addEventListener('click', function(e){ e.preventDefault(); go(a.getAttribute('data-view')); });
+});
+
+/* Prévenir la perte de données sur fermeture d'onglet */
+window.addEventListener('beforeunload', function(e){
+  if(state.dirty){ e.preventDefault(); e.returnValue=''; }
+});
+
+initTheme();
+trySilentLogin();
+
+})();
+</script>
+</body>
+</html>
