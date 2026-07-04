@@ -1,14 +1,64 @@
 {
   "items": [
-    {"title":"Lecture poétique","image":"/images/content/151f066759d8_400w.jpg","order":1},
-    {"title":"Gaufres et café","image":"/images/content/f1dbe8592ec1_400w.jpg","order":2},
-    {"title":"L'oie du lac","image":"/images/content/1fdcc6ce5677_400w.jpg","order":3},
-    {"title":"Baies rouges","image":"/images/content/cd7743443397_400w.jpg","order":4},
-    {"title":"Sommets enneigés","image":"/images/content/f95cccc1fc8b_400w.jpg","order":5},
-    {"title":"Coucher de soleil","image":"/images/content/864cfba514ad_400w.jpg","order":6},
-    {"title":"L'atelier nocturne","image":"/images/content/5a51412cc481_400w.jpg","order":7},
-    {"title":"Rivière hivernale","image":"/images/content/53520e400567_400w.jpg","order":8},
-    {"title":"Louange","image":"/images/content/1cf165de90bf_400w.jpg","order":9},
-    {"title":"Fleur dorée","image":"/images/content/575f6cc84d25_400w.jpg","order":10}
+    {
+      "title": "Lecture poétique",
+      "image": "/images/content/151f066759d8_400w.jpg",
+      "order": 1
+    },
+    {
+      "title": "Gaufres et café",
+      "image": "/images/content/f1dbe8592ec1_400w.jpg",
+      "order": 2
+    },
+    {
+      "title": "L'oie du lac",
+      "image": "/images/content/1fdcc6ce5677_400w.jpg",
+      "order": 3
+    },
+    {
+      "title": "Baies rouges",
+      "image": "/images/content/cd7743443397_400w.jpg",
+      "order": 4
+    },
+    {
+      "title": "Sommets enneigés",
+      "image": "/images/content/f95cccc1fc8b_400w.jpg",
+      "order": 5
+    },
+    {
+      "title": "Coucher de soleil",
+      "image": "/images/content/864cfba514ad_400w.jpg",
+      "order": 6
+    },
+    {
+      "title": "L'atelier nocturne",
+      "image": "/images/content/5a51412cc481_400w.jpg",
+      "order": 7
+    },
+    {
+      "title": "Rivière hivernale",
+      "image": "/images/content/53520e400567_400w.jpg",
+      "order": 8
+    },
+    {
+      "title": "Louange",
+      "image": "/images/content/1cf165de90bf_400w.jpg",
+      "order": 9
+    },
+    {
+      "title": "Fleur dorée",
+      "image": "/images/content/575f6cc84d25_400w.jpg",
+      "order": 10
+    },
+    {
+      "title": "Aube nouvelle",
+      "image": "/images/uploads/20250202_074137.optimized.jpg",
+      "order": 11
+    },
+    {
+      "title": "Route d'hiver",
+      "image": "/images/uploads/20250315_105048.optimized.jpg",
+      "order": 12
+    }
   ]
 }
