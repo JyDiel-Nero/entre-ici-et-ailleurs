@@ -43,6 +43,11 @@ const WRITABLE = {
   'data/custom-sections.json': true,
 };
 
+/* Médiathèque : dossier et contraintes des images */
+const IMAGE_DIR = 'images/uploads';
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|svg)$/i;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; /* 8 Mo — au-delà, GitHub Contents API devient hasardeux */
+
 const GH = 'https://api.github.com';
 
 function json(body, status) {
@@ -219,6 +224,86 @@ export async function onRequest(context) {
       const text = JSON.stringify(doc, null, 2);
       const w = await writeFile('data/posts.json', text, r.sha, payload.message || ('Horloger : suppression « ' + slug + ' »'), token);
       return json({ sha: w.content && w.content.sha, slugs: doc.posts.map(function (p) { return p.slug; }) });
+    }
+
+    /* ── MÉDIATHÈQUE ─────────────────────────────────────────── */
+
+    /* Liste des images de images/uploads (triées, les plus récentes
+       en premier via l'API Git Trees + tri sur le nom). GitHub renvoie
+       jusqu'à 1000 entrées par dossier via l'API Contents. */
+    if (action === 'listImages') {
+      const res = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + IMAGE_DIR + '?ref=' + BRANCH, token);
+      if (res.status === 404) return json({ images: [] });
+      if (!res.ok) throw new Error('Liste images ' + res.status);
+      const arr = await res.json();
+      const files = (Array.isArray(arr) ? arr : [])
+        .filter(function (f) { return f.type === 'file' && IMAGE_EXT.test(f.name); })
+        .map(function (f) {
+          return { name: f.name, path: '/' + f.path, size: f.size, sha: f.sha };
+        })
+        /* tri décroissant sur le nom : les uploads horodatés récents remontent */
+        .sort(function (a, b) { return a.name < b.name ? 1 : (a.name > b.name ? -1 : 0); });
+      return json({ images: files, dir: '/' + IMAGE_DIR });
+    }
+
+    /* Téléversement d'une image : contenu en base64 (déjà encodé côté
+       navigateur), écrit tel quel dans images/uploads/<nom>. */
+    if (action === 'uploadImage') {
+      let name = (payload.name || '').trim();
+      const contentB64 = payload.contentBase64;
+      if (!name || typeof contentB64 !== 'string') return json({ error: 'Nom ou contenu manquant.' }, 400);
+
+      /* Nettoyage du nom : pas de chemin, caractères sûrs, extension autorisée */
+      name = name.replace(/^.*[\\/]/, '').replace(/[^a-zA-Z0-9._-]/g, '-');
+      if (!IMAGE_EXT.test(name)) return json({ error: 'Type d\u2019image non autorisé.' }, 400);
+
+      /* Estimation de la taille depuis le base64 (≈ 3/4 de la longueur) */
+      const approxBytes = Math.floor(contentB64.replace(/=+$/, '').length * 3 / 4);
+      if (approxBytes > MAX_IMAGE_BYTES) return json({ error: 'Image trop lourde (max 8 Mo).' }, 413);
+
+      const path = IMAGE_DIR + '/' + name;
+
+      /* Éviter d'écraser une image existante : si le fichier existe déjà,
+         suffixer avec un horodatage court. */
+      let finalPath = path, finalName = name;
+      const check = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path + '?ref=' + BRANCH, token);
+      if (check.ok) {
+        const dot = name.lastIndexOf('.');
+        const stamp = '-' + Date.now().toString(36);
+        finalName = (dot > 0 ? name.slice(0, dot) + stamp + name.slice(dot) : name + stamp);
+        finalPath = IMAGE_DIR + '/' + finalName;
+      }
+
+      const putRes = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + finalPath, token, {
+        method: 'PUT',
+        body: JSON.stringify({
+          message: payload.message || ('Horloger : image ' + finalName),
+          content: contentB64.replace(/^data:[^,]*,/, ''), /* enlève un éventuel préfixe data: */
+          branch: BRANCH,
+        }),
+      });
+      const putData = await putRes.json();
+      if (!putRes.ok) {
+        const err = new Error((putData && putData.message) || ('HTTP ' + putRes.status));
+        err.status = putRes.status;
+        throw err;
+      }
+      return json({ path: '/' + finalPath, name: finalName });
+    }
+
+    if (action === 'deleteImage') {
+      const name = (payload.name || '').replace(/^.*[\\/]/, '');
+      if (!name || !IMAGE_EXT.test(name)) return json({ error: 'Nom d\u2019image invalide.' }, 400);
+      const path = IMAGE_DIR + '/' + name;
+      const cur = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path + '?ref=' + BRANCH, token);
+      if (!cur.ok) return json({ error: 'Image introuvable.' }, 404);
+      const curData = await cur.json();
+      const delRes = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path, token, {
+        method: 'DELETE',
+        body: JSON.stringify({ message: payload.message || ('Horloger : suppression image ' + name), sha: curData.sha, branch: BRANCH }),
+      });
+      if (!delRes.ok) { const d = await delRes.json(); throw new Error((d && d.message) || ('HTTP ' + delRes.status)); }
+      return json({ deleted: true, name: name });
     }
 
     return json({ error: 'Action inconnue.' }, 400);
