@@ -896,6 +896,30 @@ function openImagePicker(onChoose){
    ══════════════════════════════════════════════════════════════ */
 
 /* Schémas : décrivent les champs de chaque type d'item */
+/* ══════════════════════════════════════════════════════════════
+   MOSAÏQUE — géométrie des 12 formes (repère 0..1000), extraite du
+   gabarit SVG. Numérotation lecture B : n°1 haut-gauche → n°12 bas.
+   ══════════════════════════════════════════════════════════════ */
+var MOSAIC_GEO = {"1":[[285.4,0],[0,0],[0,412.8],[235.8,289.1]],"2":[[285.8,-2],[236,290.7],[617.5,290.7],[611.4,-2]],"3":[[1000,290.7],[1000,0],[611.5,0],[617.5,290.7]],"4":[[616.1,289.7],[236,290.7],[393.5,527.1]],"5":[[1002.2,290.7],[616.1,289.7],[736.8,581.8],[1000,593.4]],"6":[[-2.4,414.1],[0,613.6],[393.4,526],[235.8,289.1]],"7":[[736.7,579.3],[616.1,289.7],[393.5,527.1],[531.9,813.1]],"8":[[-2.2,614.1],[0,813.8],[533.4,814.1],[393.4,526]],"9":[[531.9,813.1],[754.9,1000],[735.8,581.8]],"10":[[1002.2,593.5],[736.8,581.8],[755,1002.2],[1000,1000]],"11":[[265.3,1002.4],[323.7,814.7],[0,813.8],[0,1000]],"12":[[266,1000],[752.4,1000],[533.4,814.1],[323.7,814.7]]};
+var MOSAIC_CENTERS = {"1":[122,171],"2":[437,148],"3":[807,145],"4":[415,369],"5":[838,430],"6":[169,465],"7":[568,552],"8":[248,696],"9":[675,799],"10":[873,792],"11":[148,905],"12":[474,920]};
+var MOSAIC_N = 12;
+
+/* Sélectionne les 12 images du mois pour le mode auto (déterministe).
+   Tirage stable pour un mois donné, différent d'un mois à l'autre. */
+function mosaicAutoSelection(pool, year, month){
+  var visible = pool.filter(function(it){ return it.image && it.published !== false; });
+  if(visible.length < MOSAIC_N) return visible.slice(); /* masquage : on renvoie ce qu'on a */
+  /* graine mensuelle → mélange déterministe (Fisher-Yates seedé) */
+  var seed = year * 12 + month;
+  function rng(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  var arr = visible.slice();
+  for(var i = arr.length - 1; i > 0; i--){
+    var j = Math.floor(rng() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr.slice(0, MOSAIC_N);
+}
+
 var SECTION_SCHEMAS = {
   minutes: {
     title: 'Minutes — enregistrements audio',
@@ -944,6 +968,7 @@ function loadSection(sectionKey){
     listState.key = sectionKey;
     listState.schema = schema;
     listState.items = (doc[schema.rootKey] || []).slice();
+    listState.mosaic = doc.mosaic || null;   /* config mosaïque (Secondes) */
     listState.sha = res.sha;
     /* tri initial par le champ order existant */
     listState.items.sort(function(a,b){ return (a.order||999) - (b.order||999); });
@@ -976,7 +1001,40 @@ function applySortMode(mode){
   /* 'manual' : on ne touche pas à l'ordre courant */
 }
 
+var secondesTab = 'pool'; /* 'pool' ou 'mosaic' */
+
 function viewSection(sectionKey){
+  var schema = SECTION_SCHEMAS[sectionKey];
+  var main = document.getElementById('main');
+  main.innerHTML = '<div class="center-load"><span class="spinner"></span> Chargement…</div>';
+  loadSection(sectionKey).then(function(){
+    if(sectionKey === 'secondes'){ renderSecondesTabbed(); }
+    else { renderSectionList(); }
+  })
+  .catch(function(err){ main.innerHTML = '<div class="empty">Chargement impossible.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>'; });
+}
+
+/* Secondes = deux onglets : le pool d'images, et la mosaïque */
+function renderSecondesTabbed(){
+  var main = document.getElementById('main');
+  var tabs = '<div style="display:flex;gap:4px;border-bottom:1px solid var(--gold-line);margin-bottom:20px">'
+    + '<button class="stab" data-tab="pool" style="background:transparent;border:none;border-bottom:2px solid '+(secondesTab==='pool'?'var(--gold)':'transparent')+';color:'+(secondesTab==='pool'?'var(--gold)':'var(--txt3)')+';font-family:var(--ff-b);font-size:14px;padding:10px 18px;cursor:pointer">Pool d\u2019images</button>'
+    + '<button class="stab" data-tab="mosaic" style="background:transparent;border:none;border-bottom:2px solid '+(secondesTab==='mosaic'?'var(--gold)':'transparent')+';color:'+(secondesTab==='mosaic'?'var(--gold)':'var(--txt3)')+';font-family:var(--ff-b);font-size:14px;padding:10px 18px;cursor:pointer">Mosaïque du mois</button>'
+    + '</div>';
+  main.innerHTML = tabs + '<div id="secTabBody"></div>';
+  Array.prototype.forEach.call(main.querySelectorAll('.stab'), function(b){
+    b.addEventListener('click', function(){
+      if(state.dirty && !confirm('Abandonner les modifications non enregistrées ?')) return;
+      state.dirty = false;
+      secondesTab = b.getAttribute('data-tab');
+      renderSecondesTabbed();
+    });
+  });
+  if(secondesTab === 'mosaic') renderMosaicTab();
+  else renderSectionListInto('secTabBody');
+}
+
+function viewSectionOriginal(sectionKey){
   var schema = SECTION_SCHEMAS[sectionKey];
   var main = document.getElementById('main');
   main.innerHTML = '<div class="center-load"><span class="spinner"></span> Chargement…</div>';
@@ -984,9 +1042,219 @@ function viewSection(sectionKey){
   .catch(function(err){ main.innerHTML = '<div class="empty">Chargement impossible.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>'; });
 }
 
-function renderSectionList(){
+function renderSectionList(){ renderSectionListInto('main'); }
+
+/* ── Onglet MOSAÏQUE ── */
+function getMosaicConfig(){
+  /* lit la config depuis listState (chargée depuis gallery.json) */
+  var cfg = listState.mosaic || { mode:'auto', manual:{} };
+  if(!cfg.manual) cfg.manual = {};
+  return cfg;
+}
+
+function mosaicResolveImages(){
+  /* renvoie un objet {formeN: imageUrl} selon le mode courant */
+  var cfg = getMosaicConfig();
+  var pool = listState.items.filter(function(it){ return it.image && it.published !== false; });
+  var map = {};
+  if(cfg.mode === 'manual'){
+    for(var k=1;k<=MOSAIC_N;k++){
+      var ref = cfg.manual[String(k)];
+      if(ref) map[k] = ref;
+    }
+  } else {
+    var now = new Date();
+    var sel = mosaicAutoSelection(listState.items, now.getFullYear(), now.getMonth());
+    for(var i=0;i<sel.length && i<MOSAIC_N;i++){ map[i+1] = sel[i].image; }
+  }
+  return { map:map, pool:pool };
+}
+
+function buildMosaicSvg(map, opts){
+  opts = opts || {};
+  var showNums = opts.numbers;
+  var interactive = opts.interactive;
+  var defs = '', shapes = '';
+  for(var n=1;n<=MOSAIC_N;n++){
+    var pts = MOSAIC_GEO[String(n)];
+    var ptsAttr = pts.map(function(p){ return (p[0]/1000*500)+','+(p[1]/1000*500); }).join(' ');
+    defs += '<clipPath id="mzc'+n+'"><polygon points="'+ptsAttr+'"/></clipPath>';
+    var img = map[n];
+    var fill;
+    if(img){
+      fill = '<image href="'+escAttr(imgPathG(img))+'" x="0" y="0" width="500" height="500" preserveAspectRatio="xMidYMid slice" clip-path="url(#mzc'+n+')"/>';
+    } else {
+      fill = '<polygon points="'+ptsAttr+'" fill="rgba(201,169,110,0.05)"/>';
+    }
+    var c = MOSAIC_CENTERS[String(n)];
+    var cx = c[0]/1000*500, cy = c[1]/1000*500;
+    var numTxt = showNums ? '<text x="'+cx+'" y="'+(cy+5)+'" fill="#F0D99A" font-size="15" text-anchor="middle" font-family="Georgia" style="pointer-events:none;paint-order:stroke;stroke:#03050A;stroke-width:3px">'+n+'</text>' : '';
+    var cls = interactive ? 'mztile' : '';
+    shapes += '<g class="'+cls+'" data-shape="'+n+'">'+fill
+      + '<polygon points="'+ptsAttr+'" fill="'+(img?'none':'transparent')+'" stroke="#C9A96E" stroke-width="1.5"/>'
+      + numTxt + '</g>';
+  }
+  return '<svg viewBox="-2 -2 504 504" style="width:100%;height:auto;display:block;background:#050810" xmlns="http://www.w3.org/2000/svg"><defs>'+defs+'</defs>'+shapes+'</svg>';
+}
+
+function renderMosaicTab(){
+  var body = document.getElementById('secTabBody');
+  var cfg = getMosaicConfig();
+  var res = mosaicResolveImages();
+  var poolCount = res.pool.length;
+  var enoughImages = poolCount >= MOSAIC_N;
+
+  var warning = enoughImages ? '' :
+    '<div style="background:var(--warn-bg);border:1px solid rgba(239,159,39,.3);color:var(--warn);font-size:13px;padding:10px 14px;margin-bottom:16px">'
+    + 'Le pool contient '+poolCount+' image'+(poolCount>1?'s':'')+' sur les 12 nécessaires. '
+    + 'Les formes non remplies restent vides. Ajoutez des images dans l\u2019onglet « Pool d\u2019images ».</div>';
+
+  body.innerHTML =
+    warning
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">'
+    +   '<span style="font-size:12px;color:var(--txt4)">Mode :</span>'
+    +   '<button class="btn ghost mzmode" data-mode="auto" style="padding:6px 14px;font-size:12px'+(cfg.mode==='auto'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Automatique (mensuel)</button>'
+    +   '<button class="btn ghost mzmode" data-mode="manual" style="padding:6px 14px;font-size:12px'+(cfg.mode==='manual'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Manuel (je choisis)</button>'
+    +   '<span style="flex:1"></span>'
+    +   '<button class="btn solid" id="mzSave">Enregistrer la mosaïque</button>'
+    + '</div>'
+    + '<div style="font-size:12px;color:var(--txt3);margin-bottom:16px">'
+    +   (cfg.mode==='auto'
+        ? 'La mosaïque change chaque mois : 12 images tirées de votre pool, placées dans l\u2019ordre. Aperçu du mois courant ci-dessous.'
+        : 'Cliquez une forme puis choisissez son image. Aperçu en direct ci-dessous.')
+    + '</div>'
+    + '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">'
+    +   '<div style="flex:1;min-width:280px;max-width:460px" id="mzPreview">'+buildMosaicSvg(res.map, {numbers:true, interactive:(cfg.mode==='manual')})+'</div>'
+    +   '<div style="flex:1;min-width:220px" id="mzSide"></div>'
+    + '</div>';
+
+  Array.prototype.forEach.call(body.querySelectorAll('.mzmode'), function(b){
+    b.addEventListener('click', function(){
+      cfg.mode = b.getAttribute('data-mode');
+      listState.mosaic = cfg;
+      state.dirty = true;
+      renderMosaicTab();
+    });
+  });
+  document.getElementById('mzSave').addEventListener('click', saveMosaic);
+
+  renderMosaicSide();
+  if(cfg.mode === 'manual') wireMosaicInteractive();
+}
+
+function renderMosaicSide(){
+  var side = document.getElementById('mzSide');
+  if(!side) return;
+  var cfg = getMosaicConfig();
+  if(cfg.mode === 'auto'){
+    var now = new Date();
+    var mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    side.innerHTML = '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt4);margin-bottom:10px">Aperçu du mois</div>'
+      + '<div style="font-family:var(--ff-t);font-size:20px;color:var(--gold);margin-bottom:6px">'+mois[now.getMonth()]+' '+now.getFullYear()+'</div>'
+      + '<p style="font-size:13px;color:var(--txt3);line-height:1.7">Chaque mois, une nouvelle sélection s\u2019affiche automatiquement sur le site, sans intervention. Le même mois montre toujours la même mosaïque.</p>';
+  } else {
+    /* mode manuel : liste des 12 formes et leur image assignée */
+    var cfgm = cfg.manual;
+    var rows = '';
+    for(var n=1;n<=MOSAIC_N;n++){
+      var img = cfgm[String(n)];
+      rows += '<div class="mzassign" data-shape="'+n+'" style="display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px solid var(--gold-line);cursor:pointer">'
+        + '<span style="width:22px;color:var(--gold);font-family:var(--ff-t)">'+n+'</span>'
+        + (img ? '<img src="'+escAttr(imgPathG(img))+'" style="width:34px;height:34px;object-fit:cover;border:1px solid var(--gold-line)" onerror="this.style.visibility=\'hidden\'">' : '<span style="width:34px;height:34px;border:1px dashed var(--gold-line);display:inline-block"></span>')
+        + '<span style="flex:1;font-size:12px;color:var(--txt3)">'+(img?esc(img.split('/').pop()):'— vide, cliquer pour choisir —')+'</span>'
+        + (img?'<button class="btn ghost mzclear" data-shape="'+n+'" style="padding:2px 8px;font-size:11px;border-color:rgba(226,75,74,.3);color:var(--err)">×</button>':'')
+        + '</div>';
+    }
+    side.innerHTML = '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt4);margin-bottom:10px">Assignation des 12 formes</div>'+rows;
+    Array.prototype.forEach.call(side.querySelectorAll('.mzassign'), function(r){
+      r.addEventListener('click', function(e){
+        if(e.target.classList.contains('mzclear')) return;
+        assignShapeImage(parseInt(r.getAttribute('data-shape'),10));
+      });
+    });
+    Array.prototype.forEach.call(side.querySelectorAll('.mzclear'), function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        var n = b.getAttribute('data-shape');
+        delete getMosaicConfig().manual[n];
+        listState.mosaic = getMosaicConfig();
+        state.dirty = true;
+        renderMosaicTab();
+      });
+    });
+  }
+}
+
+/* clic sur une forme du SVG (mode manuel) → choisir une image */
+function wireMosaicInteractive(){
+  var prev = document.getElementById('mzPreview');
+  if(!prev) return;
+  Array.prototype.forEach.call(prev.querySelectorAll('.mztile'), function(g){
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', function(){
+      assignShapeImage(parseInt(g.getAttribute('data-shape'),10));
+    });
+  });
+}
+
+function assignShapeImage(shapeNum){
+  /* sélecteur limité au pool de la galerie */
+  openGalleryImagePicker(function(imagePath){
+    var cfg = getMosaicConfig();
+    cfg.manual[String(shapeNum)] = imagePath;
+    listState.mosaic = cfg;
+    state.dirty = true;
+    renderMosaicTab();
+  });
+}
+
+/* Sélecteur d'image restreint au pool de Secondes */
+function openGalleryImagePicker(onChoose){
+  var pool = listState.items.filter(function(it){ return it.image; });
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.88);z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px';
+  var grid = pool.map(function(it){
+    return '<div class="gpick" data-img="'+escAttr(it.image)+'" title="'+escAttr(it.title||it.image)+'" style="cursor:pointer">'
+      + '<img src="'+escAttr(imgPathG(it.image))+'" style="width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--gold-line)" onerror="this.style.opacity=.3">'
+      + '</div>';
+  }).join('');
+  ov.innerHTML = '<div style="background:var(--panel);border:1px solid var(--gold-line2);max-width:620px;width:100%;max-height:82vh;display:flex;flex-direction:column">'
+    + '<div style="padding:16px 20px;border-bottom:1px solid var(--gold-line);display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--ff-t);font-size:19px;color:var(--gold)">Choisir dans le pool</span><button class="btn ghost" id="gpClose">Fermer</button></div>'
+    + '<div style="padding:16px;overflow-y:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">'+(pool.length?grid:'<div class="empty" style="grid-column:1/-1">Le pool est vide. Ajoutez des images dans l\u2019onglet Pool.</div>')+'</div></div>';
+  document.body.appendChild(ov);
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  document.getElementById('gpClose').addEventListener('click', close);
+  Array.prototype.forEach.call(ov.querySelectorAll('.gpick'), function(g){
+    g.addEventListener('click', function(){ onChoose(g.getAttribute('data-img')); close(); });
+  });
+}
+
+function saveMosaic(){
+  var cfg = getMosaicConfig();
+  /* on réécrit gallery.json en préservant items + en ajoutant/màj mosaic */
+  var doc = { items: listState.items, mosaic: cfg };
+  var content = JSON.stringify(doc, null, 2);
+  var btn = document.getElementById('mzSave');
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…'; }
+  api({action:'write', file:'data/gallery.json', content:content, sha:listState.sha,
+       message:'Horloger : mosaïque Secondes ('+cfg.mode+')'})
+  .then(function(res){
+    listState.sha = res.sha;
+    state.dirty = false;
+    toast('Mosaïque enregistrée ✓', 'ok', 2800);
+    if(btn){ btn.disabled=false; btn.textContent='Enregistrer la mosaïque'; }
+  }).catch(function(err){
+    if(btn){ btn.disabled=false; btn.textContent='Enregistrer la mosaïque'; }
+    if(err.status===409) toast('Conflit : rechargez (changement externe).', 'err', 4000);
+    else toast('Échec : '+err.message, 'err', 4000);
+  });
+}
+
+function renderSectionListInto(targetId){
   var schema = listState.schema;
-  var main = document.getElementById('main');
+  var main = document.getElementById(targetId);
+  var isEmbedded = (targetId !== 'main');
   var rows = listState.items.map(function(it, i){
     var label = esc(it[schema.labelField] || '(sans titre)');
     var thumb = '';
@@ -1009,8 +1277,8 @@ function renderSectionList(){
   }).join('');
 
   main.innerHTML =
-   '<div class="vhead"><div class="vtitle">'+esc(schema.title)+'</div>'
-   + '<div class="vactions"><button class="btn solid" id="btnAddItem">+ Ajouter une '+schema.singular+'</button></div></div>'
+   (isEmbedded ? '' : '<div class="vhead"><div class="vtitle">'+esc(schema.title)+'</div></div>')
+   + '<div class="vactions" style="justify-content:flex-end;margin-bottom:14px"><button class="btn solid" id="btnAddItem">+ Ajouter une '+schema.singular+'</button></div>'
    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">'
    +   '<span style="font-size:12px;color:var(--txt4)">Ordre :</span>'
    +   '<button class="btn ghost sortbtn" data-sort="manual" style="padding:5px 12px;font-size:12px">Manuel (glisser)</button>'
@@ -1188,6 +1456,8 @@ function saveSection(){
   renumber();
   var doc = {};
   doc[schema.rootKey] = listState.items;
+  /* Secondes : ne pas perdre la config mosaïque lors d'un enregistrement du pool */
+  if(listState.key === 'secondes' && listState.mosaic){ doc.mosaic = listState.mosaic; }
   var content = JSON.stringify(doc, null, 2);
   var btn = document.getElementById('btnSaveSection');
   if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…'; }
