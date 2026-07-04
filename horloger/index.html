@@ -1052,46 +1052,74 @@ function getMosaicConfig(){
   return cfg;
 }
 
+/* Trouve le crop par défaut d'une image (stocké sur l'item du pool) */
+function imageDefaultCrop(imageUrl){
+  for(var i=0;i<listState.items.length;i++){
+    if(listState.items[i].image === imageUrl && listState.items[i].crop) return listState.items[i].crop;
+  }
+  return null;
+}
+function normalizeManualEntry(ref){
+  /* rétrocompat : ancienne forme = string ; nouvelle = {image, crop} */
+  if(!ref) return null;
+  if(typeof ref === 'string') return { image: ref, crop: null };
+  return { image: ref.image, crop: ref.crop || null };
+}
+
 function mosaicResolveImages(){
-  /* renvoie un objet {formeN: imageUrl} selon le mode courant */
+  /* renvoie {formeN: {image, crop}} selon le mode courant */
   var cfg = getMosaicConfig();
   var pool = listState.items.filter(function(it){ return it.image && it.published !== false; });
   var map = {};
   if(cfg.mode === 'manual'){
     for(var k=1;k<=MOSAIC_N;k++){
-      var ref = cfg.manual[String(k)];
-      if(ref) map[k] = ref;
+      var entry = normalizeManualEntry(cfg.manual[String(k)]);
+      if(entry && entry.image){
+        /* surcharge par forme si présente, sinon crop par défaut de l'image */
+        var crop = entry.crop || imageDefaultCrop(entry.image);
+        map[k] = { image: entry.image, crop: crop };
+      }
     }
   } else {
     var now = new Date();
     var sel = mosaicAutoSelection(listState.items, now.getFullYear(), now.getMonth());
-    for(var i=0;i<sel.length && i<MOSAIC_N;i++){ map[i+1] = sel[i].image; }
+    for(var i=0;i<sel.length && i<MOSAIC_N;i++){
+      map[i+1] = { image: sel[i].image, crop: sel[i].crop || null };
+    }
   }
   return { map:map, pool:pool };
 }
 
 function buildMosaicSvg(map, opts){
   opts = opts || {};
-  var showNums = opts.numbers;
   var interactive = opts.interactive;
   var defs = '', shapes = '';
   for(var n=1;n<=MOSAIC_N;n++){
     var pts = MOSAIC_GEO[String(n)];
     var ptsAttr = pts.map(function(p){ return (p[0]/1000*500)+','+(p[1]/1000*500); }).join(' ');
     defs += '<clipPath id="mzc'+n+'"><polygon points="'+ptsAttr+'"/></clipPath>';
-    var img = map[n];
+    var entry = map[n];
     var fill;
-    if(img){
-      fill = '<image href="'+escAttr(imgPathG(img))+'" x="0" y="0" width="500" height="500" preserveAspectRatio="xMidYMid slice" clip-path="url(#mzc'+n+')"/>';
+    if(entry && entry.image){
+      /* transformation de cadrage : scale autour du centre de la forme + décalage */
+      var c = MOSAIC_CENTERS[String(n)];
+      var fcx = c[0]/1000*500, fcy = c[1]/1000*500;
+      var cr = entry.crop || { scale:1, x:0, y:0 };
+      var s = cr.scale || 1;
+      var tx = cr.x || 0, ty = cr.y || 0;
+      /* transform = translate(offset) puis scale autour du centre de la forme */
+      var transform = 'translate('+tx+','+ty+') translate('+fcx+','+fcy+') scale('+s+') translate('+(-fcx)+','+(-fcy)+')';
+      fill = '<g clip-path="url(#mzc'+n+')"><image href="'+escAttr(imgPathG(entry.image))+'" x="0" y="0" width="500" height="500" preserveAspectRatio="xMidYMid slice" transform="'+transform+'"/></g>';
     } else {
       fill = '<polygon points="'+ptsAttr+'" fill="rgba(201,169,110,0.05)"/>';
     }
-    var c = MOSAIC_CENTERS[String(n)];
-    var cx = c[0]/1000*500, cy = c[1]/1000*500;
-    var numTxt = showNums ? '<text x="'+cx+'" y="'+(cy+5)+'" fill="#F0D99A" font-size="15" text-anchor="middle" font-family="Georgia" style="pointer-events:none;paint-order:stroke;stroke:#03050A;stroke-width:3px">'+n+'</text>' : '';
+    var cc = MOSAIC_CENTERS[String(n)];
+    var cx = cc[0]/1000*500, cy = cc[1]/1000*500;
+    /* numéro seulement si la case est VIDE */
+    var numTxt = (!entry || !entry.image) ? '<text x="'+cx+'" y="'+(cy+5)+'" fill="#C9A96E" font-size="15" text-anchor="middle" font-family="Georgia" style="pointer-events:none;opacity:.7">'+n+'</text>' : '';
     var cls = interactive ? 'mztile' : '';
     shapes += '<g class="'+cls+'" data-shape="'+n+'">'+fill
-      + '<polygon points="'+ptsAttr+'" fill="'+(img?'none':'transparent')+'" stroke="#C9A96E" stroke-width="1.5"/>'
+      + '<polygon points="'+ptsAttr+'" fill="'+((entry&&entry.image)?'none':'transparent')+'" stroke="#C9A96E" stroke-width="1.5"/>'
       + numTxt + '</g>';
   }
   return '<svg viewBox="-2 -2 504 504" style="width:100%;height:auto;display:block;background:#050810" xmlns="http://www.w3.org/2000/svg"><defs>'+defs+'</defs>'+shapes+'</svg>';
@@ -1111,8 +1139,13 @@ function renderMosaicTab(){
 
   body.innerHTML =
     warning
+    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">'
+    +   '<span style="font-size:12px;color:var(--txt4)">Sur le site :</span>'
+    +   '<button class="btn ghost mzlayout" data-layout="grid" style="padding:6px 14px;font-size:12px'+((cfg.layout||'grid')==='grid'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Grille actuelle</button>'
+    +   '<button class="btn ghost mzlayout" data-layout="mosaic" style="padding:6px 14px;font-size:12px'+(cfg.layout==='mosaic'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Mosaïque</button>'
+    + '</div>'
     + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">'
-    +   '<span style="font-size:12px;color:var(--txt4)">Mode :</span>'
+    +   '<span style="font-size:12px;color:var(--txt4)">Sélection :</span>'
     +   '<button class="btn ghost mzmode" data-mode="auto" style="padding:6px 14px;font-size:12px'+(cfg.mode==='auto'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Automatique (mensuel)</button>'
     +   '<button class="btn ghost mzmode" data-mode="manual" style="padding:6px 14px;font-size:12px'+(cfg.mode==='manual'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Manuel (je choisis)</button>'
     +   '<span style="flex:1"></span>'
@@ -1120,14 +1153,22 @@ function renderMosaicTab(){
     + '</div>'
     + '<div style="font-size:12px;color:var(--txt3);margin-bottom:16px">'
     +   (cfg.mode==='auto'
-        ? 'La mosaïque change chaque mois : 12 images tirées de votre pool, placées dans l\u2019ordre. Aperçu du mois courant ci-dessous.'
-        : 'Cliquez une forme puis choisissez son image. Aperçu en direct ci-dessous.')
+        ? 'La mosaïque change chaque mois : 12 images tirées de votre pool, placées dans l\u2019ordre. Cliquez une image pour ajuster son cadrage (zoom + position), qui la suivra partout.'
+        : 'Cliquez une forme pour choisir son image, puis ajustez son cadrage (zoom + glisser) spécifique à cette forme.')
     + '</div>'
     + '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">'
-    +   '<div style="flex:1;min-width:280px;max-width:460px" id="mzPreview">'+buildMosaicSvg(res.map, {numbers:true, interactive:(cfg.mode==='manual')})+'</div>'
+    +   '<div style="flex:1;min-width:280px;max-width:460px" id="mzPreview">'+buildMosaicSvg(res.map, {interactive:true})+'</div>'
     +   '<div style="flex:1;min-width:220px" id="mzSide"></div>'
     + '</div>';
 
+  Array.prototype.forEach.call(body.querySelectorAll('.mzlayout'), function(b){
+    b.addEventListener('click', function(){
+      cfg.layout = b.getAttribute('data-layout');
+      listState.mosaic = cfg;
+      state.dirty = true;
+      renderMosaicTab();
+    });
+  });
   Array.prototype.forEach.call(body.querySelectorAll('.mzmode'), function(b){
     b.addEventListener('click', function(){
       cfg.mode = b.getAttribute('data-mode');
@@ -1139,7 +1180,7 @@ function renderMosaicTab(){
   document.getElementById('mzSave').addEventListener('click', saveMosaic);
 
   renderMosaicSide();
-  if(cfg.mode === 'manual') wireMosaicInteractive();
+  wireMosaicInteractive();
 }
 
 function renderMosaicSide(){
@@ -1157,11 +1198,13 @@ function renderMosaicSide(){
     var cfgm = cfg.manual;
     var rows = '';
     for(var n=1;n<=MOSAIC_N;n++){
-      var img = cfgm[String(n)];
+      var entry = normalizeManualEntry(cfgm[String(n)]);
+      var img = entry && entry.image;
+      var hasCrop = entry && entry.crop;
       rows += '<div class="mzassign" data-shape="'+n+'" style="display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px solid var(--gold-line);cursor:pointer">'
         + '<span style="width:22px;color:var(--gold);font-family:var(--ff-t)">'+n+'</span>'
         + (img ? '<img src="'+escAttr(imgPathG(img))+'" style="width:34px;height:34px;object-fit:cover;border:1px solid var(--gold-line)" onerror="this.style.visibility=\'hidden\'">' : '<span style="width:34px;height:34px;border:1px dashed var(--gold-line);display:inline-block"></span>')
-        + '<span style="flex:1;font-size:12px;color:var(--txt3)">'+(img?esc(img.split('/').pop()):'— vide, cliquer pour choisir —')+'</span>'
+        + '<span style="flex:1;font-size:12px;color:var(--txt3)">'+(img?esc(img.split('/').pop()):'— vide, cliquer pour choisir —')+(hasCrop?' <span style="color:var(--gold)">◨ recadrée</span>':'')+'</span>'
         + (img?'<button class="btn ghost mzclear" data-shape="'+n+'" style="padding:2px 8px;font-size:11px;border-color:rgba(226,75,74,.3);color:var(--err)">×</button>':'')
         + '</div>';
     }
@@ -1189,10 +1232,20 @@ function renderMosaicSide(){
 function wireMosaicInteractive(){
   var prev = document.getElementById('mzPreview');
   if(!prev) return;
+  var cfg = getMosaicConfig();
+  var res = mosaicResolveImages();
   Array.prototype.forEach.call(prev.querySelectorAll('.mztile'), function(g){
+    var n = parseInt(g.getAttribute('data-shape'),10);
     g.style.cursor = 'pointer';
     g.addEventListener('click', function(){
-      assignShapeImage(parseInt(g.getAttribute('data-shape'),10));
+      var entry = res.map[n];
+      if(cfg.mode === 'manual'){
+        if(entry && entry.image){ openCropEditor(n, entry.image); }  /* case remplie → recadrer */
+        else { assignShapeImage(n); }                                  /* case vide → choisir */
+      } else {
+        /* auto : cliquer une image ajuste son cadrage par défaut */
+        if(entry && entry.image){ openCropEditor(null, entry.image); }
+      }
     });
   });
 }
@@ -1201,9 +1254,102 @@ function assignShapeImage(shapeNum){
   /* sélecteur limité au pool de la galerie */
   openGalleryImagePicker(function(imagePath){
     var cfg = getMosaicConfig();
-    cfg.manual[String(shapeNum)] = imagePath;
+    cfg.manual[String(shapeNum)] = { image: imagePath, crop: null };
     listState.mosaic = cfg;
     state.dirty = true;
+    renderMosaicTab();
+    /* proposer le recadrage dans la foulée */
+    openCropEditor(shapeNum, imagePath);
+  });
+}
+
+/* Éditeur de cadrage : zoom (molette/curseur) + glisser, aperçu dans la forme.
+   shapeNum=null → règle le crop par défaut de l'image (mode auto / global).
+   shapeNum=N     → règle la surcharge de la forme N (mode manuel). */
+function openCropEditor(shapeNum, imageUrl){
+  var cfg = getMosaicConfig();
+  /* crop de départ : surcharge forme si dispo, sinon crop image, sinon neutre */
+  var start = null;
+  if(shapeNum != null){
+    var e = normalizeManualEntry(cfg.manual[String(shapeNum)]);
+    start = (e && e.crop) || imageDefaultCrop(imageUrl);
+  } else {
+    start = imageDefaultCrop(imageUrl);
+  }
+  var crop = { scale: (start&&start.scale)||1, x:(start&&start.x)||0, y:(start&&start.y)||0 };
+
+  var shapePts = shapeNum != null ? MOSAIC_GEO[String(shapeNum)] : [[100,100],[900,100],[900,900],[100,900]];
+  var ptsAttr = shapePts.map(function(p){ return (p[0]/1000*400)+','+(p[1]/1000*400); }).join(' ');
+  var ctr = shapeNum != null ? MOSAIC_CENTERS[String(shapeNum)] : [500,500];
+  var fcx = ctr[0]/1000*400, fcy = ctr[1]/1000*400;
+
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.9);z-index:1300;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML =
+    '<div style="background:var(--panel);border:1px solid var(--gold-line2);max-width:520px;width:100%;padding:24px">'
+    + '<div style="font-family:var(--ff-t);font-size:20px;color:var(--gold);margin-bottom:4px">Ajuster le cadrage'+(shapeNum!=null?' — forme n\u00b0'+shapeNum:'')+'</div>'
+    + '<div style="font-size:12px;color:var(--txt3);margin-bottom:16px">Molette ou curseur pour zoomer, glissez pour déplacer.'+(shapeNum!=null?' Ce réglage ne vaut que pour cette forme.':' Ce réglage suit l\u2019image partout.')+'</div>'
+    + '<svg id="cropSvg" viewBox="-2 -2 404 404" style="width:100%;height:auto;display:block;background:#050810;touch-action:none;cursor:grab" xmlns="http://www.w3.org/2000/svg">'
+    +   '<defs><clipPath id="cropClip"><polygon points="'+ptsAttr+'"/></clipPath></defs>'
+    +   '<g clip-path="url(#cropClip)"><image id="cropImg" href="'+escAttr(imgPathG(imageUrl))+'" x="0" y="0" width="400" height="400" preserveAspectRatio="xMidYMid slice"/></g>'
+    +   '<polygon points="'+ptsAttr+'" fill="none" stroke="#C9A96E" stroke-width="1.5"/>'
+    + '</svg>'
+    + '<div style="display:flex;align-items:center;gap:10px;margin:16px 0">'
+    +   '<span style="font-size:12px;color:var(--txt4)">Zoom</span>'
+    +   '<input type="range" id="cropZoom" min="1" max="4" step="0.05" value="'+crop.scale+'" style="flex:1;accent-color:var(--gold)">'
+    +   '<button class="btn ghost" id="cropReset" style="padding:4px 10px;font-size:12px">Réinitialiser</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+    +   '<button class="btn ghost" id="cropCancel">Annuler</button>'
+    +   '<button class="btn solid" id="cropOk">Valider le cadrage</button>'
+    + '</div></div>';
+  document.body.appendChild(ov);
+
+  var img = ov.querySelector('#cropImg');
+  var svg = ov.querySelector('#cropSvg');
+  function apply(){
+    /* même formule que buildMosaicSvg mais sur repère 400 */
+    var s = crop.scale, tx = crop.x*0.8, ty = crop.y*0.8; /* 400/500 = 0.8 */
+    img.setAttribute('transform', 'translate('+tx+','+ty+') translate('+fcx+','+fcy+') scale('+s+') translate('+(-fcx)+','+(-fcy)+')');
+  }
+  apply();
+
+  ov.querySelector('#cropZoom').addEventListener('input', function(){ crop.scale = parseFloat(this.value); apply(); });
+  svg.addEventListener('wheel', function(e){
+    e.preventDefault();
+    crop.scale = Math.min(4, Math.max(1, crop.scale + (e.deltaY<0?0.1:-0.1)));
+    ov.querySelector('#cropZoom').value = crop.scale; apply();
+  });
+  /* glisser */
+  var dragging=false, lastX, lastY;
+  function down(e){ dragging=true; svg.style.cursor='grabbing'; var p=pt(e); lastX=p.x; lastY=p.y; }
+  function move(e){ if(!dragging) return; var p=pt(e); crop.x += (p.x-lastX); crop.y += (p.y-lastY); lastX=p.x; lastY=p.y; apply(); }
+  function up(){ dragging=false; svg.style.cursor='grab'; }
+  function pt(e){ var r=svg.getBoundingClientRect(); var cx=(e.touches?e.touches[0].clientX:e.clientX); var cy=(e.touches?e.touches[0].clientY:e.clientY); return {x:(cx-r.left)/r.width*500, y:(cy-r.top)/r.height*500}; }
+  svg.addEventListener('mousedown', down); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  svg.addEventListener('touchstart', down); svg.addEventListener('touchmove', function(e){e.preventDefault();move(e);}); svg.addEventListener('touchend', up);
+
+  ov.querySelector('#cropReset').addEventListener('click', function(){ crop.scale=1; crop.x=0; crop.y=0; ov.querySelector('#cropZoom').value=1; apply(); });
+
+  function cleanup(){ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.querySelector('#cropCancel').addEventListener('click', cleanup);
+  ov.querySelector('#cropOk').addEventListener('click', function(){
+    var normalized = (crop.scale===1 && crop.x===0 && crop.y===0) ? null : {scale:Math.round(crop.scale*100)/100, x:Math.round(crop.x), y:Math.round(crop.y)};
+    if(shapeNum != null){
+      var entry = normalizeManualEntry(cfg.manual[String(shapeNum)]) || {image:imageUrl};
+      entry.crop = normalized;
+      cfg.manual[String(shapeNum)] = entry;
+    } else {
+      /* crop par défaut de l'image : stocké sur l'item du pool */
+      for(var i=0;i<listState.items.length;i++){
+        if(listState.items[i].image === imageUrl){
+          if(normalized) listState.items[i].crop = normalized; else delete listState.items[i].crop;
+        }
+      }
+    }
+    listState.mosaic = cfg;
+    state.dirty = true;
+    cleanup();
     renderMosaicTab();
   });
 }
