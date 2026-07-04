@@ -373,14 +373,24 @@ function relTime(iso){
 function stanzasToHtml(body){
   if(!body) return '<span style="color:var(--txt4)">L\u2019aperçu apparaîtra ici au fil de votre écriture…</span>';
   return body.replace(/\r\n/g,'\n').split(/\n\n+/).map(function(stanza){
+    if(/^---$/.test(stanza.trim())) return '<div class="pv-sep"></div>';
+    var isQuote = /^>\s?/.test(stanza);
     var lines = stanza.split('\n').map(function(l){
-      var h = esc(l)
+      /* Image markdown ![alt](url) sur sa ligne → figure */
+      var im = l.match(/^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/);
+      if(im){
+        var alt = esc(im[1]);
+        var url = im[2].trim();
+        if(!/^https?:\/\//.test(url) && url.charAt(0)!=='/') url = '/'+url;
+        return '<figure style="margin:1em 0"><img src="'+escAttr(url)+'" alt="'+alt+'" style="max-width:100%;max-height:200px;border:1px solid var(--gold-line)" onerror="this.style.display=\'none\'">'+(im[1]?'<figcaption style="font-size:12px;color:var(--txt3);font-style:italic;margin-top:5px">'+alt+'</figcaption>':'')+'</figure>';
+      }
+      return esc(l)
         .replace(/\*\*(.+?)\*\*/g,'<b style="color:var(--gold);font-weight:normal">$1</b>')
         .replace(/(^|[^*])\*(?!\*)(.+?)\*(?!\*)/g,'$1<em>$2</em>');
-      return h;
     }).join('<br>');
-    if(/^>\s?/.test(stanza)) return '<blockquote style="border-left:2px solid var(--gold);padding-left:14px;font-style:italic;margin:1.2em 0">'+lines.replace(/&gt;\s?/,'')+'</blockquote>';
-    if(/^---$/.test(stanza.trim())) return '<div class="pv-sep"></div>';
+    /* nettoie les <br> superflus autour des figures */
+    lines = lines.replace(/<br>(<figure)/g,'$1').replace(/(<\/figure>)<br>/g,'$1');
+    if(isQuote) return '<blockquote style="border-left:2px solid var(--gold);padding-left:14px;font-style:italic;margin:1.2em 0">'+lines.replace(/&gt;\s?/,'')+'</blockquote>';
     return '<p>'+lines+'</p>';
   }).join('');
 }
@@ -428,8 +438,9 @@ function viewEdit(post){
    +   '<label class="fl">Extrait <span class="hint">(carte du blog)</span></label>'
    +   '<textarea class="fi" id="fExcerpt" rows="2">'+esc(post.excerpt||'')+'</textarea>'
    +   '<label class="fl">Image de couverture <span class="hint">(chemin ou URL, optionnel)</span></label>'
-   +   '<input class="fi" id="fCover" value="'+escAttr(post.cover||'')+'" placeholder="/images/uploads/photo.jpg">'
+   +   '<div style="display:flex;gap:8px"><input class="fi" id="fCover" value="'+escAttr(post.cover||'')+'" placeholder="/images/uploads/photo.jpg"><button class="btn ghost" id="btnPickCover" type="button" style="flex:0 0 auto;padding:0 14px">&#9635;</button></div>'
    +   '<label class="fl">Le poème <span class="hint">— ligne vide = nouvelle strophe · **gras** · *italique*</span></label>'
+   +   '<div style="display:flex;justify-content:flex-end;margin-bottom:4px"><button class="btn ghost" id="btnInsertImg" type="button" style="padding:5px 12px;font-size:12px">&#9635; Insérer une image</button></div>'
    +   '<textarea class="fi" id="fBody" rows="12">'+esc(post.body||'')+'</textarea>'
    +   '<div class="frow" style="margin-top:16px;align-items:center">'
    +     '<div><label class="fl">Programmer la parution <span class="hint">(vide = immédiat)</span></label>'
@@ -497,6 +508,22 @@ function viewEdit(post){
     state.dirty=false; go('list');
   });
   $('#btnSave').addEventListener('click', function(){ savePost(isEdit); });
+
+  /* Sélecteur d'image pour la couverture */
+  $('#btnPickCover').addEventListener('click', function(){
+    openImagePicker(function(path){ fCover.value = path; state.dirty=true; renderPreview(); });
+  });
+  /* Insertion d'une image dans le corps (syntaxe markdown ![]()) */
+  $('#btnInsertImg').addEventListener('click', function(){
+    openImagePicker(function(path){
+      var ta = fBody;
+      var pos = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      var snippet = '\n![](' + path + ')\n';
+      ta.value = ta.value.slice(0, pos) + snippet + ta.value.slice(pos);
+      state.dirty = true; renderPreview();
+      ta.focus();
+    });
+  });
 }
 
 /* hoist pour isoToLocalInput utilisé dans le template avant sa définition */
@@ -662,13 +689,129 @@ function viewDash(){
 /* ══════════════════════════════════════════════════════════════
    VUE : MÉDIATHÈQUE (priorité n°4 — lecture pour l'instant)
    ══════════════════════════════════════════════════════════════ */
+/* Cache de la liste d'images (évite de recharger 300 images à chaque fois) */
+var mediaCache = null;
+
+function loadImages(force){
+  if(mediaCache && !force) return Promise.resolve(mediaCache);
+  return api({action:'listImages'}).then(function(res){
+    mediaCache = res.images || [];
+    return mediaCache;
+  });
+}
+
+/* Ouvre le sélecteur de fichier et téléverse ; renvoie le chemin */
+function pickAndUpload(onDone){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', function(){
+    var file = input.files && input.files[0];
+    if(!file) return;
+    if(file.size > 8*1024*1024){ toast('Image trop lourde (max 8 Mo).', 'err', 3500); return; }
+    toast('Téléversement de « ' + file.name + ' »…', null, 8000);
+    var reader = new FileReader();
+    reader.onload = function(){
+      var b64 = String(reader.result).replace(/^data:[^,]*,/, '');
+      api({action:'uploadImage', name:file.name, contentBase64:b64}).then(function(res){
+        mediaCache = null; /* invalider le cache */
+        toast('Image ajoutée ✓', 'ok', 2500);
+        if(onDone) onDone(res.path, res.name);
+      }).catch(function(err){
+        toast('Échec du téléversement : ' + err.message, 'err', 4000);
+      });
+    };
+    reader.onerror = function(){ toast('Lecture du fichier impossible.', 'err'); };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+}
+
 function viewMedia(){
   var main = document.getElementById('main');
   main.innerHTML =
-   '<div class="vhead"><div class="vtitle">Médiathèque</div></div>'
-   + '<div class="empty">La médiathèque complète (téléversement, galerie) arrivera à l\u2019étape suivante.<br>'
-   + 'Pour l\u2019instant, insérez vos images par leur chemin dans l\u2019éditeur '
-   + '(ex. <code style="color:var(--gold)">/images/uploads/photo.jpg</code>).</div>';
+   '<div class="vhead"><div class="vtitle">Médiathèque</div>'
+   + '<div class="vactions"><button class="btn ghost" id="btnRefreshMedia">Rafraîchir</button>'
+   + '<button class="btn solid" id="btnUpload">&#8593; Téléverser une image</button></div></div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:16px">Cliquez une image pour copier son chemin, à coller dans un poème ou une couverture.</div>'
+   + '<div id="mediaGrid" class="media-grid"><div class="center-load" style="grid-column:1/-1"><span class="spinner"></span> Chargement des images…</div></div>';
+
+  $('#btnUpload').addEventListener('click', function(){ pickAndUpload(function(){ renderMediaGrid(true); }); });
+  $('#btnRefreshMedia').addEventListener('click', function(){ renderMediaGrid(true); });
+  renderMediaGrid(false);
+}
+
+function renderMediaGrid(force){
+  var grid = document.getElementById('mediaGrid');
+  if(!grid) return;
+  loadImages(force).then(function(images){
+    if(!grid || !document.getElementById('mediaGrid')) return;
+    if(!images.length){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Aucune image pour l\u2019instant.<br>Téléversez-en une pour commencer.</div>';
+      return;
+    }
+    grid.innerHTML = images.map(function(img){
+      return '<div class="thumb" data-path="'+escAttr(img.path)+'" data-name="'+escAttr(img.name)+'" title="'+escAttr(img.name)+'">'
+        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">'
+        + '<div class="cap">'+esc(img.name)+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
+      t.addEventListener('click', function(){
+        var path = t.getAttribute('data-path');
+        copyToClipboard(path);
+        toast('Chemin copié : ' + path, 'ok', 2600);
+      });
+    });
+  }).catch(function(err){
+    if(grid) grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Impossible de charger les images.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>';
+  });
+}
+
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(function(){ fallbackCopy(text); });
+  } else { fallbackCopy(text); }
+}
+function fallbackCopy(text){
+  var tmp = document.createElement('textarea');
+  tmp.value = text; tmp.style.position='fixed'; tmp.style.opacity='0';
+  document.body.appendChild(tmp); tmp.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(tmp);
+}
+
+/* Sélecteur modal d'image — utilisé depuis l'éditeur (couverture/insertion) */
+function openImagePicker(onChoose){
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.88);z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML =
+    '<div style="background:var(--panel);border:1px solid var(--gold-line2);max-width:640px;width:100%;max-height:82vh;display:flex;flex-direction:column">'
+    + '<div style="padding:18px 20px;border-bottom:1px solid var(--gold-line);display:flex;justify-content:space-between;align-items:center">'
+    +   '<span style="font-family:var(--ff-t);font-size:20px;color:var(--gold)">Choisir une image</span>'
+    +   '<button class="btn ghost" id="ipUpload" style="padding:6px 12px;font-size:12px">&#8593; Téléverser</button>'
+    + '</div>'
+    + '<div id="ipGrid" class="media-grid" style="padding:16px;overflow-y:auto;flex:1"><div class="center-load" style="grid-column:1/-1"><span class="spinner"></span> Chargement…</div></div>'
+    + '<div style="padding:12px 20px;border-top:1px solid var(--gold-line);text-align:right"><button class="btn ghost" id="ipClose">Fermer</button></div>'
+    + '</div>';
+  document.body.appendChild(ov);
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  $('#ipClose', ov).addEventListener('click', close);
+  $('#ipUpload', ov).addEventListener('click', function(){ pickAndUpload(function(path){ onChoose(path); close(); }); });
+
+  loadImages(false).then(function(images){
+    var grid = $('#ipGrid', ov);
+    if(!grid) return;
+    if(!images.length){ grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Aucune image. Téléversez-en une.</div>'; return; }
+    grid.innerHTML = images.map(function(img){
+      return '<div class="thumb" data-path="'+escAttr(img.path)+'" title="'+escAttr(img.name)+'">'
+        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">'
+        + '<div class="cap">'+esc(img.name)+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
+      t.addEventListener('click', function(){ onChoose(t.getAttribute('data-path')); close(); });
+    });
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════
