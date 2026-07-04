@@ -133,9 +133,13 @@ textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
 /* ── Media ── */
 .media-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:640px){.media-grid{grid-template-columns:repeat(2,1fr)}}
-.thumb{aspect-ratio:1;background:var(--panel2);border:1px solid var(--gold-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--txt4);font-size:10px;text-align:center;padding:8px;overflow:hidden;position:relative}
-.thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.thumb .cap{position:absolute;bottom:0;left:0;right:0;background:rgba(3,5,10,.8);color:var(--txt3);padding:4px;font-size:9px;word-break:break-all}
+.thumb{aspect-ratio:1;min-height:120px;background:var(--panel2);border:1px solid var(--gold-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--txt4);font-size:10px;text-align:center;overflow:hidden;position:relative;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
+.thumb .cap{position:absolute;bottom:0;left:0;right:0;background:rgba(3,5,10,.82);color:var(--txt2);padding:5px 4px;font-size:9px;word-break:break-all;line-height:1.3;z-index:1}
+.thumb.placeholder-ico{font-size:26px;color:var(--gold-soft)}
+.media-search{width:100%;background:var(--panel2);border:1px solid var(--gold-line2);color:var(--txt);font-size:13px;padding:9px 12px;outline:none;margin-bottom:14px}
+.media-search:focus{border-color:var(--gold-soft)}
+.media-count{font-size:12px;color:var(--txt4);margin-left:8px}
 
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--gold-line2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -730,15 +734,34 @@ function pickAndUpload(onDone){
 function viewMedia(){
   var main = document.getElementById('main');
   main.innerHTML =
-   '<div class="vhead"><div class="vtitle">Médiathèque</div>'
+   '<div class="vhead"><div class="vtitle">Médiathèque <span id="mediaCount" class="media-count"></span></div>'
    + '<div class="vactions"><button class="btn ghost" id="btnRefreshMedia">Rafraîchir</button>'
    + '<button class="btn solid" id="btnUpload">&#8593; Téléverser une image</button></div></div>'
-   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:16px">Cliquez une image pour copier son chemin, à coller dans un poème ou une couverture.</div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:12px">Cliquez une image pour copier son chemin, à coller dans un poème ou une couverture.</div>'
+   + '<input type="text" id="mediaSearch" class="media-search" placeholder="Rechercher une image par nom…" autocomplete="off">'
    + '<div id="mediaGrid" class="media-grid"><div class="center-load" style="grid-column:1/-1"><span class="spinner"></span> Chargement des images…</div></div>';
 
-  $('#btnUpload').addEventListener('click', function(){ pickAndUpload(function(){ renderMediaGrid(true); }); });
+  $('#btnUpload').addEventListener('click', function(){ pickAndUpload(function(){ mediaCache=null; renderMediaGrid(true); }); });
   $('#btnRefreshMedia').addEventListener('click', function(){ renderMediaGrid(true); });
+  var search = $('#mediaSearch');
+  search.addEventListener('input', function(){ filterMediaGrid(search.value); });
   renderMediaGrid(false);
+}
+
+/* Filtre la grille déjà affichée (sans recharger) */
+function filterMediaGrid(query){
+  var grid = document.getElementById('mediaGrid');
+  if(!grid) return;
+  var q = (query||'').toLowerCase().trim();
+  var shown = 0;
+  Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
+    var name = (t.getAttribute('data-name')||'').toLowerCase();
+    var match = !q || name.indexOf(q) !== -1;
+    t.style.display = match ? '' : 'none';
+    if(match) shown++;
+  });
+  var counter = document.getElementById('mediaCount');
+  if(counter) counter.textContent = shown + ' image' + (shown>1?'s':'');
 }
 
 function renderMediaGrid(force){
@@ -752,7 +775,7 @@ function renderMediaGrid(force){
     }
     grid.innerHTML = images.map(function(img){
       return '<div class="thumb" data-path="'+escAttr(img.path)+'" data-name="'+escAttr(img.name)+'" title="'+escAttr(img.name)+'">'
-        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">'
+        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.parentNode.classList.add(\'placeholder-ico\');this.style.display=\'none\'">'
         + '<div class="cap">'+esc(img.name)+'</div></div>';
     }).join('');
     Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
@@ -762,6 +785,11 @@ function renderMediaGrid(force){
         toast('Chemin copié : ' + path, 'ok', 2600);
       });
     });
+    /* réappliquer un filtre de recherche éventuellement actif */
+    var sb = document.getElementById('mediaSearch');
+    var counter = document.getElementById('mediaCount');
+    if(counter) counter.textContent = images.length + ' images';
+    if(sb && sb.value) filterMediaGrid(sb.value);
   }).catch(function(err){
     if(grid) grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Impossible de charger les images.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>';
   });
@@ -785,11 +813,12 @@ function openImagePicker(onChoose){
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(3,5,10,.88);z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML =
-    '<div style="background:var(--panel);border:1px solid var(--gold-line2);max-width:640px;width:100%;max-height:82vh;display:flex;flex-direction:column">'
+    '<div style="background:var(--panel);border:1px solid var(--gold-line2);max-width:680px;width:100%;max-height:82vh;display:flex;flex-direction:column">'
     + '<div style="padding:18px 20px;border-bottom:1px solid var(--gold-line);display:flex;justify-content:space-between;align-items:center">'
-    +   '<span style="font-family:var(--ff-t);font-size:20px;color:var(--gold)">Choisir une image</span>'
+    +   '<span style="font-family:var(--ff-t);font-size:20px;color:var(--gold)">Choisir une image <span id="ipCount" class="media-count"></span></span>'
     +   '<button class="btn ghost" id="ipUpload" style="padding:6px 12px;font-size:12px">&#8593; Téléverser</button>'
     + '</div>'
+    + '<div style="padding:14px 16px 0"><input type="text" id="ipSearch" class="media-search" placeholder="Rechercher une image par nom…" autocomplete="off" style="margin-bottom:0"></div>'
     + '<div id="ipGrid" class="media-grid" style="padding:16px;overflow-y:auto;flex:1"><div class="center-load" style="grid-column:1/-1"><span class="spinner"></span> Chargement…</div></div>'
     + '<div style="padding:12px 20px;border-top:1px solid var(--gold-line);text-align:right"><button class="btn ghost" id="ipClose">Fermer</button></div>'
     + '</div>';
@@ -799,15 +828,30 @@ function openImagePicker(onChoose){
   $('#ipClose', ov).addEventListener('click', close);
   $('#ipUpload', ov).addEventListener('click', function(){ pickAndUpload(function(path){ onChoose(path); close(); }); });
 
+  function ipFilter(q){
+    q = (q||'').toLowerCase().trim();
+    var grid = $('#ipGrid', ov); if(!grid) return;
+    var shown = 0;
+    Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
+      var name = (t.getAttribute('data-name')||'').toLowerCase();
+      var match = !q || name.indexOf(q) !== -1;
+      t.style.display = match ? '' : 'none';
+      if(match) shown++;
+    });
+    var c = $('#ipCount', ov); if(c) c.textContent = shown + ' image' + (shown>1?'s':'');
+  }
+  $('#ipSearch', ov).addEventListener('input', function(){ ipFilter(this.value); });
+
   loadImages(false).then(function(images){
     var grid = $('#ipGrid', ov);
     if(!grid) return;
     if(!images.length){ grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Aucune image. Téléversez-en une.</div>'; return; }
     grid.innerHTML = images.map(function(img){
-      return '<div class="thumb" data-path="'+escAttr(img.path)+'" title="'+escAttr(img.name)+'">'
-        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">'
+      return '<div class="thumb" data-path="'+escAttr(img.path)+'" data-name="'+escAttr(img.name)+'" title="'+escAttr(img.name)+'">'
+        + '<img src="'+escAttr(img.path)+'" loading="lazy" alt="" onerror="this.parentNode.classList.add(\'placeholder-ico\');this.parentNode.firstChild.style.display=\'none\'">'
         + '<div class="cap">'+esc(img.name)+'</div></div>';
     }).join('');
+    var c = $('#ipCount', ov); if(c) c.textContent = images.length + ' images';
     Array.prototype.forEach.call(grid.querySelectorAll('.thumb'), function(t){
       t.addEventListener('click', function(){ onChoose(t.getAttribute('data-path')); close(); });
     });
