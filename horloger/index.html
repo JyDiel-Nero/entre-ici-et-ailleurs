@@ -737,6 +737,32 @@ function pickAndUpload(onDone){
   input.click();
 }
 
+/* Téléversement d'un fichier audio (mp3/m4a/ogg/wav) vers images/uploads */
+function pickAndUploadAudio(onDone){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'audio/*,.mp3,.m4a,.ogg,.wav';
+  input.addEventListener('change', function(){
+    var file = input.files && input.files[0];
+    if(!file) return;
+    if(file.size > 25*1024*1024){ toast('Audio trop lourd (max 25 Mo).', 'err', 3500); return; }
+    toast('Téléversement de « ' + file.name + ' »…', null, 12000);
+    var reader = new FileReader();
+    reader.onload = function(){
+      var b64 = String(reader.result).replace(/^data:[^,]*,/, '');
+      api({action:'uploadMedia', name:file.name, contentBase64:b64}).then(function(res){
+        toast('Audio ajouté ✓', 'ok', 2500);
+        if(onDone) onDone(res.path, res.name);
+      }).catch(function(err){
+        toast('Échec du téléversement : ' + err.message, 'err', 4000);
+      });
+    };
+    reader.onerror = function(){ toast('Lecture du fichier impossible.', 'err'); };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+}
+
 function viewMedia(){
   var main = document.getElementById('main');
   main.innerHTML =
@@ -876,15 +902,21 @@ var SECTION_SCHEMAS = {
     file: 'data/audio.json',
     rootKey: 'tracks',
     singular: 'piste',
-    /* champ servant de "titre" dans la liste + tri alphanumérique */
     labelField: 'title',
-    /* champ servant au tri par horodatage (ici aucun date propre → on retombe sur le titre) */
     timeField: null,
     fields: [
       { key:'title', label:'Titre', type:'text', required:true },
       { key:'poet', label:'Interprète / poète', type:'text', def:'J.Y.D.' },
+      { key:'description', label:'Description', type:'textarea' },
+      { key:'file', label:'Fichier audio (mp3)', type:'audio' },
+      { key:'cover', label:'Image de couverture', type:'image' },
       { key:'youtube', label:'Lien YouTube', type:'text', placeholder:'https://youtu.be/…' },
+      { key:'instagram', label:'Lien Instagram', type:'text' },
+      { key:'tiktok', label:'Lien TikTok', type:'text' },
+      { key:'link', label:'Autre lien', type:'text' },
       { key:'link_label', label:'Texte du lien', type:'text', def:'Écouter' },
+      { key:'album', label:'Album / groupe', type:'text', placeholder:'(optionnel — regroupe les pistes)' },
+      { key:'album_cover', label:'Couverture d\u2019album', type:'image' },
       { key:'published', label:'Publié', type:'bool', def:true }
     ]
   },
@@ -1071,10 +1103,19 @@ function openItemEditor(idx){
     if(f.type === 'bool'){
       return '<label style="display:block;margin:16px 0 6px;font-size:13px;color:var(--txt2);cursor:pointer"><input type="checkbox" id="if_'+f.key+'" '+(val?'checked':'')+' style="accent-color:var(--gold);vertical-align:-2px"> '+esc(f.label)+'</label>';
     }
+    if(f.type === 'textarea'){
+      return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
+        + '<textarea class="fi" id="if_'+f.key+'" rows="3">'+esc(val)+'</textarea>';
+    }
     if(f.type === 'image'){
       return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
         + '<div style="display:flex;gap:8px"><input class="fi" id="if_'+f.key+'" value="'+escAttr(val)+'" placeholder="/images/uploads/…"><button class="btn ghost" type="button" id="ifpick_'+f.key+'" style="flex:0 0 auto;padding:0 14px">&#9635;</button></div>'
         + '<div id="ifprev_'+f.key+'" style="margin-top:8px">'+(val?'<img src="'+escAttr(imgPathG(val))+'" style="max-height:120px;border:1px solid var(--gold-line)">':'')+'</div>';
+    }
+    if(f.type === 'audio'){
+      return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
+        + '<div style="display:flex;gap:8px"><input class="fi" id="if_'+f.key+'" value="'+escAttr(val)+'" placeholder="/images/uploads/piste.mp3"><button class="btn ghost" type="button" id="ifup_'+f.key+'" style="flex:0 0 auto;padding:0 14px" title="Téléverser un fichier audio">&#8593;</button></div>'
+        + '<div id="ifprev_'+f.key+'" style="margin-top:8px">'+(val?'<audio controls preload="none" src="'+escAttr(imgPathG(val))+'" style="width:100%;height:34px"></audio>':'')+'</div>';
     }
     return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
       + '<input class="fi" id="if_'+f.key+'" value="'+escAttr(val)+'"'+(f.placeholder?' placeholder="'+escAttr(f.placeholder)+'"':'')+'>';
@@ -1095,7 +1136,7 @@ function openItemEditor(idx){
   ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
   $('#itemCancel', ov).addEventListener('click', close);
 
-  /* sélecteurs d'image */
+  /* sélecteurs d'image + téléversement audio */
   schema.fields.forEach(function(f){
     if(f.type === 'image'){
       var pickBtn = $('#ifpick_'+f.key, ov);
@@ -1103,6 +1144,15 @@ function openItemEditor(idx){
         openImagePicker(function(path){
           $('#if_'+f.key, ov).value = path;
           $('#ifprev_'+f.key, ov).innerHTML = '<img src="'+escAttr(imgPathG(path))+'" style="max-height:120px;border:1px solid var(--gold-line)">';
+        });
+      });
+    }
+    if(f.type === 'audio'){
+      var upBtn = $('#ifup_'+f.key, ov);
+      upBtn.addEventListener('click', function(){
+        pickAndUploadAudio(function(path){
+          $('#if_'+f.key, ov).value = path;
+          $('#ifprev_'+f.key, ov).innerHTML = '<audio controls preload="none" src="'+escAttr(imgPathG(path))+'" style="width:100%;height:34px"></audio>';
         });
       });
     }
