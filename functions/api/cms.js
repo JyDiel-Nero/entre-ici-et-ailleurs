@@ -46,6 +46,8 @@ const WRITABLE = {
 /* Médiathèque : dossier et contraintes des images */
 const IMAGE_DIR = 'images/uploads';
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|svg)$/i;
+const AUDIO_EXT = /\.(mp3|m4a|ogg|wav)$/i;
+const MEDIA_EXT = /\.(jpe?g|png|gif|webp|avif|svg|mp3|m4a|ogg|wav)$/i;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; /* 8 Mo — au-delà, GitHub Contents API devient hasardeux */
 
 const GH = 'https://api.github.com';
@@ -248,23 +250,25 @@ export async function onRequest(context) {
 
     /* Téléversement d'une image : contenu en base64 (déjà encodé côté
        navigateur), écrit tel quel dans images/uploads/<nom>. */
-    if (action === 'uploadImage') {
+    if (action === 'uploadImage' || action === 'uploadMedia') {
       let name = (payload.name || '').trim();
       const contentB64 = payload.contentBase64;
       if (!name || typeof contentB64 !== 'string') return json({ error: 'Nom ou contenu manquant.' }, 400);
 
-      /* Nettoyage du nom : pas de chemin, caractères sûrs, extension autorisée */
+      /* Nettoyage du nom : pas de chemin, caractères sûrs */
       name = name.replace(/^.*[\\/]/, '').replace(/[^a-zA-Z0-9._-]/g, '-');
-      if (!IMAGE_EXT.test(name)) return json({ error: 'Type d\u2019image non autorisé.' }, 400);
+      const isAudio = AUDIO_EXT.test(name);
+      const isImage = IMAGE_EXT.test(name);
+      if (!isAudio && !isImage) return json({ error: 'Type de fichier non autorisé.' }, 400);
 
       /* Estimation de la taille depuis le base64 (≈ 3/4 de la longueur) */
       const approxBytes = Math.floor(contentB64.replace(/=+$/, '').length * 3 / 4);
-      if (approxBytes > MAX_IMAGE_BYTES) return json({ error: 'Image trop lourde (max 8 Mo).' }, 413);
+      const limit = isAudio ? (25 * 1024 * 1024) : MAX_IMAGE_BYTES; /* audio : 25 Mo */
+      if (approxBytes > limit) return json({ error: isAudio ? 'Audio trop lourd (max 25 Mo).' : 'Image trop lourde (max 8 Mo).' }, 413);
 
       const path = IMAGE_DIR + '/' + name;
 
-      /* Éviter d'écraser une image existante : si le fichier existe déjà,
-         suffixer avec un horodatage court. */
+      /* Éviter d'écraser un fichier existant : suffixer si collision */
       let finalPath = path, finalName = name;
       const check = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path + '?ref=' + BRANCH, token);
       if (check.ok) {
@@ -277,8 +281,8 @@ export async function onRequest(context) {
       const putRes = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + finalPath, token, {
         method: 'PUT',
         body: JSON.stringify({
-          message: payload.message || ('Horloger : image ' + finalName),
-          content: contentB64.replace(/^data:[^,]*,/, ''), /* enlève un éventuel préfixe data: */
+          message: payload.message || ('Horloger : ' + (isAudio ? 'audio ' : 'image ') + finalName),
+          content: contentB64.replace(/^data:[^,]*,/, ''),
           branch: BRANCH,
         }),
       });
@@ -288,7 +292,7 @@ export async function onRequest(context) {
         err.status = putRes.status;
         throw err;
       }
-      return json({ path: '/' + finalPath, name: finalName });
+      return json({ path: '/' + finalPath, name: finalName, kind: isAudio ? 'audio' : 'image' });
     }
 
     if (action === 'deleteImage') {
