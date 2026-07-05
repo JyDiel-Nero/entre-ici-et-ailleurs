@@ -176,6 +176,7 @@ textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
         <a data-view="edit" class="active"><span class="ico">&#9998;</span><span>Écrire</span></a>
         <a data-view="list"><span class="ico">&#9776;</span><span>Tous les textes</span></a>
         <a data-view="plan"><span class="ico">&#9200;</span><span>Planning</span></a>
+        <a data-view="recueil"><span class="ico">&#128216;</span><span>Recueil PDF</span></a>
         <a data-view="minutes"><span class="ico">&#9834;</span><span>Minutes (audio)</span></a>
         <a data-view="secondes"><span class="ico">&#9635;</span><span>Secondes (galerie)</span></a>
         <a data-view="dash"><span class="ico">&#9632;</span><span>Cadran</span></a>
@@ -1649,8 +1650,158 @@ function saveSection(){
 /* ══════════════════════════════════════════════════════════════
    ROUTAGE + THÈME + DÉMARRAGE
    ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   RECUEIL PDF — outil d'auteur (composition d'un PDF relié)
+   Sélection de textes → page de titre + sommaire + un poème par page.
+   Chaque PDF est signé du copyright. Génération via window.print().
+   ══════════════════════════════════════════════════════════════ */
+var COPYRIGHT = '© 2013–2026 NAM Johnny Yao Daniel-Marie';
+
+/* Rendu markdown minimal pour le PDF (gras, italique, images, strophes) */
+function recueilBodyHtml(body){
+  if(!body) return '';
+  return body.replace(/\r\n/g,'\n').split(/\n\n+/).map(function(stanza){
+    if(/^---$/.test(stanza.trim())) return '<div class="sep-long"></div>';
+    var isQuote = /^>\s?/.test(stanza);
+    var lines = stanza.split('\n').map(function(l){
+      var im = l.match(/^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/);
+      if(im){
+        var url = im[2].trim();
+        if(!/^https?:\/\//.test(url) && url.charAt(0)!=='/') url = '/'+url;
+        return '</p><figure><img src="'+escAttr(url)+'" alt="'+esc(im[1])+'">'+(im[1]?'<figcaption>'+esc(im[1])+'</figcaption>':'')+'</figure><p>';
+      }
+      return esc(l).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*(?!\*)(.+?)\*(?!\*)/g,'$1<em>$2</em>');
+    }).join('<br>');
+    if(isQuote) return '<blockquote>'+lines.replace(/&gt;\s?/,'')+'</blockquote>';
+    return '<p>'+lines+'</p>';
+  }).join('');
+}
+
+function generateRecueilPdf(posts, title, subtitle){
+  if(!posts || !posts.length){ toast('Sélectionnez au moins un texte.', 'err'); return; }
+  var win = window.open('', '_blank');
+  if(!win){ toast('Autorisez les fenêtres pop-up pour générer le PDF.', 'err', 3500); return; }
+
+  var toc = posts.map(function(p, i){
+    return '<li><span class="toc-n">'+(i+1)+'.</span> <span class="toc-t">'+esc(p.title)+'</span>'
+      + (p.tag ? ' <span class="toc-tag">'+esc(p.tag)+'</span>' : '') + '</li>';
+  }).join('');
+
+  var sections = posts.map(function(p){
+    var coverUrl = p.cover ? imgPathG(p.cover) : '';
+    return '<section class="poem">'
+      + (p.tag ? '<p class="tag">'+esc(p.tag)+'</p>' : '')
+      + '<h2>'+esc(p.title)+'</h2>'
+      + (p.date ? '<p class="date">'+esc(p.date)+'</p>' : '')
+      + (coverUrl ? '<img class="cover" src="'+escAttr(coverUrl)+'" alt="">' : '')
+      + '<div class="body">'+recueilBodyHtml(p.body||'')+'</div>'
+      + '<p class="poem-sign">'+COPYRIGHT+'</p>'
+      + '</section>';
+  }).join('');
+
+  var doc = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">'
+    + '<title>'+esc(title)+' — JyDiel In-Time</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '@page{size:A4;margin:22mm 20mm}'
+    + 'html,body{margin:0;padding:0}'
+    + 'body{font-family:"Merriweather",Georgia,serif;color:#1a1a1a;line-height:1.85;font-size:12pt}'
+    + '.cover-page{height:248mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;page-break-after:always}'
+    + '.cover-page .brand{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.25em;font-size:13pt;color:#9a7b3e;text-transform:uppercase}'
+    + '.cover-page h1{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:40pt;margin:30px 0 8px;color:#111}'
+    + '.cover-page .st{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:16pt;color:#888}'
+    + '.cover-page .line{width:70px;height:1px;background:#C9A96E;margin:28px 0}'
+    + '.cover-page .meta{font-family:"Cormorant Garamond",serif;font-size:11pt;color:#aaa;margin-top:auto;padding-bottom:6mm}'
+    + '.cover-page .sign{font-family:"Cormorant Garamond",serif;font-size:10pt;color:#9a7b3e;margin-top:6px}'
+    + '.toc{page-break-after:always}'
+    + '.toc h3{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:22pt;color:#111;border-bottom:1px solid #C9A96E;padding-bottom:8px}'
+    + '.toc ul{list-style:none;padding:0}'
+    + '.toc li{padding:9px 0;border-bottom:1px dotted #ddd;font-family:"Cormorant Garamond",serif;font-size:14pt}'
+    + '.toc-n{color:#9a7b3e;margin-right:8px}'
+    + '.toc-tag{font-size:9pt;color:#aaa;letter-spacing:.1em;text-transform:uppercase;float:right}'
+    + '.poem{page-break-before:always}'
+    + '.poem .tag{font-family:"Cormorant Garamond",serif;letter-spacing:.2em;font-size:9pt;color:#9a7b3e;text-transform:uppercase;text-align:center;margin:0 0 4px}'
+    + '.poem h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:24pt;text-align:center;margin:0 0 4px;color:#111}'
+    + '.poem .date{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:11pt;color:#888;text-align:center;margin:0 0 22px}'
+    + '.poem .cover{display:block;width:100%;max-height:80mm;object-fit:cover;margin:0 0 22px;border:1px solid #e6dcc8}'
+    + '.poem-sign{text-align:center;font-family:"Cormorant Garamond",serif;font-size:8.5pt;color:#bbb;margin-top:28px;letter-spacing:.04em}'
+    + '.body p{margin:0 0 1.1em;text-align:left}'
+    + '.body figure{margin:1.2em 0;text-align:center}.body figure img{max-width:100%;max-height:70mm;border:1px solid #e6dcc8}'
+    + '.body figcaption{font-style:italic;font-size:9pt;color:#999;margin-top:5px}'
+    + '.body blockquote{border-left:2px solid #C9A96E;margin:1.1em 0;padding-left:14px;font-style:italic;color:#555}'
+    + '.body strong{color:#9a7b3e;font-weight:600}'
+    + '.sep-long{width:55px;height:1px;background:#C9A96E;margin:1.4em auto}'
+    + '@media print{a{color:inherit;text-decoration:none}}'
+    + '</style></head><body>'
+    + '<div class="cover-page"><p class="brand">JyDiel In-Time · Entre ici et ailleurs</p>'
+    +   '<h1>'+esc(title)+'</h1><div class="line"></div><p class="st">'+esc(subtitle)+'</p>'
+    +   '<p class="meta">'+posts.length+' texte'+(posts.length>1?'s':'')+' · jydielintime.com</p>'
+    +   '<p class="sign">'+COPYRIGHT+'</p></div>'
+    + '<div class="toc"><h3>Sommaire</h3><ul>'+toc+'</ul></div>'
+    + sections
+    + '<script>window.onload=function(){setTimeout(function(){window.focus();window.print();},700);};<\/script>'
+    + '</body></html>';
+
+  win.document.open(); win.document.write(doc); win.document.close();
+}
+
+function viewRecueil(){
+  var main = document.getElementById('main');
+  var posts = state.posts.slice();
+  var rows = posts.map(function(p){
+    var st = postStatus(p);
+    return '<label class="rec-row" style="display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--gold-line);cursor:pointer">'
+      + '<input type="checkbox" class="rec-cb" value="'+escAttr(p.slug)+'" style="accent-color:var(--gold);width:16px;height:16px;flex:none">'
+      + '<span style="flex:1;color:var(--txt)">'+esc(p.title||'(sans titre)')+'</span>'
+      + '<span style="font-size:11px;color:var(--txt3)">'+esc(p.tag||'')+'</span>'
+      + '<em class="tag '+st.cls+'">'+st.label+'</em>'
+      + '</label>';
+  }).join('');
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Composer un recueil PDF</div></div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:18px">Réunissez plusieurs textes dans un PDF relié : page de titre, sommaire, un poème par page. Chaque PDF est signé de votre copyright. Outil réservé à l\u2019auteur.</div>'
+   + '<div style="max-width:560px">'
+   +   '<label class="fl">Titre du recueil</label>'
+   +   '<input class="fi" id="recTitle" placeholder="ex. Saison d\u2019hiver" maxlength="60">'
+   +   '<label class="fl">Sous-titre <span class="hint">(optionnel)</span></label>'
+   +   '<input class="fi" id="recSubtitle" placeholder="Un choix de textes" value="Un choix de textes">'
+   +   '<div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 4px">'
+   +     '<span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt4)">Textes à réunir</span>'
+   +     '<span style="font-size:12px;color:var(--txt3)"><button class="btn ghost" id="recAll" style="padding:3px 10px;font-size:11px">Tout</button> <button class="btn ghost" id="recNone" style="padding:3px 10px;font-size:11px">Aucun</button> <span id="recCount" style="margin-left:8px">0 sélectionné</span></span>'
+   +   '</div>'
+   +   '<div style="border:1px solid var(--gold-line);max-height:420px;overflow-y:auto">'+(posts.length?rows:'<div class="empty">Aucun texte disponible.</div>')+'</div>'
+   +   '<div style="margin-top:20px"><button class="btn solid" id="recGenerate" style="width:100%;padding:13px">&#128216; Générer le PDF du recueil</button></div>'
+   + '</div>';
+
+  var cbs = Array.prototype.slice.call(main.querySelectorAll('.rec-cb'));
+  var countEl = $('#recCount');
+  function updateCount(){
+    var n = cbs.filter(function(c){ return c.checked; }).length;
+    countEl.textContent = n + ' sélectionné' + (n>1?'s':'');
+  }
+  cbs.forEach(function(c){ c.addEventListener('change', updateCount); });
+  $('#recAll').addEventListener('click', function(){ cbs.forEach(function(c){ c.checked=true; }); updateCount(); });
+  $('#recNone').addEventListener('click', function(){ cbs.forEach(function(c){ c.checked=false; }); updateCount(); });
+
+  $('#recGenerate').addEventListener('click', function(){
+    var chosen = cbs.filter(function(c){ return c.checked; }).map(function(c){ return c.value; });
+    if(!chosen.length){ toast('Cochez au moins un texte.', 'err'); return; }
+    var selected = [];
+    chosen.forEach(function(slug){
+      for(var i=0;i<posts.length;i++){ if(posts[i].slug===slug){ selected.push(posts[i]); break; } }
+    });
+    var title = ($('#recTitle').value || 'Recueil').trim();
+    var subtitle = ($('#recSubtitle').value || 'Un choix de textes').trim();
+    generateRecueilPdf(selected, title, subtitle);
+    toast('Génération du PDF… (une fenêtre d\u2019impression va s\u2019ouvrir)', 'ok', 3500);
+  });
+}
+
 var VIEWS = {
   edit: function(){viewEdit();}, list: viewList, plan: viewPlan, dash: viewDash, media: viewMedia,
+  recueil: viewRecueil,
   minutes: function(){ viewSection('minutes'); },
   secondes: function(){ viewSection('secondes'); }
 };
