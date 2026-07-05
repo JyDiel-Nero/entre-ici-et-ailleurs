@@ -180,6 +180,7 @@ textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
         <a data-view="minutes"><span class="ico">&#9834;</span><span>Minutes (audio)</span></a>
         <a data-view="secondes"><span class="ico">&#9635;</span><span>Secondes (galerie)</span></a>
         <a data-view="dash"><span class="ico">&#9632;</span><span>Cadran</span></a>
+        <a data-view="reglages"><span class="ico">&#9881;</span><span>Réglages du Cadran</span></a>
         <a data-view="media"><span class="ico">&#9640;</span><span>Médiathèque</span></a>
       </nav>
       <div class="side-foot">
@@ -1799,9 +1800,153 @@ function viewRecueil(){
   });
 }
 
+/* ══════════════════════════════════════════════════════════════
+   RÉGLAGES DU CADRAN — settings.json (textes + images de fond)
+   Formulaire groupé. Écrit via l'action write générique de cms.js.
+   ══════════════════════════════════════════════════════════════ */
+var REGLAGES_GROUPS = [
+  { title:'Cadran (page d\u2019accueil)', fields:[
+    { key:'hero_title', label:'Titre', type:'text', def:'JyDiel In-Time' },
+    { key:'hero_subtitle', label:'Sous-titre', type:'text' },
+    { key:'tagline', label:'Tagline', type:'text' }
+  ]},
+  { title:'Manifeste', fields:[
+    { key:'man1', label:'Ligne 1', type:'text' },
+    { key:'man2', label:'Ligne 2', type:'text' }
+  ]},
+  { title:'Un instant (à propos)', fields:[
+    { key:'apropos', label:'Texte de présentation', type:'textarea' }
+  ]},
+  { title:'Entretemps (contact)', fields:[
+    { key:'contact_label', label:'Label', type:'text', def:'ENTRETEMPS' },
+    { key:'contact_title', label:'Titre', type:'text', def:'Et ensuite ?' },
+    { key:'contact_subtitle', label:'Sous-titre', type:'text' },
+    { key:'contact_note', label:'Note sous le formulaire', type:'text' }
+  ]},
+  { title:'Newsletter (confirmation)', fields:[
+    { key:'nl_success_title', label:'Titre de confirmation', type:'text' },
+    { key:'nl_success_text', label:'Texte de confirmation', type:'textarea' }
+  ]},
+  { title:'Réseaux sociaux', fields:[
+    { key:'instagram', label:'Instagram (URL)', type:'text' },
+    { key:'tiktok', label:'TikTok (URL)', type:'text' }
+  ]},
+  { title:'Images de fond', fields:[
+    { key:'hero_bg', label:'Fond du Cadran (horloge)', type:'image' },
+    { key:'manifeste_bg', label:'Fond du Manifeste (grande roue)', type:'image' },
+    { key:'site_bg', label:'Fond global du site', type:'image' }
+  ]},
+  { title:'Confidentialité', fields:[
+    { key:'privacy_text', label:'Texte de confidentialité', type:'textarea' }
+  ]}
+];
+
+var reglagesState = { data:{}, sha:null };
+
+function viewReglages(){
+  var main = document.getElementById('main');
+  main.innerHTML = '<div class="center-load"><span class="spinner"></span> Chargement des réglages…</div>';
+  api({action:'read', file:'data/settings.json'}).then(function(res){
+    reglagesState.data = JSON.parse(res.content || '{}');
+    reglagesState.sha = res.sha;
+    renderReglages();
+  }).catch(function(err){
+    main.innerHTML = '<div class="empty">Chargement impossible.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>';
+  });
+}
+
+function renderReglages(){
+  var main = document.getElementById('main');
+  var d = reglagesState.data;
+  var groups = REGLAGES_GROUPS.map(function(g){
+    var fields = g.fields.map(function(f){
+      var val = (d[f.key] != null ? d[f.key] : (f.def != null ? f.def : ''));
+      if(f.type === 'textarea'){
+        return '<label class="fl">'+esc(f.label)+'</label>'
+          + '<textarea class="fi" id="rg_'+f.key+'" rows="4">'+esc(val)+'</textarea>';
+      }
+      if(f.type === 'image'){
+        return '<label class="fl">'+esc(f.label)+'</label>'
+          + '<div style="display:flex;gap:8px"><input class="fi" id="rg_'+f.key+'" value="'+escAttr(val)+'" placeholder="images/…"><button class="btn ghost" type="button" id="rgpick_'+f.key+'" style="flex:0 0 auto;padding:0 14px">&#9635;</button></div>'
+          + '<div id="rgprev_'+f.key+'" style="margin-top:8px">'+(val?'<img src="'+escAttr(imgPathG(val))+'" style="max-height:120px;border:1px solid var(--gold-line)" onerror="this.style.display=\'none\'">':'')+'</div>';
+      }
+      return '<label class="fl">'+esc(f.label)+'</label>'
+        + '<input class="fi" id="rg_'+f.key+'" value="'+escAttr(val)+'">';
+    }).join('');
+    return '<div style="margin-bottom:26px"><div style="font-family:var(--ff-t);font-size:19px;color:var(--gold);border-bottom:1px solid var(--gold-line);padding-bottom:6px;margin-bottom:12px">'+esc(g.title)+'</div>'+fields+'</div>';
+  }).join('');
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Réglages du Cadran</div>'
+   + '<div class="vactions"><button class="btn solid" id="rgSave">Enregistrer les réglages</button></div></div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:20px">Les textes et images de fond de votre site. Ces réglages alimentent la page d\u2019accueil, le manifeste, la page à propos et le contact.</div>'
+   + '<div style="max-width:620px">'+groups+'</div>'
+   + '<div style="max-width:620px;margin-top:8px"><button class="btn solid" id="rgSave2" style="width:100%;padding:12px">Enregistrer les réglages</button></div>';
+
+  /* sélecteurs d'image */
+  REGLAGES_GROUPS.forEach(function(g){
+    g.fields.forEach(function(f){
+      if(f.type === 'image'){
+        var pb = $('#rgpick_'+f.key);
+        if(pb) pb.addEventListener('click', function(){
+          openImagePicker(function(path){
+            $('#rg_'+f.key).value = path;
+            $('#rgprev_'+f.key).innerHTML = '<img src="'+escAttr(imgPathG(path))+'" style="max-height:120px;border:1px solid var(--gold-line)">';
+          });
+        });
+      }
+    });
+  });
+
+  var save = function(){ saveReglages(); };
+  $('#rgSave').addEventListener('click', save);
+  $('#rgSave2').addEventListener('click', save);
+
+  /* marquer dirty au changement */
+  REGLAGES_GROUPS.forEach(function(g){
+    g.fields.forEach(function(f){
+      var inp = $('#rg_'+f.key);
+      if(inp) inp.addEventListener('input', function(){ state.dirty = true; });
+    });
+  });
+}
+
+function saveReglages(){
+  /* fusionne les valeurs du formulaire dans l'objet existant (préserve d'éventuelles clés non éditées) */
+  var out = {};
+  for(var k in reglagesState.data){ out[k] = reglagesState.data[k]; }
+  REGLAGES_GROUPS.forEach(function(g){
+    g.fields.forEach(function(f){
+      var inp = $('#rg_'+f.key);
+      if(inp) out[f.key] = inp.value;
+    });
+  });
+  var content = JSON.stringify(out, null, 2);
+  var btns = [$('#rgSave'), $('#rgSave2')];
+  btns.forEach(function(b){ if(b){ b.disabled=true; } });
+  var prev = $('#rgSave') ? $('#rgSave').textContent : '';
+  if($('#rgSave')) $('#rgSave').innerHTML = '<span class="spinner"></span> Enregistrement…';
+
+  api({action:'write', file:'data/settings.json', content:content, sha:reglagesState.sha,
+       message:'Horloger : réglages du Cadran'})
+  .then(function(res){
+    reglagesState.sha = res.sha;
+    reglagesState.data = out;
+    state.dirty = false;
+    toast('Réglages enregistrés ✓', 'ok', 2800);
+    btns.forEach(function(b){ if(b){ b.disabled=false; } });
+    if($('#rgSave')) $('#rgSave').textContent = 'Enregistrer les réglages';
+  }).catch(function(err){
+    btns.forEach(function(b){ if(b){ b.disabled=false; } });
+    if($('#rgSave')) $('#rgSave').textContent = 'Enregistrer les réglages';
+    if(err.status===409) toast('Conflit : rechargez (changement externe).', 'err', 4000);
+    else toast('Échec : '+err.message, 'err', 4000);
+  });
+}
+
 var VIEWS = {
   edit: function(){viewEdit();}, list: viewList, plan: viewPlan, dash: viewDash, media: viewMedia,
-  recueil: viewRecueil,
+  recueil: viewRecueil, reglages: viewReglages,
   minutes: function(){ viewSection('minutes'); },
   secondes: function(){ viewSection('secondes'); }
 };
