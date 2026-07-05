@@ -1,3 +1,20 @@
 {
-  "oeuvres": []
+  "oeuvres": [
+    {
+      "title": "Wed list",
+      "type": "recueil",
+      "description": "",
+      "image": "/images/uploads/winter-sunlight.jpg",
+      "image_alt": "",
+      "price": "",
+      "amazon": "https://www.amazon.fr/wedding/mp/registry-suggestion?categoryId=bakeware",
+      "bookelis": "",
+      "fnac": "",
+      "spotify": "",
+      "other_link": "",
+      "other_label": "",
+      "published": true,
+      "order": 1
+    }
+  ]
 }
