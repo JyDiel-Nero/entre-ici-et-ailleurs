@@ -2657,9 +2657,10 @@ function renderOeuvres(){
     if(filters) filters.innerHTML = '';
     return;
   }
-  /* Type filters */
+  /* Type filters — comparaison normalisée (insensible casse/espaces) */
+  function normType(t){ return String(t||'').trim().toLowerCase(); }
   var types = ['TOUS'];
-  items.forEach(function(o){var t=o.type||''; if(types.indexOf(t)===-1) types.push(t)});
+  items.forEach(function(o){var t=normType(o.type); if(t && types.indexOf(t)===-1) types.push(t)});
   var typeLabels = {recueil:'📖 Recueils',album:'🎤 Albums',peinture:'🎨 Peintures'};
   if(filters){
     filters.innerHTML = types.map(function(t){
@@ -2668,11 +2669,12 @@ function renderOeuvres(){
     filters.querySelectorAll('.bf').forEach(function(btn){
       btn.addEventListener('click',function(){
         oeuvresFilter=this.getAttribute('data-ofilter');
+        oeuvresPage=0;
         renderOeuvres();
       });
     });
   }
-  var filtered = oeuvresFilter==='TOUS' ? items : items.filter(function(o){return o.type===oeuvresFilter});
+  var filtered = oeuvresFilter==='TOUS' ? items : items.filter(function(o){return normType(o.type)===oeuvresFilter});
   var oPerPage = parseInt(SECTIONS_CONFIG.oeuvres_per_page) || 12;
   var oVisible = filtered.slice(0, (oeuvresPage+1)*oPerPage);
   var oHasMore = oVisible.length < filtered.length;
@@ -2683,11 +2685,12 @@ function renderOeuvres(){
     if(o.fnac) links+='<a href="'+esc(o.fnac)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Fnac</a>';
     if(o.spotify) links+='<a href="'+esc(o.spotify)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Écouter</a>';
     if(o.other_link) links+='<a href="'+esc(o.other_link)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">'+esc(o.other_label||'Acheter')+'</a>';
-    var typeIcon = o.type==='recueil'?'📖':o.type==='album'?'🎤':o.type==='peinture'?'🎨':'✦';
+    var ntype = normType(o.type);
+    var typeIcon = ntype==='recueil'?'📖':ntype==='album'?'🎤':ntype==='peinture'?'🎨':'✦';
     return '<div class="rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);overflow:hidden">'+
       (o.image?'<img src="'+esc(imgPath(o.image))+'" alt="'+esc(o.title)+'" loading="lazy" decoding="async" style="width:100%;height:200px;object-fit:cover" onerror="this.style.display=\'none\'">':'')+
       '<div style="padding:20px">'+
-        '<p style="font-size:11px;color:var(--g3);margin-bottom:6px">'+typeIcon+' '+esc(o.type==='recueil'?'Recueil':o.type==='album'?'Album':o.type==='peinture'?'Peinture':'')+'</p>'+
+        '<p style="font-size:11px;color:var(--g3);margin-bottom:6px">'+typeIcon+' '+esc(ntype==='recueil'?'Recueil':ntype==='album'?'Album':ntype==='peinture'?'Peinture':'')+'</p>'+
         '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:8px">'+esc(o.title)+'</p>'+
         (o.description?'<p style="font-size:13px;color:var(--txt);line-height:1.6;margin-bottom:12px">'+esc(o.description)+'</p>':'')+
         (o.price?'<p style="font-family:var(--ff-t);font-size:18px;color:var(--gold);margin-bottom:12px">'+esc(o.price)+'</p>':'')+
