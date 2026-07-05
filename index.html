@@ -237,7 +237,8 @@ section{position:relative;z-index:1;padding:80px 0}
    ════════════════════════════════════════════════════════════════ */
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;grid-auto-rows:auto}
 /* Mosaïque géométrique (Secondes) */
-.mosaic-wrap{max-width:640px;margin:0 auto;width:100%}
+.gallery-grid.is-mosaic{display:block}
+.mosaic-wrap{max-width:1100px;margin:0 auto;width:100%}
 .mosaic-svg{width:100%;height:auto;display:block;background:#050810;border:1px solid rgba(201,169,110,.12)}
 .mz-cell{transition:opacity .25s}
 .mosaic-svg:hover .mz-cell{opacity:.55}
@@ -2040,6 +2041,7 @@ function renderGallery(){
     return;
   }
   var items = GALLERY.slice();
+  grid.className = 'gallery-grid';
   /* Shuffle if enabled in CMS */
   if(SECTIONS_CONFIG.univers_shuffle){
     for(var i=items.length-1;i>0;i--){
@@ -2080,6 +2082,7 @@ function renderGalleryMosaic(grid){
       shapes += '<polygon points="'+ptsAttr+'" fill="rgba(201,169,110,.04)" stroke="rgba(201,169,110,.2)" stroke-width="1.5"/>';
     }
   }
+  grid.className = 'gallery-grid is-mosaic';
   grid.innerHTML = '<div class="mosaic-wrap rv"><svg viewBox="0 0 1000 1000" class="mosaic-svg" xmlns="http://www.w3.org/2000/svg"><defs>'+defs+'</defs>'+shapes+'</svg></div>';
   /* Lightbox au clic */
   Array.prototype.forEach.call(grid.querySelectorAll('.mz-cell'), function(cell){
