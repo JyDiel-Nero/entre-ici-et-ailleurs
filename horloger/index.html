@@ -181,6 +181,7 @@ textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
         <a data-view="secondes"><span class="ico">&#9635;</span><span>Secondes (galerie)</span></a>
         <a data-view="dash"><span class="ico">&#9632;</span><span>Cadran</span></a>
         <a data-view="reglages"><span class="ico">&#9881;</span><span>Réglages du Cadran</span></a>
+        <a data-view="sections"><span class="ico">&#9776;</span><span>Sections du site</span></a>
         <a data-view="media"><span class="ico">&#9640;</span><span>Médiathèque</span></a>
       </nav>
       <div class="side-foot">
@@ -1953,9 +1954,130 @@ function saveReglages(){
   });
 }
 
+/* ══════════════════════════════════════════════════════════════
+   SECTIONS DU SITE — sections-config.json
+   Visibilité, nom affiché, URL et pagination de chaque section.
+   ══════════════════════════════════════════════════════════════ */
+var SECTIONS_DEF = [
+  { key:'blog',    label:'Heures (blog)',     hasPage:true,  hasSort:true  },
+  { key:'audio',   label:'Minutes (audio)',   hasPage:true  },
+  { key:'univers', label:'Secondes (galerie)',hasPage:false, hasShuffle:true },
+  { key:'oeuvres', label:'Saisons (œuvres)',  hasPage:true  },
+  { key:'apropos', label:'Un instant (à propos)' },
+  { key:'contact', label:'Entretemps (contact)' }
+];
+
+var sectionsState = { data:{}, sha:null };
+
+function viewSections(){
+  var main = document.getElementById('main');
+  main.innerHTML = '<div class="center-load"><span class="spinner"></span> Chargement…</div>';
+  api({action:'read', file:'data/sections-config.json'}).then(function(res){
+    sectionsState.data = JSON.parse(res.content || '{}');
+    sectionsState.sha = res.sha;
+    renderSections();
+  }).catch(function(err){
+    main.innerHTML = '<div class="empty">Chargement impossible.<br><span style="font-size:13px">'+esc(err.message)+'</span></div>';
+  });
+}
+
+function renderSections(){
+  var main = document.getElementById('main');
+  var d = sectionsState.data;
+
+  var cards = SECTIONS_DEF.map(function(s){
+    var show = d['show_'+s.key] !== false;
+    var name = d['name_'+s.key] != null ? d['name_'+s.key] : '';
+    var route = d['route_'+s.key] != null ? d['route_'+s.key] : '';
+    var perPage = d[s.key+'_per_page'] != null ? d[s.key+'_per_page'] : '';
+
+    var extra = '';
+    if(s.hasPage){
+      extra += '<div style="flex:1;min-width:120px"><label class="fl">Éléments par page</label><input class="fi" id="sc_'+s.key+'_pp" value="'+escAttr(perPage)+'" inputmode="numeric" style="width:90px"></div>';
+    }
+
+    return '<div style="border:1px solid var(--gold-line);padding:16px;margin-bottom:14px;background:var(--panel2,rgba(255,255,255,.015))">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+      +   '<span style="font-family:var(--ff-t);font-size:18px;color:var(--gold)">'+esc(s.label)+'</span>'
+      +   '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--txt2)">'
+      +     '<input type="checkbox" class="sc-show" data-key="'+s.key+'" '+(show?'checked':'')+' style="accent-color:var(--gold);width:17px;height:17px"> Visible sur le site'
+      +   '</label>'
+      + '</div>'
+      + '<div style="display:flex;gap:14px;flex-wrap:wrap">'
+      +   '<div style="flex:2;min-width:160px"><label class="fl">Nom affiché</label><input class="fi" id="sc_'+s.key+'_name" value="'+escAttr(name)+'"></div>'
+      +   '<div style="flex:2;min-width:160px"><label class="fl">URL <span class="hint">(sans /)</span></label><input class="fi" id="sc_'+s.key+'_route" value="'+escAttr(route)+'"></div>'
+      +   extra
+      + '</div></div>';
+  }).join('');
+
+  var globals =
+    '<div style="border:1px solid var(--gold-line);padding:16px;margin-bottom:14px">'
+    + '<div style="font-family:var(--ff-t);font-size:18px;color:var(--gold);margin-bottom:12px">Réglages généraux</div>'
+    + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--txt2);margin-bottom:10px"><input type="checkbox" id="sc_show_rss" '+(d.show_rss?'checked':'')+' style="accent-color:var(--gold);width:17px;height:17px"> Activer le flux RSS</label>'
+    + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--txt2);margin-bottom:14px"><input type="checkbox" id="sc_univers_shuffle" '+(d.univers_shuffle?'checked':'')+' style="accent-color:var(--gold);width:17px;height:17px"> Mélanger l\u2019ordre de la galerie (mode grille)</label>'
+    + '<label class="fl">Tri par défaut du blog</label>'
+    + '<select class="fi" id="sc_default_sort">'
+    +   ['pub-newest:Plus récents d\u2019abord','pub-oldest:Plus anciens d\u2019abord','title-az:Titre A→Z','title-za:Titre Z→A'].map(function(o){
+          var parts=o.split(':'); var sel=(d.default_sort===parts[0])?' selected':'';
+          return '<option value="'+parts[0]+'"'+sel+'>'+esc(parts[1])+'</option>';
+        }).join('')
+    + '</select>'
+    + '</div>';
+
+  main.innerHTML =
+   '<div class="vhead"><div class="vtitle">Sections du site</div>'
+   + '<div class="vactions"><button class="btn solid" id="scSave">Enregistrer</button></div></div>'
+   + '<div style="font-size:13px;color:var(--txt3);margin-bottom:20px">Affichez ou masquez chaque section, renommez-la, changez son URL et sa pagination. Ces réglages pilotent la navigation et les pages de votre site.</div>'
+   + '<div style="max-width:640px">'+cards+globals+'</div>'
+   + '<div style="max-width:640px"><button class="btn solid" id="scSave2" style="width:100%;padding:12px">Enregistrer les sections</button></div>';
+
+  var markDirty = function(){ state.dirty = true; };
+  Array.prototype.forEach.call(main.querySelectorAll('input,select'), function(inp){
+    inp.addEventListener('input', markDirty);
+    inp.addEventListener('change', markDirty);
+  });
+  $('#scSave').addEventListener('click', saveSections);
+  $('#scSave2').addEventListener('click', saveSections);
+}
+
+function saveSections(){
+  var out = {};
+  for(var k in sectionsState.data){ out[k] = sectionsState.data[k]; } /* préserver les clés non éditées */
+
+  SECTIONS_DEF.forEach(function(s){
+    var cb = document.querySelector('.sc-show[data-key="'+s.key+'"]');
+    if(cb) out['show_'+s.key] = cb.checked;
+    var nm = $('#sc_'+s.key+'_name'); if(nm) out['name_'+s.key] = nm.value;
+    var rt = $('#sc_'+s.key+'_route'); if(rt) out['route_'+s.key] = rt.value.replace(/^\/+|\/+$/g,'').trim();
+    if(s.hasPage){ var pp = $('#sc_'+s.key+'_pp'); if(pp) out[s.key+'_per_page'] = (pp.value||'').trim() || '6'; }
+  });
+  if($('#sc_show_rss')) out.show_rss = $('#sc_show_rss').checked;
+  if($('#sc_univers_shuffle')) out.univers_shuffle = $('#sc_univers_shuffle').checked;
+  if($('#sc_default_sort')) out.default_sort = $('#sc_default_sort').value;
+
+  var content = JSON.stringify(out, null, 2);
+  var btns = [$('#scSave'), $('#scSave2')];
+  btns.forEach(function(b){ if(b) b.disabled=true; });
+  if($('#scSave')) $('#scSave').innerHTML = '<span class="spinner"></span> Enregistrement…';
+
+  api({action:'write', file:'data/sections-config.json', content:content, sha:sectionsState.sha,
+       message:'Horloger : configuration des sections'})
+  .then(function(res){
+    sectionsState.sha = res.sha; sectionsState.data = out; state.dirty = false;
+    toast('Sections enregistrées ✓', 'ok', 2800);
+    btns.forEach(function(b){ if(b) b.disabled=false; });
+    if($('#scSave')) $('#scSave').textContent = 'Enregistrer';
+  }).catch(function(err){
+    btns.forEach(function(b){ if(b) b.disabled=false; });
+    if($('#scSave')) $('#scSave').textContent = 'Enregistrer';
+    if(err.status===409) toast('Conflit : rechargez (changement externe).', 'err', 4000);
+    else toast('Échec : '+err.message, 'err', 4000);
+  });
+}
+
 var VIEWS = {
   edit: function(){viewEdit();}, list: viewList, plan: viewPlan, dash: viewDash, media: viewMedia,
-  recueil: viewRecueil, reglages: viewReglages,
+  recueil: viewRecueil, reglages: viewReglages, sections: viewSections,
   minutes: function(){ viewSection('minutes'); },
   secondes: function(){ viewSection('secondes'); }
 };
