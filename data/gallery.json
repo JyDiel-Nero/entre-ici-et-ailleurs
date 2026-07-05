@@ -3,17 +3,32 @@
     {
       "title": "Lecture poétique",
       "image": "/images/content/151f066759d8_400w.jpg",
-      "order": 1
+      "order": 1,
+      "crop": {
+        "scale": 0.6,
+        "x": -2,
+        "y": -45
+      }
     },
     {
       "title": "Gaufres et café",
       "image": "/images/content/f1dbe8592ec1_400w.jpg",
-      "order": 2
+      "order": 2,
+      "crop": {
+        "scale": 0.4,
+        "x": -57,
+        "y": -3
+      }
     },
     {
       "title": "L'oie du lac",
       "image": "/images/content/1fdcc6ce5677_400w.jpg",
-      "order": 3
+      "order": 3,
+      "crop": {
+        "scale": 0.45,
+        "x": 35,
+        "y": 55
+      }
     },
     {
       "title": "Baies rouges",
@@ -23,42 +38,82 @@
     {
       "title": "Sommets enneigés",
       "image": "/images/content/f95cccc1fc8b_400w.jpg",
-      "order": 5
+      "order": 5,
+      "crop": {
+        "scale": 0.5,
+        "x": 51,
+        "y": -49
+      }
     },
     {
       "title": "Coucher de soleil",
       "image": "/images/content/864cfba514ad_400w.jpg",
-      "order": 6
+      "order": 6,
+      "crop": {
+        "scale": 0.7,
+        "x": -45,
+        "y": 96
+      }
     },
     {
       "title": "L'atelier nocturne",
       "image": "/images/content/5a51412cc481_400w.jpg",
-      "order": 7
+      "order": 7,
+      "crop": {
+        "scale": 0.4,
+        "x": 64,
+        "y": 57
+      }
     },
     {
       "title": "Rivière hivernale",
       "image": "/images/content/53520e400567_400w.jpg",
-      "order": 8
+      "order": 8,
+      "crop": {
+        "scale": 0.7,
+        "x": 17,
+        "y": 39
+      }
     },
     {
       "title": "Louange",
       "image": "/images/content/1cf165de90bf_400w.jpg",
-      "order": 9
+      "order": 9,
+      "crop": {
+        "scale": 0.3,
+        "x": 0,
+        "y": 0
+      }
     },
     {
       "title": "Fleur dorée",
       "image": "/images/content/575f6cc84d25_400w.jpg",
-      "order": 10
+      "order": 10,
+      "crop": {
+        "scale": 0.5,
+        "x": 11,
+        "y": 93
+      }
     },
     {
       "title": "Aube nouvelle",
       "image": "/images/uploads/20250202_074137.optimized.jpg",
-      "order": 11
+      "order": 11,
+      "crop": {
+        "scale": 0.6,
+        "x": -98,
+        "y": -87
+      }
     },
     {
       "title": "Route d'hiver",
       "image": "/images/uploads/20250315_105048.optimized.jpg",
       "order": 12
     }
-  ]
+  ],
+  "mosaic": {
+    "mode": "auto",
+    "manual": {},
+    "layout": "mosaic"
+  }
 }
