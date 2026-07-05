@@ -1090,6 +1090,19 @@ function mosaicResolveImages(){
   return { map:map, pool:pool };
 }
 
+/* Aperçu de la grille actuelle du site (3 colonnes régulières) */
+function buildGridPreview(pool){
+  var imgs = pool.filter(function(it){ return it.image; });
+  if(!imgs.length) return '<div class="empty">Le pool est vide.</div>';
+  var cells = imgs.map(function(it){
+    return '<div style="aspect-ratio:1;background:#03050A;border:1px solid var(--gold-line);overflow:hidden">'
+      + '<img src="'+escAttr(imgPathG(it.image))+'" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy" onerror="this.style.opacity=.2">'
+      + '</div>';
+  }).join('');
+  return '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+cells+'</div>'
+    + '<div style="font-size:12px;color:var(--txt3);margin-top:12px;font-style:italic">Aperçu de la grille régulière, telle qu\u2019elle apparaît aujourd\u2019hui sur le site (toutes les images du pool, 3 colonnes).</div>';
+}
+
 function buildMosaicSvg(map, opts){
   opts = opts || {};
   var interactive = opts.interactive;
@@ -1109,7 +1122,7 @@ function buildMosaicSvg(map, opts){
       var tx = cr.x || 0, ty = cr.y || 0;
       /* transform = translate(offset) puis scale autour du centre de la forme */
       var transform = 'translate('+tx+','+ty+') translate('+fcx+','+fcy+') scale('+s+') translate('+(-fcx)+','+(-fcy)+')';
-      fill = '<g clip-path="url(#mzc'+n+')"><image href="'+escAttr(imgPathG(entry.image))+'" x="0" y="0" width="500" height="500" preserveAspectRatio="xMidYMid slice" transform="'+transform+'"/></g>';
+      fill = '<g clip-path="url(#mzc'+n+')"><rect x="0" y="0" width="500" height="500" fill="#03050A"/><image href="'+escAttr(imgPathG(entry.image))+'" x="0" y="0" width="500" height="500" preserveAspectRatio="xMidYMid slice" transform="'+transform+'"/></g>';
     } else {
       fill = '<polygon points="'+ptsAttr+'" fill="rgba(201,169,110,0.05)"/>';
     }
@@ -1144,20 +1157,23 @@ function renderMosaicTab(){
     +   '<button class="btn ghost mzlayout" data-layout="grid" style="padding:6px 14px;font-size:12px'+((cfg.layout||'grid')==='grid'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Grille actuelle</button>'
     +   '<button class="btn ghost mzlayout" data-layout="mosaic" style="padding:6px 14px;font-size:12px'+(cfg.layout==='mosaic'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Mosaïque</button>'
     + '</div>'
-    + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">'
+    + (cfg.layout==='mosaic' ? '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">'
     +   '<span style="font-size:12px;color:var(--txt4)">Sélection :</span>'
     +   '<button class="btn ghost mzmode" data-mode="auto" style="padding:6px 14px;font-size:12px'+(cfg.mode==='auto'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Automatique (mensuel)</button>'
     +   '<button class="btn ghost mzmode" data-mode="manual" style="padding:6px 14px;font-size:12px'+(cfg.mode==='manual'?';border-color:var(--gold-soft);color:var(--gold)':'')+'">Manuel (je choisis)</button>'
     +   '<span style="flex:1"></span>'
-    +   '<button class="btn solid" id="mzSave">Enregistrer la mosaïque</button>'
+    +   '<button class="btn solid" id="mzSave">Enregistrer</button>'
     + '</div>'
+    : '<div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="btn solid" id="mzSave">Enregistrer</button></div>')
     + '<div style="font-size:12px;color:var(--txt3);margin-bottom:16px">'
-    +   (cfg.mode==='auto'
+    +   (cfg.layout!=='mosaic'
+        ? 'Le site affichera la grille régulière classique (toutes les images du pool). Aperçu ci-dessous. Choisissez « Mosaïque » pour la vitrine géométrique de 12 images.'
+        : (cfg.mode==='auto'
         ? 'La mosaïque change chaque mois : 12 images tirées de votre pool, placées dans l\u2019ordre. Cliquez une image pour ajuster son cadrage (zoom + position), qui la suivra partout.'
-        : 'Cliquez une forme pour choisir son image, puis ajustez son cadrage (zoom + glisser) spécifique à cette forme.')
+        : 'Cliquez une forme pour choisir son image, puis ajustez son cadrage (zoom + glisser) spécifique à cette forme.'))
     + '</div>'
     + '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">'
-    +   '<div style="flex:1;min-width:280px;max-width:460px" id="mzPreview">'+buildMosaicSvg(res.map, {interactive:true})+'</div>'
+    +   '<div style="flex:1;min-width:280px;max-width:460px" id="mzPreview">'+(cfg.layout==='mosaic' ? buildMosaicSvg(res.map, {interactive:true}) : buildGridPreview(res.pool))+'</div>'
     +   '<div style="flex:1;min-width:220px" id="mzSide"></div>'
     + '</div>';
 
@@ -1179,8 +1195,13 @@ function renderMosaicTab(){
   });
   document.getElementById('mzSave').addEventListener('click', saveMosaic);
 
-  renderMosaicSide();
-  wireMosaicInteractive();
+  if(cfg.layout === 'mosaic'){
+    renderMosaicSide();
+    wireMosaicInteractive();
+  } else {
+    var side = document.getElementById('mzSide');
+    if(side) side.innerHTML = '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt4);margin-bottom:10px">Disposition « grille »</div><p style="font-size:13px;color:var(--txt3);line-height:1.7">Le pool complet s\u2019affiche en grille régulière, comme aujourd\u2019hui. Aucun réglage de mosaïque n\u2019est nécessaire dans ce mode.</p>';
+  }
 }
 
 function renderMosaicSide(){
@@ -1212,7 +1233,10 @@ function renderMosaicSide(){
     Array.prototype.forEach.call(side.querySelectorAll('.mzassign'), function(r){
       r.addEventListener('click', function(e){
         if(e.target.classList.contains('mzclear')) return;
-        assignShapeImage(parseInt(r.getAttribute('data-shape'),10));
+        var n = parseInt(r.getAttribute('data-shape'),10);
+        var entry = normalizeManualEntry(getMosaicConfig().manual[String(n)]);
+        if(entry && entry.image){ openCropEditor(n, entry.image); }  /* rempli → recadrer */
+        else { assignShapeImage(n); }                                  /* vide → choisir */
       });
     });
     Array.prototype.forEach.call(side.querySelectorAll('.mzclear'), function(b){
@@ -1291,12 +1315,13 @@ function openCropEditor(shapeNum, imageUrl){
     + '<div style="font-size:12px;color:var(--txt3);margin-bottom:16px">Molette ou curseur pour zoomer, glissez pour déplacer.'+(shapeNum!=null?' Ce réglage ne vaut que pour cette forme.':' Ce réglage suit l\u2019image partout.')+'</div>'
     + '<svg id="cropSvg" viewBox="-2 -2 404 404" style="width:100%;height:auto;display:block;background:#050810;touch-action:none;cursor:grab" xmlns="http://www.w3.org/2000/svg">'
     +   '<defs><clipPath id="cropClip"><polygon points="'+ptsAttr+'"/></clipPath></defs>'
+    +   '<polygon points="'+ptsAttr+'" fill="#03050A"/>'
     +   '<g clip-path="url(#cropClip)"><image id="cropImg" href="'+escAttr(imgPathG(imageUrl))+'" x="0" y="0" width="400" height="400" preserveAspectRatio="xMidYMid slice"/></g>'
     +   '<polygon points="'+ptsAttr+'" fill="none" stroke="#C9A96E" stroke-width="1.5"/>'
     + '</svg>'
     + '<div style="display:flex;align-items:center;gap:10px;margin:16px 0">'
     +   '<span style="font-size:12px;color:var(--txt4)">Zoom</span>'
-    +   '<input type="range" id="cropZoom" min="1" max="4" step="0.05" value="'+crop.scale+'" style="flex:1;accent-color:var(--gold)">'
+    +   '<input type="range" id="cropZoom" min="0.3" max="4" step="0.05" value="'+crop.scale+'" style="flex:1;accent-color:var(--gold)">'
     +   '<button class="btn ghost" id="cropReset" style="padding:4px 10px;font-size:12px">Réinitialiser</button>'
     + '</div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
@@ -1317,7 +1342,7 @@ function openCropEditor(shapeNum, imageUrl){
   ov.querySelector('#cropZoom').addEventListener('input', function(){ crop.scale = parseFloat(this.value); apply(); });
   svg.addEventListener('wheel', function(e){
     e.preventDefault();
-    crop.scale = Math.min(4, Math.max(1, crop.scale + (e.deltaY<0?0.1:-0.1)));
+    crop.scale = Math.min(4, Math.max(0.3, crop.scale + (e.deltaY<0?0.1:-0.1)));
     ov.querySelector('#cropZoom').value = crop.scale; apply();
   });
   /* glisser */
