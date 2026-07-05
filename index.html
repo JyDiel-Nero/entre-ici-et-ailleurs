@@ -39,7 +39,7 @@
   --ff-b:'Merriweather',Georgia,serif;
   --ease:cubic-bezier(.25,.46,.45,.94);
 }
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body{background:var(--deep);color:var(--txt);font-family:var(--ff-b);font-size:15px;line-height:1.8;overflow-x:hidden}
 a{color:var(--gold);text-decoration:none;transition:color .3s}
 a:hover{color:var(--g2)}
@@ -658,11 +658,11 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
    ════════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
   .nav-links{
-    position:fixed;top:0;right:-100%;width:260px;height:100vh;
+    position:fixed;top:0;right:0;width:260px;height:100vh;
     background:rgba(3,5,10,.98);flex-direction:column;padding:100px 40px;gap:24px;
-    transition:right .4s var(--ease);
+    transform:translateX(100%);transition:transform .4s var(--ease);
   }
-  .nav-links.open{right:0}
+  .nav-links.open{transform:translateX(0)}
   .nav-hamburger{display:flex}
   .blog-grid{grid-template-columns:1fr}
   .gallery-grid{grid-template-columns:1fr 1fr}
