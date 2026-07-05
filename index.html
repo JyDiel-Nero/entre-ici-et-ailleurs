@@ -1030,8 +1030,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       </div>
       <div id="searchResults" style="display:none;margin-bottom:30px"></div>
       <div class="blog-filters rv" id="blogFilters"></div>
-      <div style="text-align:right;margin:-10px 0 16px;opacity:.6;display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <button type="button" id="openRecueilBtn" style="background:transparent;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 12px;cursor:pointer;outline:none;letter-spacing:.04em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.5)'" onmouseout="this.style.borderColor='rgba(201,169,110,.2)'">📖 Composer un recueil PDF</button>
+      <div style="text-align:right;margin:-10px 0 16px;opacity:.6;display:flex;justify-content:flex-end;align-items:center;gap:12px">
         <select id="blogSort" style="background:transparent;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 10px;cursor:pointer;outline:none">
           <option value="pub-newest">Publiés récemment</option>
           <option value="pub-oldest">Publiés anciennement</option>
@@ -4194,13 +4193,8 @@ function openRecueilPanel(){
 
 window.openRecueilPanel = openRecueilPanel;
 
-/* Bouton « Composer un recueil » (vue blog) — délégation globale */
-document.addEventListener('click', function(e){
-  var t = e.target;
-  if(t && (t.id === 'openRecueilBtn' || (t.closest && t.closest('#openRecueilBtn')))){
-    if(window.openRecueilPanel) openRecueilPanel();
-  }
-});
+/* Composition de recueil : outil d'auteur, déplacé dans le CMS L'Horloger.
+   Le module openRecueilPanel reste disponible mais n'est plus exposé au public. */
 
 </script>
 
