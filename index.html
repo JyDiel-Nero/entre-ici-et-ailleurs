@@ -1786,8 +1786,9 @@ function renderBlog(){
     };
   }
 
-  /* Filter click — reset pagination */
-  document.querySelectorAll('.bf').forEach(btn=>{
+  /* Filter click — reset pagination (blog filters only, not other .bf buttons) */
+  var blogFiltersEl = document.getElementById('blogFilters');
+  if(blogFiltersEl) blogFiltersEl.querySelectorAll('.bf').forEach(btn=>{
     btn.addEventListener('click', function(){
       activeFilter = this.getAttribute('data-filter');
       blogPage = 0;
