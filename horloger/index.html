@@ -179,6 +179,7 @@ textarea.fi{resize:vertical;line-height:1.7;font-size:15px}
         <a data-view="recueil"><span class="ico">&#128216;</span><span>Recueil PDF</span></a>
         <a data-view="minutes"><span class="ico">&#9834;</span><span>Minutes (audio)</span></a>
         <a data-view="secondes"><span class="ico">&#9635;</span><span>Secondes (galerie)</span></a>
+        <a data-view="oeuvres"><span class="ico">&#127810;</span><span>Saisons (œuvres)</span></a>
         <a data-view="dash"><span class="ico">&#9632;</span><span>Cadran</span></a>
         <a data-view="reglages"><span class="ico">&#9881;</span><span>Réglages du Cadran</span></a>
         <a data-view="sections"><span class="ico">&#9776;</span><span>Sections du site</span></a>
@@ -958,6 +959,33 @@ var SECTION_SCHEMAS = {
       { key:'title', label:'Titre', type:'text', required:true },
       { key:'image', label:'Image', type:'image', required:true }
     ]
+  },
+  oeuvres: {
+    title: 'Saisons — recueils, albums, peintures',
+    file: 'data/oeuvres.json',
+    rootKey: 'oeuvres',
+    singular: 'œuvre',
+    labelField: 'title',
+    timeField: null,
+    fields: [
+      { key:'title', label:'Titre', type:'text', required:true },
+      { key:'type', label:'Type', type:'select', required:true, def:'recueil', options:[
+        { value:'recueil', label:'📖 Recueil' },
+        { value:'album', label:'🎤 Album' },
+        { value:'peinture', label:'🎨 Peinture' }
+      ]},
+      { key:'description', label:'Description', type:'textarea' },
+      { key:'image', label:'Image / couverture', type:'image', required:true },
+      { key:'image_alt', label:'Texte alternatif de l\u2019image', type:'text' },
+      { key:'price', label:'Prix', type:'text', placeholder:'ex. 12 €' },
+      { key:'amazon', label:'Lien Amazon', type:'text' },
+      { key:'bookelis', label:'Lien Bookelis', type:'text' },
+      { key:'fnac', label:'Lien Fnac', type:'text' },
+      { key:'spotify', label:'Lien Spotify / streaming', type:'text' },
+      { key:'other_link', label:'Autre lien', type:'text' },
+      { key:'other_label', label:'Texte de l\u2019autre lien', type:'text', placeholder:'Acheter' },
+      { key:'published', label:'Publié (visible sur le site)', type:'bool', def:true }
+    ]
   }
 };
 
@@ -1561,6 +1589,15 @@ function openItemEditor(idx){
         + '<div style="display:flex;gap:8px"><input class="fi" id="if_'+f.key+'" value="'+escAttr(val)+'" placeholder="/images/uploads/piste.mp3"><button class="btn ghost" type="button" id="ifup_'+f.key+'" style="flex:0 0 auto;padding:0 14px" title="Téléverser un fichier audio">&#8593;</button></div>'
         + '<div id="ifprev_'+f.key+'" style="margin-top:8px">'+(val?'<audio controls preload="none" src="'+escAttr(imgPathG(val))+'" style="width:100%;height:34px"></audio>':'')+'</div>';
     }
+    if(f.type === 'select'){
+      var opts = (f.options||[]).map(function(o){
+        var oval = o.value != null ? o.value : o;
+        var olab = o.label != null ? o.label : o;
+        return '<option value="'+escAttr(oval)+'"'+(String(val)===String(oval)?' selected':'')+'>'+esc(olab)+'</option>';
+      }).join('');
+      return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
+        + '<select class="fi" id="if_'+f.key+'">'+opts+'</select>';
+    }
     return '<label class="fl">'+esc(f.label)+(f.required?' *':'')+'</label>'
       + '<input class="fi" id="if_'+f.key+'" value="'+escAttr(val)+'"'+(f.placeholder?' placeholder="'+escAttr(f.placeholder)+'"':'')+'>';
   }).join('');
@@ -2079,7 +2116,8 @@ var VIEWS = {
   edit: function(){viewEdit();}, list: viewList, plan: viewPlan, dash: viewDash, media: viewMedia,
   recueil: viewRecueil, reglages: viewReglages, sections: viewSections,
   minutes: function(){ viewSection('minutes'); },
-  secondes: function(){ viewSection('secondes'); }
+  secondes: function(){ viewSection('secondes'); },
+  oeuvres: function(){ viewSection('oeuvres'); }
 };
 
 function setActive(name){
