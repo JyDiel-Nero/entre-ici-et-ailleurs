@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════════════════════════
+# Cloudflare Pages — stratégie de cache équilibrée
+#
+# Objectif : dès qu'un nouveau déploiement a lieu, les visiteurs
+# reçoivent IMMÉDIATEMENT la dernière version du site (code + données),
+# sans avoir à vider leur cache. Les fichiers lourds qui ne changent
+# pas (images, polices, audio) restent en cache pour la rapidité.
+# ═══════════════════════════════════════════════════════════════
+
+# --- CODE DU SITE : jamais mis en cache (toujours frais) ---
+# Le point d'entrée de la SPA. must-revalidate force le navigateur
+# à vérifier auprès du serveur à chaque visite.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Le CMS L'Horloger — même exigence de fraîcheur
+/horloger/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/admin/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# --- DONNÉES PILOTÉES PAR L'AUTEUR : jamais en cache ---
+# Poèmes, galerie, audio, réglages… doivent apparaître dès publication.
+/data/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Le manifeste PWA et le sitemap : fraîcheur aussi
+/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+# --- FICHIERS STABLES : cache long pour la vitesse ---
+# Une image publiée ne change plus ; on la garde 30 jours.
+/images/*
+  Cache-Control: public, max-age=2592000
+
+# Fichiers audio et vidéo de Minutes
+/media/*
+  Cache-Control: public, max-age=2592000
+
+# Icônes, favicon, ressources statiques diverses
+/icons/*
+  Cache-Control: public, max-age=2592000
+
+/docs/*
+  Cache-Control: public, max-age=2592000
+
+/tools/*
+  Cache-Control: public, max-age=2592000
