@@ -4,7 +4,7 @@
   "show_blog": true,
   "show_apropos": true,
   "oeuvres_per_page": "12",
-  "show_oeuvres": true,
+  "show_oeuvres": false,
   "route_contact": "entretemps",
   "route_univers": "secondes",
   "name_univers": "Secondes",
