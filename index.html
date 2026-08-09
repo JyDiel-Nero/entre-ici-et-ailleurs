@@ -1274,8 +1274,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Éditeur du site</strong><br>
       Le site jydielintime.com est édité par NAM Johnny Yao Daniel-Marie, exerçant sous l'enseigne JyDiel In-Time.<br>
-      Statut / forme juridique : <br>
-      Adresse : <br>
+      Statut / forme juridique : [À COMPLÉTER — ex. particulier, auto-entrepreneur, SIRET si applicable]<br>
+      Adresse : [À COMPLÉTER — adresse postale de l'éditeur, obligatoire]<br>
       Contact : <a href="mailto:eicietailleurs@gmail.com" style="color:var(--gold)">eicietailleurs@gmail.com</a></p>
 
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Directeur de la publication</strong><br>
@@ -1322,7 +1322,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   <p id="footerInstall" style="text-align:center;margin-bottom:10px;display:none"><a href="#" id="footerInstallLink" style="color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.1em;border-bottom:1px solid rgba(201,169,110,.3);padding-bottom:2px">❖ Garder JyDiel In-Time à portée de main</a></p>
   <p id="footerRss" style="text-align:center;margin-bottom:8px"><a href="/feed.xml" title="Flux RSS" style="color:var(--g3);font-size:12px;text-decoration:none;letter-spacing:.1em">⊞ RSS</a></p>
   <p class="footer-copy">© 2013–2026 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · <a href="https://jydielintime.com" style="color:inherit">jydielintime.com</a> · Tous droits réservés.</p>
-  <p style="margin-top:12px"><a href="/confidentialite" data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
+  <p style="margin-top:12px" id="privacyLinkWrap"><a href="/confidentialite" data-page="confidentialite" style="font-family:var(--ff-b);font-size:9px;color:var(--g3);opacity:.5;letter-spacing:.08em">Confidentialité & Mentions légales</a></p>
 </footer>
 
 <!-- ════════════════════════════════════════════════════════════════
@@ -1469,7 +1469,7 @@ var EMBEDDED_SETTINGS = {};
 
 var SECTIONS_CONFIG = {
   name_blog:"Heures",route_blog:"heures",show_blog:true,
-  name_oeuvres:"Saisons",route_oeuvres:"saisons",show_oeuvres:true,
+  name_oeuvres:"Saisons",route_oeuvres:"saisons",show_oeuvres:false,
   name_univers:"Secondes",route_univers:"secondes",show_univers:true,
   name_audio:"Minutes",route_audio:"minutes",show_audio:false,
   name_apropos:"Un instant",route_apropos:"un-instant",show_apropos:true,
@@ -1617,7 +1617,11 @@ function parseUrl(){
   if(path==='/'+R.contact) return {view:'contact'};
   if(path==='/'+R.audio) return {view:'audio'};
   if(path==='/'+R.oeuvres) return {view:'oeuvres'};
-  if(path==='/confidentialite') return {view:'confidentialite'};
+  if(path==='/confidentialite'){
+    /* Page occultée depuis L'Horloger : accès direct par URL renvoyé à l'accueil. */
+    if(SETTINGS && SETTINGS.privacy_visible === false) return {view:'accueil'};
+    return {view:'confidentialite'};
+  }
   if(path.startsWith('/article/')){
     var slug = path.replace('/article/','');
     return {view:'article', slug:slug};
@@ -3003,6 +3007,13 @@ function applySectionVisibility(){
       var paragraphs = SETTINGS.privacy_text.split('\n').filter(function(l){return l.trim()});
       privEl.innerHTML = paragraphs.map(function(p){return '<p style="margin-bottom:1.5em">'+esc(p)+'</p>'}).join('');
     }
+  }
+  /* Occultation de la page Confidentialité (interrupteur dans L'Horloger).
+     privacy_visible === false → on masque le lien du pied de page. Le blocage
+     de l'accès direct par URL est géré dans le routeur (voir plus bas). */
+  if(SETTINGS.privacy_visible === false){
+    var plw = document.getElementById('privacyLinkWrap');
+    if(plw){ plw.style.display = 'none'; }
   }
 
   /* Contact section texts */
