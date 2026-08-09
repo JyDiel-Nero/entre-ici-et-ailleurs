@@ -23,6 +23,22 @@
       "album_cover": "",
       "published": true,
       "order": 2
+    },
+    {
+      "title": "Mémoire",
+      "poet": "J.Y.D.",
+      "description": "",
+      "file": "/media/uploads/Slam-Beats-2_V2.mp3",
+      "cover": "",
+      "youtube": "",
+      "instagram": "",
+      "tiktok": "",
+      "link": "",
+      "link_label": "Écouter",
+      "album": "",
+      "album_cover": "",
+      "published": true,
+      "order": 3
     }
   ]
 }
