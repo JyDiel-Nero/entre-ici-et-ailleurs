@@ -1274,9 +1274,11 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Éditeur du site</strong><br>
       Le site jydielintime.com est édité par NAM Johnny Yao Daniel-Marie, exerçant sous l'enseigne JyDiel In-Time.<br>
-      Statut / forme juridique : [À COMPLÉTER — ex. particulier, auto-entrepreneur, SIRET si applicable]<br>
-      Adresse : [À COMPLÉTER — adresse postale de l'éditeur, obligatoire]<br>
-      Contact : <a href="mailto:eicietailleurs@gmail.com" style="color:var(--gold)">eicietailleurs@gmail.com</a></p>
+      <span id="legalStatutLine" style="display:none">Statut / forme juridique : <span id="legalStatut"></span><br></span>
+      <span id="legalSiretLine" style="display:none">SIRET : <span id="legalSiret"></span><br></span>
+      <span id="legalAdresseLine" style="display:none">Adresse : <span id="legalAdresse"></span><br></span>
+      <span id="legalTelLine" style="display:none">Téléphone : <span id="legalTel"></span><br></span>
+      <span id="legalEmailLine">Contact : <a id="legalEmail" href="mailto:eicietailleurs@gmail.com" style="color:var(--gold)">eicietailleurs@gmail.com</a></span></p>
 
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Directeur de la publication</strong><br>
       NAM Johnny Yao Daniel-Marie.</p>
@@ -1300,6 +1302,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       Ce site n'utilise pas de cookies de traçage ni de publicité. Seul un stockage local (localStorage) est utilisé pour mémoriser vos « j'aime » sur les articles et votre préférence de thème.</p>
       <p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Newsletter</strong><br>
       Vous pouvez vous désabonner à tout moment via le lien de désabonnement présent dans chaque email. Votre adresse sera alors supprimée de la liste de diffusion.</p>
+      <div id="privacyExtra"></div>
       <p style="color:var(--g3);font-style:italic">© 2013–2026 NAM Johnny Yao Daniel-Marie — JyDiel In-Time · jydielintime.com · Tous droits réservés.</p>
     </div>
   </section>
@@ -3000,12 +3003,16 @@ function applySectionVisibility(){
     if(siteBgEl) siteBgEl.style.background = 'url('+SETTINGS.site_bg+') center/cover no-repeat';
   }
 
-  /* Privacy */
-  if(SETTINGS.privacy_text){
-    var privEl = document.getElementById('privacyContent');
-    if(privEl){
+  /* Texte de confidentialité additionnel (depuis L'Horloger).
+     Il S'AJOUTE à la fin de la page, dans sa propre section, sans écraser les
+     sections structurées (mentions légales, RGPD, cookies…). Laisser le champ
+     vide n'affiche rien de plus. */
+  if(SETTINGS.privacy_text && SETTINGS.privacy_text.trim()){
+    var extraEl = document.getElementById('privacyExtra');
+    if(extraEl){
       var paragraphs = SETTINGS.privacy_text.split('\n').filter(function(l){return l.trim()});
-      privEl.innerHTML = paragraphs.map(function(p){return '<p style="margin-bottom:1.5em">'+esc(p)+'</p>'}).join('');
+      extraEl.innerHTML = '<p style="margin-bottom:1.5em"><strong style="color:var(--g2)">Informations complémentaires</strong></p>'
+        + paragraphs.map(function(p){return '<p style="margin-bottom:1.5em">'+esc(p)+'</p>'}).join('');
     }
   }
   /* Occultation de la page Confidentialité (interrupteur dans L'Horloger).
@@ -3015,6 +3022,39 @@ function applySectionVisibility(){
     var plw = document.getElementById('privacyLinkWrap');
     if(plw){ plw.style.display = 'none'; }
   }
+
+  /* Champs des mentions légales remplis depuis L'Horloger.
+     Chaque champ : si renseigné → on l'affiche ; si vide → la ligne entière
+     disparaît (pas de marqueur, pas de ligne vide). */
+  (function fillLegal(){
+    function setLine(lineId, valueId, value, isEmail){
+      var line = document.getElementById(lineId);
+      var val = document.getElementById(valueId);
+      if(!line) return;
+      if(value && String(value).trim()){
+        var v = String(value).trim();
+        if(val){
+          if(isEmail){
+            val.textContent = v;
+            val.setAttribute('href', 'mailto:' + v);
+          } else {
+            val.textContent = v;
+          }
+        }
+        line.style.display = '';
+      } else {
+        /* Vide : on masque toute la ligne. Exception e-mail : on garde
+           l'adresse par défaut déjà présente dans le HTML. */
+        if(isEmail) return;
+        line.style.display = 'none';
+      }
+    }
+    setLine('legalStatutLine', 'legalStatut', SETTINGS.legal_statut, false);
+    setLine('legalSiretLine', 'legalSiret', SETTINGS.legal_siret, false);
+    setLine('legalAdresseLine', 'legalAdresse', SETTINGS.legal_adresse, false);
+    setLine('legalTelLine', 'legalTel', SETTINGS.legal_telephone, false);
+    setLine('legalEmailLine', 'legalEmail', SETTINGS.legal_email, true);
+  })();
 
   /* Contact section texts */
   var cLabel = document.getElementById('contactLabel');
