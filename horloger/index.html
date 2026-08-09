@@ -1983,6 +1983,7 @@ var REGLAGES_GROUPS = [
     { key:'site_bg', label:'Fond global du site', type:'image' }
   ]},
   { title:'Confidentialité', fields:[
+    { key:'privacy_visible', label:'Afficher la page Confidentialité sur le site', type:'bool', def:true },
     { key:'privacy_text', label:'Texte de confidentialité', type:'textarea' }
   ]}
 ];
@@ -2015,6 +2016,12 @@ function renderReglages(){
         return '<label class="fl">'+esc(f.label)+'</label>'
           + '<div style="display:flex;gap:8px"><input class="fi" id="rg_'+f.key+'" value="'+escAttr(val)+'" placeholder="images/…"><button class="btn ghost" type="button" id="rgpick_'+f.key+'" style="flex:0 0 auto;padding:0 14px">&#9635;</button></div>'
           + '<div id="rgprev_'+f.key+'" style="margin-top:8px">'+(val?'<img src="'+escAttr(imgPathG(val))+'" style="max-height:120px;border:1px solid var(--gold-line)" onerror="this.style.display=\'none\'">':'')+'</div>';
+      }
+      if(f.type === 'bool'){
+        var checked = (val === true || val === 'true' || (val === '' && f.def === true)) ? 'checked' : '';
+        return '<label style="display:flex;align-items:center;gap:8px;margin:14px 0;font-size:14px;color:var(--txt2);cursor:pointer">'
+          + '<input type="checkbox" id="rg_'+f.key+'" '+checked+' style="accent-color:var(--gold);width:16px;height:16px;flex:none"> '
+          + esc(f.label)+'</label>';
       }
       return '<label class="fl">'+esc(f.label)+'</label>'
         + '<input class="fi" id="rg_'+f.key+'" value="'+escAttr(val)+'">';
@@ -2052,7 +2059,7 @@ function renderReglages(){
   REGLAGES_GROUPS.forEach(function(g){
     g.fields.forEach(function(f){
       var inp = $('#rg_'+f.key);
-      if(inp) inp.addEventListener('input', function(){ state.dirty = true; });
+      if(inp){ inp.addEventListener('input', function(){ state.dirty = true; }); inp.addEventListener('change', function(){ state.dirty = true; }); }
     });
   });
 }
@@ -2064,7 +2071,10 @@ function saveReglages(){
   REGLAGES_GROUPS.forEach(function(g){
     g.fields.forEach(function(f){
       var inp = $('#rg_'+f.key);
-      if(inp) out[f.key] = inp.value;
+      if(inp){
+        if(f.type === 'bool'){ out[f.key] = inp.checked; }
+        else { out[f.key] = inp.value; }
+      }
     });
   });
   var content = JSON.stringify(out, null, 2);
