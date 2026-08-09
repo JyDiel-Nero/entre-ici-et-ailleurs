@@ -43,12 +43,15 @@ const WRITABLE = {
   'data/custom-sections.json': true,
 };
 
-/* Médiathèque : dossier et contraintes des images */
+/* Médiathèque : dossiers et contraintes */
 const IMAGE_DIR = 'images/uploads';
+const MEDIA_DIR = 'media/uploads';           /* audio + vidéo de Minutes, séparés des images */
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|svg)$/i;
-const AUDIO_EXT = /\.(mp3|m4a|ogg|wav)$/i;
-const MEDIA_EXT = /\.(jpe?g|png|gif|webp|avif|svg|mp3|m4a|ogg|wav)$/i;
+const AUDIO_EXT = /\.(mp3|m4a|ogg|wav|aac|flac)$/i;
+const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)$/i;
+const MEDIA_EXT = /\.(jpe?g|png|gif|webp|avif|svg|mp3|m4a|ogg|wav|aac|flac|mp4|webm|mov|m4v|ogv)$/i;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; /* 8 Mo — au-delà, GitHub Contents API devient hasardeux */
+const MAX_MEDIA_BYTES = 25 * 1024 * 1024; /* 25 Mo pour audio/vidéo */
 
 const GH = 'https://api.github.com';
 
@@ -223,17 +226,12 @@ export async function onRequest(context) {
       for (let i = 0; i < doc.posts.length; i++) {
         if (doc.posts[i].slug === post.slug) {
           doc.posts[i] = Object.assign({}, doc.posts[i], post); /* préserve les champs non fournis */
-          /* Si ce texte n'a jamais reçu de date de publication (ni programmée,
-             ni posée auparavant), on l'horodate maintenant pour fixer son rang. */
           if (!doc.posts[i].publishDate) doc.posts[i].publishDate = nowIso();
           found = true;
           break;
         }
       }
       if (!found) {
-        /* Nouveau texte : s'il n'a pas de publication programmée, on pose
-           la date et l'heure exactes de publication. L'ordre est ainsi protégé
-           même si l'ordre du fichier changeait un jour. */
         if (!post.publishDate) post.publishDate = nowIso();
         doc.posts.unshift(post);   /* nouveau texte en tête (add_to_top) */
       }
@@ -289,15 +287,19 @@ export async function onRequest(context) {
       /* Nettoyage du nom : pas de chemin, caractères sûrs */
       name = name.replace(/^.*[\\/]/, '').replace(/[^a-zA-Z0-9._-]/g, '-');
       const isAudio = AUDIO_EXT.test(name);
+      const isVideo = VIDEO_EXT.test(name);
       const isImage = IMAGE_EXT.test(name);
-      if (!isAudio && !isImage) return json({ error: 'Type de fichier non autorisé.' }, 400);
+      if (!isAudio && !isVideo && !isImage) return json({ error: 'Type de fichier non autorisé.' }, 400);
 
       /* Estimation de la taille depuis le base64 (≈ 3/4 de la longueur) */
       const approxBytes = Math.floor(contentB64.replace(/=+$/, '').length * 3 / 4);
-      const limit = isAudio ? (25 * 1024 * 1024) : MAX_IMAGE_BYTES; /* audio : 25 Mo */
-      if (approxBytes > limit) return json({ error: isAudio ? 'Audio trop lourd (max 25 Mo).' : 'Image trop lourde (max 8 Mo).' }, 413);
+      const isMedia = isAudio || isVideo;
+      const limit = isMedia ? MAX_MEDIA_BYTES : MAX_IMAGE_BYTES;
+      if (approxBytes > limit) return json({ error: isMedia ? 'Fichier trop lourd (max 25 Mo).' : 'Image trop lourde (max 8 Mo).' }, 413);
 
-      const path = IMAGE_DIR + '/' + name;
+      /* Audio et vidéo → dossier média dédié ; images → dossier images */
+      const dir = isMedia ? MEDIA_DIR : IMAGE_DIR;
+      const path = dir + '/' + name;
 
       /* Éviter d'écraser un fichier existant : suffixer si collision */
       let finalPath = path, finalName = name;
@@ -306,13 +308,13 @@ export async function onRequest(context) {
         const dot = name.lastIndexOf('.');
         const stamp = '-' + Date.now().toString(36);
         finalName = (dot > 0 ? name.slice(0, dot) + stamp + name.slice(dot) : name + stamp);
-        finalPath = IMAGE_DIR + '/' + finalName;
+        finalPath = dir + '/' + finalName;
       }
 
       const putRes = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + finalPath, token, {
         method: 'PUT',
         body: JSON.stringify({
-          message: payload.message || ('Horloger : ' + (isAudio ? 'audio ' : 'image ') + finalName),
+          message: payload.message || ('Horloger : ' + (isMedia ? (isVideo ? 'vidéo ' : 'audio ') : 'image ') + finalName),
           content: contentB64.replace(/^data:[^,]*,/, ''),
           branch: BRANCH,
         }),
@@ -323,7 +325,7 @@ export async function onRequest(context) {
         err.status = putRes.status;
         throw err;
       }
-      return json({ path: '/' + finalPath, name: finalName, kind: isAudio ? 'audio' : 'image' });
+      return json({ path: '/' + finalPath, name: finalName, kind: isVideo ? 'video' : (isAudio ? 'audio' : 'image'), dir: '/' + dir });
     }
 
     if (action === 'deleteImage') {
