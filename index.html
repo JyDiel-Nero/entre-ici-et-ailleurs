@@ -43,7 +43,7 @@
   --ff-b:'Merriweather',Georgia,serif;
   --ease:cubic-bezier(.25,.46,.45,.94);
 }
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body{background:var(--deep);color:var(--txt);font-family:var(--ff-b);font-size:15px;line-height:1.8;overflow-x:hidden}
 a{color:var(--gold);text-decoration:none;transition:color .3s}
 a:hover{color:var(--g2)}
@@ -240,6 +240,20 @@ section{position:relative;z-index:1;padding:80px 0}
    GALERIE (Univers)
    ════════════════════════════════════════════════════════════════ */
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;grid-auto-rows:auto}
+/* Mosaïque géométrique (Secondes) */
+.gallery-grid.is-mosaic{display:block}
+.mosaic-wrap{max-width:1100px;margin:0 auto;width:100%}
+.mosaic-svg{width:100%;height:auto;display:block;background:#050810;border:1px solid rgba(201,169,110,.12)}
+.mz-cell{transition:opacity .25s}
+.mosaic-svg:hover .mz-cell{opacity:.55}
+.mosaic-svg .mz-cell:hover{opacity:1}
+.mz-lightbox{position:fixed;inset:0;background:rgba(3,5,10,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .25s}
+.mz-lightbox.show{opacity:1}
+.mz-lightbox-inner{position:relative;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;align-items:center}
+.mz-lightbox-inner img{max-width:92vw;max-height:82vh;object-fit:contain;border:1px solid rgba(201,169,110,.3)}
+.mz-lightbox-cap{font-family:var(--ff-t);font-style:italic;color:var(--gold);font-size:17px;margin-top:12px;text-align:center}
+.mz-lightbox-close{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;background:var(--deep);border:1px solid rgba(201,169,110,.4);color:var(--gold);font-size:20px;cursor:pointer;line-height:1}
+@media(max-width:600px){.mosaic-wrap{max-width:100%}.mz-lightbox-close{top:4px;right:4px}}
 .uv{
   position:relative;overflow:hidden;background:rgba(6,13,24,.5);
   border:1px solid rgba(201,169,110,.06);
@@ -422,12 +436,12 @@ img{image-rendering:auto}
 .audio-card:hover{border-color:rgba(201,169,110,.2)}
 audio::-webkit-media-controls-panel{background:rgba(6,13,24,.8)}
 audio{border-radius:4px;max-width:100%}
-.audio-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.audio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .audio-card{background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);border-radius:4px;overflow:hidden;transition:border-color .3s}
 .audio-card:hover{border-color:rgba(201,169,110,.2)}
 .audio-card iframe{border-radius:0}
 .audio-card .ac-cover{width:100%;aspect-ratio:1/1;object-fit:cover;opacity:.85;display:block}
-.audio-card .ac-body{padding:16px}
+.audio-card .ac-body{padding:20px}
 .audio-card .ac-yt{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden}
 .audio-card .ac-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 @media(max-width:768px){
@@ -648,15 +662,15 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
    ════════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
   .nav-links{
-    position:fixed;top:0;right:-100%;width:260px;height:100vh;
+    position:fixed;top:0;right:0;width:260px;height:100vh;
     background:rgba(3,5,10,.98);flex-direction:column;padding:100px 40px;gap:24px;
-    transition:right .4s var(--ease);
+    transform:translateX(100%);transition:transform .4s var(--ease);
   }
-  .nav-links.open{right:0}
+  .nav-links.open{transform:translateX(0)}
   .nav-hamburger{display:flex}
   .blog-grid{grid-template-columns:1fr}
   .gallery-grid{grid-template-columns:1fr 1fr}
-  .audio-grid{grid-template-columns:repeat(3,1fr)}
+  .audio-grid{grid-template-columns:repeat(2,1fr)}
   .uv:first-child{grid-row:auto}
   .uv:nth-child(4){grid-column:auto}
   .hero h1{font-size:clamp(30px,8vw,48px)}
@@ -666,7 +680,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
 }
 @media(max-width:480px){
   .gallery-grid{grid-template-columns:1fr}
-  .audio-grid{grid-template-columns:repeat(2,1fr)}
+  .audio-grid{grid-template-columns:1fr}
   .nav{padding:14px 20px}
 }
 /* Mobile nav theme overrides */
@@ -1020,8 +1034,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
       </div>
       <div id="searchResults" style="display:none;margin-bottom:30px"></div>
       <div class="blog-filters rv" id="blogFilters"></div>
-      <div style="text-align:right;margin:-10px 0 16px;opacity:.6;display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <button type="button" id="openRecueilBtn" style="background:transparent;border:1px solid rgba(201,169,110,.2);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 12px;cursor:pointer;outline:none;letter-spacing:.04em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.5)'" onmouseout="this.style.borderColor='rgba(201,169,110,.2)'">📖 Composer un recueil PDF</button>
+      <div style="text-align:right;margin:-10px 0 16px;opacity:.6;display:flex;justify-content:flex-end;align-items:center;gap:12px">
         <select id="blogSort" style="background:transparent;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-family:var(--ff-b);font-size:12px;padding:5px 10px;cursor:pointer;outline:none">
           <option value="pub-newest">Publiés récemment</option>
           <option value="pub-oldest">Publiés anciennement</option>
@@ -1113,7 +1126,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
   </section>
   <section class="s-night">
     <div class="wrap">
-      <div id="audioGrid" class="audio-grid"></div>
+      <div id="audioGrid"></div>
     </div>
   </section>
 </div>
@@ -1228,6 +1241,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offse
           <a href="https://links.jydielintime.com" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;font-family:var(--ff-t);font-style:italic;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">Cœur Assaisonné</a>
           <a id="qlInstagram" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">Instagram</a>
           <a id="qlTiktok" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">TikTok</a>
+          <a id="qlYoutube" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border:1px solid rgba(201,169,110,.15);color:var(--gold);font-size:12px;text-decoration:none;letter-spacing:.06em;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(201,169,110,.4)'" onmouseout="this.style.borderColor='rgba(201,169,110,.15)'">YouTube</a>
         </div>
       </div>
     </div>
@@ -1343,6 +1357,43 @@ var applyTextSize = null;
    ════════════════════════════════════════════════════════════════ */
 let POSTS = [];
 let GALLERY = [];
+var GALLERY_MOSAIC = null;
+/* Mosaïque — géométrie identique au CMS L'Horloger (cohérence aperçu/site) */
+var MOSAIC_GEO = {"1":[[285.4,0],[0,0],[0,412.8],[235.8,289.1]],"2":[[285.8,-2],[236,290.7],[617.5,290.7],[611.4,-2]],"3":[[1000,290.7],[1000,0],[611.5,0],[617.5,290.7]],"4":[[616.1,289.7],[236,290.7],[393.5,527.1]],"5":[[1002.2,290.7],[616.1,289.7],[736.8,581.8],[1000,593.4]],"6":[[-2.4,414.1],[0,613.6],[393.4,526],[235.8,289.1]],"7":[[736.7,579.3],[616.1,289.7],[393.5,527.1],[531.9,813.1]],"8":[[-2.2,614.1],[0,813.8],[533.4,814.1],[393.4,526]],"9":[[531.9,813.1],[754.9,1000],[735.8,581.8]],"10":[[1002.2,593.5],[736.8,581.8],[755,1002.2],[1000,1000]],"11":[[265.3,1002.4],[323.7,814.7],[0,813.8],[0,1000]],"12":[[266,1000],[752.4,1000],[533.4,814.1],[323.7,814.7]]};
+var MOSAIC_CENTERS = {"1":[122,171],"2":[437,148],"3":[807,145],"4":[415,369],"5":[838,430],"6":[169,465],"7":[568,552],"8":[248,696],"9":[675,799],"10":[873,792],"11":[148,905],"12":[474,920]};
+var MOSAIC_N = 12;
+function mosaicAutoSelection(pool, year, month){
+  var visible = pool.filter(function(it){ return it.image && it.published !== false; });
+  if(visible.length < MOSAIC_N) return visible.slice();
+  var seed = year * 12 + month;
+  function rng(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  var arr = visible.slice();
+  for(var i = arr.length - 1; i > 0; i--){
+    var j = Math.floor(rng() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr.slice(0, MOSAIC_N);
+}
+/* Résout {formeN:{image,title,crop}} selon mode auto/manuel — même logique que le CMS */
+function mosaicResolveForSite(){
+  var cfg = GALLERY_MOSAIC || {};
+  var map = {};
+  function findItem(img){ for(var i=0;i<GALLERY.length;i++){ if(GALLERY[i].image===img) return GALLERY[i]; } return null; }
+  if(cfg.mode === 'manual' && cfg.manual){
+    for(var k=1;k<=MOSAIC_N;k++){
+      var ref = cfg.manual[String(k)];
+      if(!ref) continue;
+      var img = (typeof ref==='string') ? ref : ref.image;
+      var crop = (typeof ref==='object' && ref.crop) ? ref.crop : null;
+      if(img){ var it=findItem(img); map[k]={image:img,title:it?it.title:'',crop:crop||(it&&it.crop)||null}; }
+    }
+  } else {
+    var now = new Date();
+    var sel = mosaicAutoSelection(GALLERY, now.getFullYear(), now.getMonth());
+    for(var i2=0;i2<sel.length && i2<MOSAIC_N;i2++){ map[i2+1]={image:sel[i2].image,title:sel[i2].title||'',crop:sel[i2].crop||null}; }
+  }
+  return map;
+}
 let SETTINGS = {};
 let activeFilter = 'TOUS';
 
@@ -1453,7 +1504,7 @@ async function loadData(){
     if(all[2]) Object.assign(SECTIONS_CONFIG, all[2]);
     if(all[3]) THEME = all[3];
     if(all[4] && all[4].posts) POSTS = sortPosts(all[4].posts.filter(function(p){return p.published!==false}));
-    if(all[5] && all[5].items) GALLERY = all[5].items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)});
+    if(all[5] && all[5].items){ GALLERY = all[5].items.slice().sort(function(a,b){return (a.order||0)-(b.order||0)}); GALLERY_MOSAIC = all[5].mosaic || null; }
     if(all[6] && all[6].tracks) AUDIO = all[6].tracks;
     if(all[7] && all[7].oeuvres) OEUVRES = all[7].oeuvres;
     if(all[8] && all[8].sections) CUSTOM_SECTIONS = all[8].sections;
@@ -1723,9 +1774,13 @@ function renderBlog(){
     if(p.length>=3){ var d=parseInt(p[0])||1; var m=frMonths[(p[1]||'').toLowerCase()]; var y=parseInt(p[2])||2020; if(m!==undefined) return new Date(y,m,d).getTime(); }
     return 0;
   }
-  function pubDate(p){ return p.publishDate ? new Date(p.publishDate).getTime() : (POSTS.indexOf(p)*-1000); }
-  if(sortMode==='pub-newest') filtered.sort(function(a,b){return pubDate(b)-pubDate(a)});
-  else if(sortMode==='pub-oldest') filtered.sort(function(a,b){return pubDate(a)-pubDate(b)});
+  /* Ordre de publication = position dans le fichier (L'Horloger insère les nouveaux
+     textes en tête, donc index 0 = dernier publié). Source unique et fiable :
+     mélanger publishDate (présent sur certains textes seulement) créait un ordre
+     incohérent. */
+  function pubRank(p){ return -POSTS.indexOf(p); }
+  if(sortMode==='pub-newest') filtered.sort(function(a,b){return pubRank(b)-pubRank(a)});
+  else if(sortMode==='pub-oldest') filtered.sort(function(a,b){return pubRank(a)-pubRank(b)});
   else if(sortMode==='written-newest') filtered.sort(function(a,b){return parseFr(b.date)-parseFr(a.date)});
   else if(sortMode==='written-oldest') filtered.sort(function(a,b){return parseFr(a.date)-parseFr(b.date)});
   else if(sortMode==='alpha') filtered.sort(function(a,b){return (a.title||'').localeCompare(b.title||'','fr')});
@@ -1757,8 +1812,9 @@ function renderBlog(){
     };
   }
 
-  /* Filter click — reset pagination */
-  document.querySelectorAll('.bf').forEach(btn=>{
+  /* Filter click — reset pagination (blog filters only, not other .bf buttons) */
+  var blogFiltersEl = document.getElementById('blogFilters');
+  if(blogFiltersEl) blogFiltersEl.querySelectorAll('.bf').forEach(btn=>{
     btn.addEventListener('click', function(){
       activeFilter = this.getAttribute('data-filter');
       blogPage = 0;
@@ -2005,7 +2061,13 @@ function renderGallery(){
     grid.innerHTML = '<div class="gallery-placeholder rv">La galerie se prépare en silence…<br><span style="font-size:14px;margin-top:8px;display:block">Les images apparaîtront ici bientôt.</span></div>';
     return;
   }
+  /* Disposition mosaïque si activée dans le CMS */
+  if(GALLERY_MOSAIC && GALLERY_MOSAIC.layout === 'mosaic'){
+    renderGalleryMosaic(grid);
+    return;
+  }
   var items = GALLERY.slice();
+  grid.className = 'gallery-grid';
   /* Shuffle if enabled in CMS */
   if(SECTIONS_CONFIG.univers_shuffle){
     for(var i=items.length-1;i>0;i--){
@@ -2021,6 +2083,52 @@ function renderGallery(){
       '<div class="uv-cap" style="z-index:2">'+esc(g.title)+'</div>'+
     '</div>';
   }).join('');
+}
+
+/* Rendu mosaïque géométrique (12 formes, gabarit SVG carré) */
+function renderGalleryMosaic(grid){
+  var map = mosaicResolveForSite();
+  var defs = '', shapes = '';
+  for(var n=1;n<=MOSAIC_N;n++){
+    var pts = MOSAIC_GEO[String(n)];
+    var ptsAttr = pts.map(function(p){ return (p[0]/1000*1000)+','+(p[1]/1000*1000); }).join(' ');
+    defs += '<clipPath id="siteMz'+n+'"><polygon points="'+ptsAttr+'"/></clipPath>';
+    var entry = map[n];
+    if(entry && entry.image){
+      var c = MOSAIC_CENTERS[String(n)];
+      var fcx = c[0], fcy = c[1];
+      var cr = entry.crop || {scale:1,x:0,y:0};
+      var s = cr.scale||1, tx=(cr.x||0)*2, ty=(cr.y||0)*2; /* repère 1000 = 2× le repère 500 du CMS */
+      var transform = 'translate('+tx+','+ty+') translate('+fcx+','+fcy+') scale('+s+') translate('+(-fcx)+','+(-fcy)+')';
+      shapes += '<g class="mz-cell" data-img="'+esc(imgPath(entry.image))+'" data-title="'+esc(entry.title||'')+'" style="cursor:pointer">'
+        + '<g clip-path="url(#siteMz'+n+')"><rect x="0" y="0" width="1000" height="1000" fill="#03050A"/>'
+        + '<image href="'+esc(imgPath(entry.image))+'" x="0" y="0" width="1000" height="1000" preserveAspectRatio="xMidYMid slice" transform="'+transform+'"/></g>'
+        + '<polygon points="'+ptsAttr+'" fill="none" stroke="rgba(201,169,110,.55)" stroke-width="2"/></g>';
+    } else {
+      shapes += '<polygon points="'+ptsAttr+'" fill="rgba(201,169,110,.04)" stroke="rgba(201,169,110,.2)" stroke-width="1.5"/>';
+    }
+  }
+  grid.className = 'gallery-grid is-mosaic';
+  grid.innerHTML = '<div class="mosaic-wrap rv"><svg viewBox="0 0 1000 1000" class="mosaic-svg" xmlns="http://www.w3.org/2000/svg"><defs>'+defs+'</defs>'+shapes+'</svg></div>';
+  /* Lightbox au clic */
+  Array.prototype.forEach.call(grid.querySelectorAll('.mz-cell'), function(cell){
+    cell.addEventListener('click', function(){ openMosaicLightbox(cell.getAttribute('data-img'), cell.getAttribute('data-title')); });
+  });
+}
+
+/* Lightbox : image en grand */
+function openMosaicLightbox(src, title){
+  var ov = document.createElement('div');
+  ov.className = 'mz-lightbox';
+  ov.innerHTML = '<div class="mz-lightbox-inner"><img src="'+esc(src)+'" alt="'+esc(title||'')+'">'
+    + (title ? '<div class="mz-lightbox-cap">'+esc(title)+'</div>' : '')
+    + '<button class="mz-lightbox-close" aria-label="Fermer">&#215;</button></div>';
+  document.body.appendChild(ov);
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); }
+  function onKey(e){ if(e.key==='Escape') close(); }
+  ov.addEventListener('click', function(e){ if(e.target===ov || e.target.classList.contains('mz-lightbox-close')) close(); });
+  document.addEventListener('keydown', onKey);
+  requestAnimationFrame(function(){ ov.classList.add('show'); });
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2540,7 +2648,7 @@ function renderAudioCard(a){
     /* Audio player */
     var audioHtml = '';
     if(a.file){
-      audioHtml = '<audio controls preload="none" style="width:100%;height:36px;margin-top:10px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)"><source src="'+esc(imgPath(a.file))+'" type="audio/mpeg"></audio>';
+      audioHtml = '<audio controls preload="none" style="width:100%;height:40px;margin-top:12px;filter:sepia(30%) hue-rotate(10deg) saturate(80%)"><source src="'+esc(imgPath(a.file))+'" type="audio/mpeg"></audio>';
     }
     /* External links */
     var links = '';
@@ -2552,11 +2660,11 @@ function renderAudioCard(a){
     return '<div class="audio-card rv">'+
       topHtml+
       '<div class="ac-body">'+
-      '<h3 style="font-family:var(--ff-t);font-size:17px;color:var(--g2);margin-bottom:4px">'+esc(a.title)+'</h3>'+
-      '<p style="font-family:var(--ff-b);font-size:10px;color:var(--g3);margin-bottom:8px">'+esc(a.poet||'J.Y.D.')+'</p>'+
-      (a.description ? '<p style="font-size:12px;color:var(--txt);margin-bottom:8px;line-height:1.5">'+esc(a.description.substring(0,120))+(a.description.length>120?'…':'')+'</p>' : '')+
+      '<h3 style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:5px">'+esc(a.title)+'</h3>'+
+      '<p style="font-family:var(--ff-b);font-size:11px;color:var(--g3);margin-bottom:10px;letter-spacing:.04em">'+esc(a.poet||'J.Y.D.')+'</p>'+
+      (a.description ? '<p style="font-size:13px;color:var(--txt);margin-bottom:10px;line-height:1.6">'+esc(a.description.substring(0,160))+(a.description.length>160?'…':'')+'</p>' : '')+
       audioHtml+
-      (links ? '<div style="margin-top:8px">'+links+'</div>' : '')+
+      (links ? '<div style="margin-top:10px">'+links+'</div>' : '')+
     '</div></div>';
 }
 
@@ -2576,9 +2684,10 @@ function renderOeuvres(){
     if(filters) filters.innerHTML = '';
     return;
   }
-  /* Type filters */
+  /* Type filters — comparaison normalisée (insensible casse/espaces) */
+  function normType(t){ return String(t||'').trim().toLowerCase(); }
   var types = ['TOUS'];
-  items.forEach(function(o){var t=o.type||''; if(types.indexOf(t)===-1) types.push(t)});
+  items.forEach(function(o){var t=normType(o.type); if(t && types.indexOf(t)===-1) types.push(t)});
   var typeLabels = {recueil:'📖 Recueils',album:'🎤 Albums',peinture:'🎨 Peintures'};
   if(filters){
     filters.innerHTML = types.map(function(t){
@@ -2587,11 +2696,12 @@ function renderOeuvres(){
     filters.querySelectorAll('.bf').forEach(function(btn){
       btn.addEventListener('click',function(){
         oeuvresFilter=this.getAttribute('data-ofilter');
+        oeuvresPage=0;
         renderOeuvres();
       });
     });
   }
-  var filtered = oeuvresFilter==='TOUS' ? items : items.filter(function(o){return o.type===oeuvresFilter});
+  var filtered = oeuvresFilter==='TOUS' ? items : items.filter(function(o){return normType(o.type)===oeuvresFilter});
   var oPerPage = parseInt(SECTIONS_CONFIG.oeuvres_per_page) || 12;
   var oVisible = filtered.slice(0, (oeuvresPage+1)*oPerPage);
   var oHasMore = oVisible.length < filtered.length;
@@ -2602,11 +2712,12 @@ function renderOeuvres(){
     if(o.fnac) links+='<a href="'+esc(o.fnac)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Fnac</a>';
     if(o.spotify) links+='<a href="'+esc(o.spotify)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">Écouter</a>';
     if(o.other_link) links+='<a href="'+esc(o.other_link)+'" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-b)">'+esc(o.other_label||'Acheter')+'</a>';
-    var typeIcon = o.type==='recueil'?'📖':o.type==='album'?'🎤':o.type==='peinture'?'🎨':'✦';
+    var ntype = normType(o.type);
+    var typeIcon = ntype==='recueil'?'📖':ntype==='album'?'🎤':ntype==='peinture'?'🎨':'✦';
     return '<div class="rv" style="background:rgba(6,13,24,.6);border:1px solid rgba(201,169,110,.08);overflow:hidden">'+
       (o.image?'<img src="'+esc(imgPath(o.image))+'" alt="'+esc(o.title)+'" loading="lazy" decoding="async" style="width:100%;height:200px;object-fit:cover" onerror="this.style.display=\'none\'">':'')+
       '<div style="padding:20px">'+
-        '<p style="font-size:11px;color:var(--g3);margin-bottom:6px">'+typeIcon+' '+esc(o.type==='recueil'?'Recueil':o.type==='album'?'Album':o.type==='peinture'?'Peinture':'')+'</p>'+
+        '<p style="font-size:11px;color:var(--g3);margin-bottom:6px">'+typeIcon+' '+esc(ntype==='recueil'?'Recueil':ntype==='album'?'Album':ntype==='peinture'?'Peinture':'')+'</p>'+
         '<p style="font-family:var(--ff-t);font-size:20px;color:var(--g2);margin-bottom:8px">'+esc(o.title)+'</p>'+
         (o.description?'<p style="font-size:13px;color:var(--txt);line-height:1.6;margin-bottom:12px">'+esc(o.description)+'</p>':'')+
         (o.price?'<p style="font-family:var(--ff-t);font-size:18px;color:var(--gold);margin-bottom:12px">'+esc(o.price)+'</p>':'')+
@@ -2614,6 +2725,7 @@ function renderOeuvres(){
       '</div>'+
     '</div>';
   }).join('');
+  setTimeout(function(){initReveal()}, 50);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2919,6 +3031,11 @@ function applySectionVisibility(){
   if(qlTiktok && SETTINGS.tiktok && SETTINGS.tiktok.trim()){
     qlTiktok.href = SETTINGS.tiktok.trim();
     qlTiktok.style.display = 'inline-flex';
+  }
+  var qlYoutube = document.getElementById('qlYoutube');
+  if(qlYoutube && SETTINGS.youtube && SETTINGS.youtube.trim()){
+    qlYoutube.href = SETTINGS.youtube.trim();
+    qlYoutube.style.display = 'inline-flex';
   }
 
   /* Dynamic section subtitles from CMS */
@@ -3398,6 +3515,46 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
   }
+
+  /* ─── Versionnage automatique ───
+     Détecte un nouveau déploiement (via /api/version qui renvoie l'identifiant
+     Cloudflare du build) et force UN rechargement propre si la version a changé
+     depuis la dernière visite. Entièrement automatique : rien à incrémenter.
+     Sécurisé : ne recharge qu'une fois par nouvelle version (anti-boucle),
+     échoue en silence si la vérification n'aboutit pas. */
+  (function checkSiteVersion(){
+    try{
+      fetch('/api/version', { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(data){
+          if(!data || !data.version) return;
+          var current = String(data.version);
+          var stored = null;
+          try { stored = localStorage.getItem('site-version'); } catch(e){}
+          if(stored === null){
+            /* Première visite (ou stockage vidé) : on mémorise sans recharger. */
+            try { localStorage.setItem('site-version', current); } catch(e){}
+            return;
+          }
+          if(stored !== current){
+            /* Nouvelle version détectée. Garde-fou anti-boucle : on ne recharge
+               qu'une fois pour une version donnée. */
+            var reloadedFor = null;
+            try { reloadedFor = sessionStorage.getItem('site-version-reloaded'); } catch(e){}
+            if(reloadedFor === current){
+              /* Déjà rechargé pour cette version : on met juste à jour et on s'arrête. */
+              try { localStorage.setItem('site-version', current); } catch(e){}
+              return;
+            }
+            try { sessionStorage.setItem('site-version-reloaded', current); } catch(e){}
+            try { localStorage.setItem('site-version', current); } catch(e){}
+            /* Rechargement forcé, en contournant le cache. */
+            location.reload(true);
+          }
+        })
+        .catch(function(){ /* réseau/fonction indisponible : on ignore */ });
+    }catch(e){ /* rien : le versionnage ne doit jamais casser le site */ }
+  })();
 
 
   initNavbar();
@@ -4112,13 +4269,8 @@ function openRecueilPanel(){
 
 window.openRecueilPanel = openRecueilPanel;
 
-/* Bouton « Composer un recueil » (vue blog) — délégation globale */
-document.addEventListener('click', function(e){
-  var t = e.target;
-  if(t && (t.id === 'openRecueilBtn' || (t.closest && t.closest('#openRecueilBtn')))){
-    if(window.openRecueilPanel) openRecueilPanel();
-  }
-});
+/* Composition de recueil : outil d'auteur, déplacé dans le CMS L'Horloger.
+   Le module openRecueilPanel reste disponible mais n'est plus exposé au public. */
 
 </script>
 
