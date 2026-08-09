@@ -1982,9 +1982,16 @@ var REGLAGES_GROUPS = [
     { key:'manifeste_bg', label:'Fond du Manifeste (grande roue)', type:'image' },
     { key:'site_bg', label:'Fond global du site', type:'image' }
   ]},
+  { title:'Mentions légales (page Confidentialité)', fields:[
+    { key:'legal_statut', label:'Statut / forme juridique (ex. particulier, auto-entrepreneur)', type:'text' },
+    { key:'legal_siret', label:'SIRET (si applicable)', type:'text' },
+    { key:'legal_adresse', label:'Adresse postale de l\u2019éditeur', type:'text' },
+    { key:'legal_telephone', label:'Téléphone (facultatif)', type:'text' },
+    { key:'legal_email', label:'E-mail de contact (laisser vide = adresse par défaut)', type:'text' }
+  ]},
   { title:'Confidentialité', fields:[
     { key:'privacy_visible', label:'Afficher la page Confidentialité sur le site', type:'bool', def:true },
-    { key:'privacy_text', label:'Texte de confidentialité', type:'textarea' }
+    { key:'privacy_text', label:'Texte additionnel (ajouté en bas de la page, sans écraser les sections)', type:'textarea' }
   ]}
 ];
 
