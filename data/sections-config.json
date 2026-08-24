@@ -10,7 +10,7 @@
   "name_univers": "Secondes",
   "name_contact": "Entretemps",
   "blog_per_page": "6",
-  "show_rss": false,
+  "show_rss": true,
   "route_apropos": "un-instant",
   "route_oeuvres": "saisons",
   "show_audio": true,
