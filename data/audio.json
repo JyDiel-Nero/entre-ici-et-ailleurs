@@ -4,9 +4,17 @@
       "poet": "J.Y.D.",
       "link_label": "Écouter",
       "order": 1,
-      "published": true,
+      "published": false,
       "youtube": "https://youtu.be/2vpP_hWXuf0?si=1rGQOf-Ywv09Rilo",
-      "title": "What a friend"
+      "title": "What a friend",
+      "description": "",
+      "file": "",
+      "cover": "",
+      "instagram": "",
+      "tiktok": "",
+      "link": "",
+      "album": "",
+      "album_cover": ""
     },
     {
       "title": "Silence",
