@@ -1,6 +1,18 @@
 {
   "posts": [
     {
+      "slug": "grandir",
+      "title": "Grandir",
+      "tag": "POÉSIE",
+      "date": "15/05/2025 23:11",
+      "author": "J.Y.D.",
+      "excerpt": "...Qui donc donne la joie d'un enfant\nÀ un père luttant dans la tourmente ?...",
+      "body": "Qui est le père des pères ?\nQui est celle qui materne les mères ?\nQuand le temps a passé,\nEt que les parents sont distants,\nOù trouver tel abri\nQui me fait me sentir \nencore enfant?\n\nQui donc donne la joie d'un enfant\nÀ un père luttant dans la tourmente ?\nQui donc ravivera le sourire de la fille\nQui a conçu et a donné la vie ?\n\nÀ quoi ça sert de grandir?\nEst ce pour flétrir, \nOu transmettre la vie \nAu point de n'en avoir aucune ?\nÀ quoi ça sert de grandir ?\nMoi je veux fleurir de joie\nEt me clore d'émoi; \nTel un enfant m'animer de joie\nEt aimer avec foi.\n\nCar somme toute\nEnfant je le suis\nJe le demeure\nMême si ma barbe blanchit.\nLa maturité ne signifie point \nQue je ne connais que la dureté.\n\nJ'aimerais toujours jouer\nMais qui donc va sur moi veiller\nJ'aimerais toujours jouer\nCar c'est cela aimer \nJouer, rire, pleurer et rire.\n\nEt il n'y a qu'auprès de Toi\nQue cela me ravit...\n\n",
+      "published": true,
+      "cover": "/images/uploads/20241129_092644.optimized.jpg",
+      "publishDate": "2026-09-10T02:30:00.000+02:00"
+    },
+    {
       "slug": "coda",
       "title": "Coda",
       "tag": "RÉCIT",
