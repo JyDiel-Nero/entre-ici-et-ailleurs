@@ -1,6 +1,18 @@
 {
   "posts": [
     {
+      "slug": "grace-jour-12",
+      "title": "Grâce (Jour 12)",
+      "tag": "POÉSIE",
+      "date": "03/12/25 12:34",
+      "author": "J.Y.D.",
+      "excerpt": "Je suis reconnaissant",
+      "body": "J’ai appris à voir 1000 beautés\nDans le même paysage.\nJe suis reconnaissant\nPour cette grâce que d’être\nreconnaissant,\nD’être doté d’un regard révélateur\nD’éclat et de splendeur. ",
+      "published": true,
+      "cover": "/images/uploads/20250403_125629.optimized.jpg",
+      "publishDate": "2026-10-26T22:50:00.000+01:00"
+    },
+    {
       "slug": "l-addition-jour-11",
       "title": "L'addition (Jour 11)",
       "tag": "RÉFLEXION",
