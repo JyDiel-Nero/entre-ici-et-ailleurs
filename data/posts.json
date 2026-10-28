@@ -1,6 +1,18 @@
 {
   "posts": [
     {
+      "slug": "le-seul",
+      "title": "Le Seul",
+      "tag": "POÉSIE",
+      "date": "07/12/25 23:49",
+      "author": "J.Y.D.",
+      "excerpt": "Où est-il le seul qui puisse\nNeutraliser mes rimes acides.",
+      "body": "Aller, revenir\nMais toujours le même vide\nM’asseoir, dormir\nMais toujours aussi avide\nMarcher conduire\nMais des pensées presque putride\nManger, me nourrir\nMais le coeur toujours aride.\n\nOù est-il Celui qui peut\nCombler tous mes vides\nCelui que mon coeur veut\nAu point d’être si avide ?\n\nOù est-il Celui pour qui\nJ’ai des sentiments si torrides\nOù est-il le seul qui puisse\nNeutraliser mes rimes acides.\n\nIl est où le berger de mon âme ?\nSuis-je donc une brebis noire\nPour qu’Il ne puisse me voir ?\nJe sais qu’Il distingue\nLa fourmi sur le rocher noir\nDans la ténébreuse pénombre.\n\nAlors seul Lui connaît\nLes incertitudes de mon coeur\nMes habitudes de peur\nEt mes espoirs de splendeur.\n\nSeul Lui saura me conduireAu bonheur.\nEn L’attendant, je fais quelques pas\nDans la bonne direction.\n\nCar Il m’a dit : Viens, petit enfant\nMon royaume est pour toi et Je vous le donne.",
+      "published": true,
+      "cover": "/images/uploads/20250404_180752.optimized.jpg",
+      "publishDate": "2026-10-28T20:10:00.000+01:00"
+    },
+    {
       "slug": "no-one",
       "title": "No One (Day 16)",
       "tag": "POÉSIE",
